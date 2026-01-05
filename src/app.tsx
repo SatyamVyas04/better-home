@@ -23,59 +23,130 @@ function App() {
     DEFAULT_SETTINGS
   );
 
-  const hasLeftColumn = settings.showTasks || settings.showQuickLinks;
-  const hasRightColumn = settings.showCalendar;
-  const hasAnyWidget = hasLeftColumn || hasRightColumn;
+  const { showTasks, showQuickLinks, showCalendar } = settings;
 
-  const onlyLeftColumn = hasLeftColumn && !hasRightColumn;
-  const onlyRightColumn = hasRightColumn && !hasLeftColumn;
+  const hasAnyWidget = showTasks || showQuickLinks || showCalendar;
+  const onlyTodo = showTasks && !showQuickLinks && !showCalendar;
+  const onlyQuickLinks = !showTasks && showQuickLinks && !showCalendar;
+  const todoAndQuickOnly = showTasks && showQuickLinks && !showCalendar;
+  const todoAndCalendarOnly = showTasks && !showQuickLinks && showCalendar;
+  const quickAndCalendarOnly = !showTasks && showQuickLinks && showCalendar;
+  const onlyCalendar = showCalendar && !showTasks && !showQuickLinks;
+  const allThree = showTasks && showQuickLinks && showCalendar;
+
+  const renderContent = () => {
+    if (!hasAnyWidget) {
+      return (
+        <div className="flex flex-1 items-center justify-center">
+          <p className="text-muted-foreground text-sm lowercase">
+            no widgets enabled *_*
+          </p>
+        </div>
+      );
+    }
+
+    if (onlyTodo) {
+      return (
+        <div className="flex min-h-0 flex-1">
+          <TodoList fullSize />
+        </div>
+      );
+    }
+
+    if (onlyQuickLinks) {
+      return (
+        <div className="flex min-h-0 flex-1">
+          <QuickLinks expanded fullSize />
+        </div>
+      );
+    }
+
+    if (todoAndQuickOnly) {
+      return (
+        <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
+          <div className="flex min-h-0 flex-1">
+            <TodoList fullSize />
+          </div>
+          <div className="flex min-h-0 flex-1">
+            <QuickLinks expanded fullSize />
+          </div>
+        </div>
+      );
+    }
+
+    if (todoAndCalendarOnly) {
+      return (
+        <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+          <div className="flex min-h-0 shrink-0">
+            <TodoList />
+          </div>
+          <div className="flex min-h-0 min-w-0 flex-1">
+            <CalendarPlaceholder />
+          </div>
+        </div>
+      );
+    }
+
+    if (quickAndCalendarOnly) {
+      return (
+        <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+          <div className="flex min-h-0 shrink-0">
+            <QuickLinks expanded />
+          </div>
+          <div className="flex min-h-0 min-w-0 flex-1">
+            <CalendarPlaceholder />
+          </div>
+        </div>
+      );
+    }
+
+    if (onlyCalendar) {
+      return (
+        <div className="flex min-h-0 flex-1">
+          <CalendarPlaceholder />
+        </div>
+      );
+    }
+
+    if (allThree) {
+      return (
+        <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+          <div className="flex min-h-0 shrink-0 flex-col gap-3">
+            <TodoList />
+            <QuickLinks />
+          </div>
+          <div className="flex min-h-0 min-w-0 flex-1">
+            <CalendarPlaceholder />
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="flex min-h-screen flex-col bg-background">
-        <main className="flex flex-1 flex-col p-3">
-          {hasAnyWidget ? (
-            <div
-              className={`flex flex-1 gap-3 ${onlyLeftColumn || onlyRightColumn ? "" : "flex-col lg:flex-row"}`}
-            >
-              {hasLeftColumn && (
-                <div
-                  className={`flex shrink-0 gap-3 ${onlyLeftColumn ? "flex-1 flex-col md:flex-row" : "flex-col"}`}
-                >
-                  {settings.showTasks && <TodoList />}
-                  {settings.showQuickLinks && <QuickLinks />}
-                </div>
-              )}
-              {hasRightColumn && (
-                <div className="flex min-h-0 min-w-0 flex-1">
-                  <CalendarPlaceholder />
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-1 items-center justify-center">
-              <p className="text-muted-foreground text-sm lowercase">
-                no widgets enabled *_*
-              </p>
-            </div>
-          )}
+      <div className="flex h-screen flex-col overflow-hidden bg-background">
+        <main className="flex min-h-0 flex-1 flex-col p-3">
+          {renderContent()}
         </main>
 
-        <footer className="border-border/40 border-t py-3">
-          <div className="flex flex-row items-center justify-between px-4 text-muted-foreground text-xs">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <img
-                  alt="better-home logo"
-                  className="size-4"
-                  height={16}
-                  src="/better-home-logo-16.png"
-                  width={16}
-                />
-                <span className="font-medium text-foreground">better-home</span>
-              </div>
+        <footer className="border-border/40 border-t py-2">
+          <div className="flex items-center justify-between px-3 text-muted-foreground text-xs">
+            <div className="flex items-center gap-2">
+              <img
+                alt="better-home logo"
+                className="size-4"
+                height={16}
+                src="/better-home-logo-16.png"
+                width={16}
+              />
+              <span className="hidden font-medium text-foreground sm:inline">
+                better-home
+              </span>
               <a
-                className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
+                className="transition-colors hover:text-foreground"
                 href="https://github.com/SatyamVyas04/better-home"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -84,9 +155,9 @@ function App() {
               </a>
             </div>
             <div className="flex items-center gap-2">
-              <span>by</span>
+              <span className="hidden sm:inline">by</span>
               <a
-                className="font-medium transition-colors hover:text-foreground"
+                className="hidden font-medium transition-colors hover:text-foreground sm:inline"
                 href="https://github.com/SatyamVyas04"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -99,7 +170,7 @@ function App() {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <IconBrandGithub className="size-3" />
+                <IconBrandGithub className="size-3.5" />
               </a>
               <a
                 className="transition-colors hover:text-foreground"
@@ -107,7 +178,7 @@ function App() {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <IconBrandX className="size-3" />
+                <IconBrandX className="size-3.5" />
               </a>
             </div>
           </div>

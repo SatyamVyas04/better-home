@@ -14,7 +14,11 @@ interface Todo {
   createdAt: number;
 }
 
-export function TodoList() {
+interface TodoListProps {
+  fullSize?: boolean;
+}
+
+export function TodoList({ fullSize = false }: TodoListProps) {
   const [todos, setTodos] = useLocalStorage<Todo[]>("better-home-todos", []);
   const [newTodo, setNewTodo] = useState("");
 
@@ -57,7 +61,11 @@ export function TodoList() {
   const totalCount = todos.length;
 
   return (
-    <Card className="flex w-71 flex-1 flex-col gap-0 border-border/50 py-2">
+    <Card
+      className={`flex min-h-0 flex-1 flex-col gap-0 border-border/50 py-2 ${
+        fullSize ? "w-full" : "max-h-48 w-full lg:max-h-none lg:w-71"
+      }`}
+    >
       <CardHeader className="px-3 pb-1">
         <CardTitle className="flex items-center gap-2 font-medium text-xs lowercase">
           <span>tasks</span>
@@ -68,7 +76,7 @@ export function TodoList() {
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col gap-1.5 px-3">
+      <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 px-3">
         <div className="flex gap-1">
           <Input
             className="h-8 flex-1 border-border/50 text-xs lowercase"
@@ -89,7 +97,7 @@ export function TodoList() {
         </div>
 
         {todos.length > 0 ? (
-          <ScrollArea className="flex-1">
+          <ScrollArea className="min-h-0 flex-1">
             <div className="space-y-0.5 pr-0">
               {todos.map((todo) => (
                 <div
@@ -98,7 +106,7 @@ export function TodoList() {
                 >
                   <Checkbox
                     checked={todo.completed}
-                    className="size-3.5"
+                    className="size-3.5 rounded-sm"
                     id={todo.id}
                     onCheckedChange={() => toggleTodo(todo.id)}
                   />
@@ -116,7 +124,7 @@ export function TodoList() {
                     size="icon-sm"
                     variant="ghost"
                   >
-                    <IconTrash className="size-4 text-destructive" />
+                    <IconTrash className="size-3.5 text-destructive" />
                     <span className="sr-only">Delete</span>
                   </Button>
                 </div>
@@ -124,7 +132,7 @@ export function TodoList() {
             </div>
           </ScrollArea>
         ) : (
-          <div className="flex flex-1 items-center justify-center">
+          <div className="flex flex-1 items-center justify-center py-2">
             <p className="text-muted-foreground text-xs lowercase">
               no tasks yet
             </p>

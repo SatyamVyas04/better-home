@@ -1,73 +1,73 @@
-# React + TypeScript + Vite
+# better-home
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A minimal, sleek new tab Chrome extension with tasks, quick links, and a mood calendar.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Tasks** - Simple todo list to track what needs to be done
+- **Quick Links** - Save your favorite websites with one click
+- **Mood Calendar** - Track your daily mood (coming soon)
+- **Dark/Light Mode** - Toggle between themes
+- **Responsive** - Works on all screen sizes
+- **Customizable** - Toggle widgets on/off from the popup
 
-## React Compiler
+## Installation
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+### From Source (Development)
 
-## Expanding the ESLint configuration
+1. **Clone the repository**
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+   ```bash
+   git clone https://github.com/SatyamVyas04/better-home.git
+   cd better-home
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Install dependencies**
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+   ```bash
+   bun install
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+3. **Build the extension**
+
+   ```bash
+   bun run build
+   ```
+
+4. **Load as unpacked extension in Chrome/Edge**
+
+   - Open Chrome and go to `chrome://extensions`
+   - Enable **Developer mode** (toggle in top right)
+   - Click **Load unpacked**
+   - Select the `dist` folder from the project directory
+   - Open a new tab to see better-home in action!
+
+### Development Mode
+
+Run the development server with hot reload:
+
+```bash
+bun run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Note: For extension development, you'll need to rebuild and reload the extension after changes.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Tech Stack
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- [React](https://react.dev) + [TypeScript](https://www.typescriptlang.org)
+- [Vite](https://vite.dev) - Build tool
+- [Tailwind CSS](https://tailwindcss.com) - Styling
+- [shadcn/ui](https://ui.shadcn.com) - UI components
+- [Tabler Icons](https://tabler.io/icons) - Icons
+- [Bun](https://bun.sh) - Package manager
+
+## License
+
+MIT
+
+## Author
+
+**Satyam Vyas**
+
+- [GitHub](https://github.com/SatyamVyas04)
+- [X/Twitter](https://x.com/SatyamVyas04)
