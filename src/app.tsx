@@ -4,23 +4,15 @@ import { QuickLinks } from "@/components/quick-links";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TodoList } from "@/components/todo-list";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-
-interface WidgetSettings {
-  showTasks: boolean;
-  showQuickLinks: boolean;
-  showCalendar: boolean;
-}
-
-const DEFAULT_SETTINGS: WidgetSettings = {
-  showTasks: true,
-  showQuickLinks: true,
-  showCalendar: true,
-};
+import {
+  DEFAULT_WIDGET_SETTINGS,
+  type WidgetSettings,
+} from "@/types/widget-settings";
 
 function App() {
   const [settings] = useLocalStorage<WidgetSettings>(
     "better-home-widget-settings",
-    DEFAULT_SETTINGS
+    DEFAULT_WIDGET_SETTINGS
   );
 
   const { showTasks, showQuickLinks, showCalendar } = settings;
@@ -142,9 +134,7 @@ function App() {
                 src="/better-home-logo-16.png"
                 width={16}
               />
-              <span className="hidden font-medium text-foreground sm:inline">
-                better-home
-              </span>
+              <span className="font-medium text-foreground">better-home</span>
               <a
                 className="transition-colors hover:text-foreground"
                 href="https://github.com/SatyamVyas04/better-home"

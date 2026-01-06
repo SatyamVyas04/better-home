@@ -8,23 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-
-export interface WidgetSettings {
-  showTasks: boolean;
-  showQuickLinks: boolean;
-  showCalendar: boolean;
-}
-
-const DEFAULT_SETTINGS: WidgetSettings = {
-  showTasks: true,
-  showQuickLinks: true,
-  showCalendar: true,
-};
+import {
+  DEFAULT_WIDGET_SETTINGS,
+  type WidgetSettings,
+} from "@/types/widget-settings";
 
 function PopupApp() {
   const [settings, setSettings] = useLocalStorage<WidgetSettings>(
     "better-home-widget-settings",
-    DEFAULT_SETTINGS
+    DEFAULT_WIDGET_SETTINGS
   );
 
   const toggleSetting = (key: keyof WidgetSettings) => {

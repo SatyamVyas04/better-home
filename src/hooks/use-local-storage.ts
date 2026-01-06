@@ -20,7 +20,7 @@ export function useLocalStorage<T>(
         try {
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
         } catch {
-          console.error(`Failed to save ${key} to localStorage`);
+          // Storage quota exceeded or private browsing - silently fail
         }
         return valueToStore;
       });

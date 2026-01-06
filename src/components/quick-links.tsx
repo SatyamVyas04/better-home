@@ -163,11 +163,11 @@ export function QuickLinks({
     }
 
     return (
-      <div className="grid grid-cols-7 gap-1.5">
+      <div className="grid grid-cols-7 gap-1.5 sm:grid-cols-11 md:grid-cols-15 lg:grid-cols-7">
         {links.map((link) => (
           <Tooltip key={link.id}>
             <TooltipTrigger asChild>
-              <div className="group relative">
+              <div className="group relative w-fit">
                 <a
                   className="flex size-8 items-center justify-center rounded-md border border-border/50 bg-background transition-all hover:border-border hover:bg-accent/30"
                   href={link.url}
