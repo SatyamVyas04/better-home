@@ -202,7 +202,7 @@ export function QuickLinks({
                 </button>
               </div>
             </TooltipTrigger>
-            <TooltipContent side="bottom">
+            <TooltipContent side="top">
               <p className="text-[10px] lowercase">{link.title}</p>
             </TooltipContent>
           </Tooltip>

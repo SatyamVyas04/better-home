@@ -5,8 +5,9 @@ import {
   IconBrandX,
   IconCalendarHeart,
   IconChecklist,
-  IconExternalLink,
+  IconHeart,
   IconLink,
+  IconMessageReport,
 } from "@tabler/icons-react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Label } from "@/components/ui/label";
@@ -33,94 +34,114 @@ function PopupApp() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="w-72 bg-background p-5">
-        <header className="mb-4 flex flex-col items-center text-center">
+      <div className="w-72 bg-background p-4">
+        <header className="flex items-center gap-3">
           <img
             alt="better-home"
-            className="size-12"
-            height={48}
+            className="size-10"
+            height={40}
             src="/better-home-logo-128.png"
-            width={48}
+            width={40}
           />
-          <h1 className="mt-3 font-semibold text-lg">better-home</h1>
-          <p className="mt-1 text-muted-foreground text-xs leading-relaxed">
-            Just what you need, without the{" "}
-            <span className="font-medium text-[#ff383c]">Clutter</span>.
-          </p>
+          <div>
+            <h1 className="font-semibold text-sm">better-home</h1>
+            <p className="text-[11px] text-muted-foreground">
+              minimal new tab, no{" "}
+              <span className="text-destructive">clutter</span>
+            </p>
+          </div>
         </header>
 
-        <Separator className="my-4" />
+        <Separator className="my-3" />
 
-        <p className="mb-3 text-muted-foreground text-xs">
-          Toggle widgets on your new tab
-        </p>
-
-        <div className="space-y-1">
-          <div className="flex items-center justify-between rounded-lg py-1">
-            <div className="flex items-center gap-2.5">
-              <IconChecklist className="size-4 text-muted-foreground" />
-              <Label className="cursor-pointer text-sm" htmlFor="show-tasks">
-                Tasks
-              </Label>
+        <div className="space-y-2">
+          <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
+            Widgets
+          </p>
+          <div className="space-y-0.5">
+            <div className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-accent/30">
+              <div className="flex items-center gap-2">
+                <IconChecklist className="size-3.5 text-muted-foreground" />
+                <Label className="cursor-pointer text-xs" htmlFor="show-tasks">
+                  tasks
+                </Label>
+              </div>
+              <Switch
+                checked={settings.showTasks}
+                className="scale-90"
+                id="show-tasks"
+                onCheckedChange={() => toggleSetting("showTasks")}
+              />
             </div>
-            <Switch
-              checked={settings.showTasks}
-              id="show-tasks"
-              onCheckedChange={() => toggleSetting("showTasks")}
-            />
-          </div>
 
-          <div className="flex items-center justify-between rounded-lg py-1">
-            <div className="flex items-center gap-2.5">
-              <IconLink className="size-4 text-muted-foreground" />
-              <Label
-                className="cursor-pointer text-sm"
-                htmlFor="show-quick-links"
-              >
-                Quick Links
-              </Label>
+            <div className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-accent/30">
+              <div className="flex items-center gap-2">
+                <IconLink className="size-3.5 text-muted-foreground" />
+                <Label
+                  className="cursor-pointer text-xs"
+                  htmlFor="show-quick-links"
+                >
+                  quick links
+                </Label>
+              </div>
+              <Switch
+                checked={settings.showQuickLinks}
+                className="scale-90"
+                id="show-quick-links"
+                onCheckedChange={() => toggleSetting("showQuickLinks")}
+              />
             </div>
-            <Switch
-              checked={settings.showQuickLinks}
-              id="show-quick-links"
-              onCheckedChange={() => toggleSetting("showQuickLinks")}
-            />
-          </div>
 
-          <div className="flex items-center justify-between rounded-lg py-1">
-            <div className="flex items-center gap-2.5">
-              <IconCalendarHeart className="size-4 text-muted-foreground" />
-              <Label className="cursor-pointer text-sm" htmlFor="show-calendar">
-                Mood Calendar
-              </Label>
+            <div className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-accent/30">
+              <div className="flex items-center gap-2">
+                <IconCalendarHeart className="size-3.5 text-muted-foreground" />
+                <Label
+                  className="cursor-pointer text-xs"
+                  htmlFor="show-calendar"
+                >
+                  mood calendar
+                </Label>
+              </div>
+              <Switch
+                checked={settings.showCalendar}
+                className="scale-90"
+                id="show-calendar"
+                onCheckedChange={() => toggleSetting("showCalendar")}
+              />
             </div>
-            <Switch
-              checked={settings.showCalendar}
-              id="show-calendar"
-              onCheckedChange={() => toggleSetting("showCalendar")}
-            />
           </div>
         </div>
 
-        <Separator className="my-4" />
+        <Separator className="my-3" />
 
-        <a
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-border/50 py-2.5 text-sm transition-colors hover:bg-accent/30"
-          href="https://github.com/SatyamVyas04/better-home/issues"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <IconExternalLink className="size-4" />
-          Suggest Changes
-        </a>
+        <div className="flex gap-2">
+          <a
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border/50 py-2 text-[11px] transition-colors hover:bg-accent/30"
+            href="https://github.com/SatyamVyas04/better-home/issues"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <IconMessageReport className="size-3.5" />
+            feedback
+          </a>
+          <a
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-md bg-pink-500/10 py-2 text-[11px] text-pink-500 transition-colors hover:bg-pink-500/20"
+            href="https://github.com/sponsors/SatyamVyas04"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <IconHeart className="size-3.5" />
+            sponsor
+          </a>
+        </div>
 
-        <Separator className="my-4" />
+        <Separator className="my-3" />
 
-        <div className="text-center">
-          <p className="mb-2 text-muted-foreground text-xs">
-            Made with ♥ by Satyam Vyas
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] text-muted-foreground">
+            made with ♥ by satyam
           </p>
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center gap-2">
             <a
               aria-label="LinkedIn"
               className="text-muted-foreground transition-colors hover:text-foreground"
@@ -128,7 +149,7 @@ function PopupApp() {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <IconBrandLinkedin className="size-5" />
+              <IconBrandLinkedin className="size-4" />
             </a>
             <a
               aria-label="GitHub"
@@ -137,7 +158,7 @@ function PopupApp() {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <IconBrandGithub className="size-5" />
+              <IconBrandGithub className="size-4" />
             </a>
             <a
               aria-label="X (Twitter)"
@@ -146,7 +167,7 @@ function PopupApp() {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <IconBrandX className="size-5" />
+              <IconBrandX className="size-4" />
             </a>
           </div>
         </div>
