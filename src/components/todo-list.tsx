@@ -1,5 +1,6 @@
 // Task management widget with local storage persistence
 import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +21,14 @@ interface TodoListProps {
 }
 
 export function TodoList({ fullSize = false }: TodoListProps) {
-  const [todos, setTodos] = useLocalStorage<Todo[]>("better-home-todos", []);
+  const [todos, setTodos] = useLocalStorage<Todo[]>("better-home-todos", [
+    {
+      id: "default-todo",
+      text: "get shit done",
+      completed: false,
+      createdAt: Date.now(),
+    },
+  ]);
   const [newTodo, setNewTodo] = useState("");
 
   const addTodo = () => {
@@ -97,13 +105,33 @@ export function TodoList({ fullSize = false }: TodoListProps) {
           </Button>
         </div>
 
-        {todos.length > 0 ? (
-          <ScrollArea className="min-h-0 flex-1">
-            <div className="space-y-0.5 pr-0">
+        <ScrollArea className="min-h-0 flex-1">
+          <div className="flex min-h-full flex-col space-y-0.5 pr-0">
+            <AnimatePresence mode="popLayout">
               {todos.map((todo) => (
-                <div
+                <motion.div
+                  animate={{
+                    filter: "blur(0px)",
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                  }}
                   className="group flex items-center gap-2 rounded-md border border-border/50 px-1.5 py-1 transition-colors hover:bg-accent/30"
+                  exit={{
+                    filter: "blur(4px)",
+                    opacity: 0,
+                    y: 10,
+                    scale: 0.95,
+                  }}
+                  initial={{
+                    filter: "blur(4px)",
+                    opacity: 0,
+                    y: 10,
+                    scale: 0.95,
+                  }}
                   key={todo.id}
+                  layout
+                  transition={{ duration: 0.3, ease: "easeOut" }}
                 >
                   <Checkbox
                     checked={todo.completed}
@@ -128,17 +156,25 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                     <IconTrash className="size-3.5 text-destructive" />
                     <span className="sr-only">Delete</span>
                   </Button>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </ScrollArea>
-        ) : (
-          <div className="flex flex-1 items-center justify-center py-2">
-            <p className="text-muted-foreground text-xs lowercase">
-              no tasks yet
-            </p>
+              {todos.length === 0 && (
+                <motion.div
+                  animate={{ opacity: 1 }}
+                  className="flex flex-1 items-center justify-center py-8"
+                  exit={{ opacity: 0 }}
+                  initial={{ opacity: 0 }}
+                  key="empty-message"
+                  transition={{ duration: 0.3 }}
+                >
+                  <p className="text-muted-foreground text-xs lowercase">
+                    no tasks yet
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        )}
+        </ScrollArea>
       </CardContent>
     </Card>
   );

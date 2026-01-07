@@ -19,6 +19,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +40,8 @@ type MoodType = keyof typeof MOOD_COLORS;
 
 interface DayEntry {
   mood: MoodType | null;
-  remark: string;
+  workLog: string;
+  journal: string;
 }
 
 interface CalendarData {
@@ -47,6 +54,75 @@ function getDateKey(year: number, month: number, day: number): string {
 
 function getContrastColor(moodKey: string): string {
   return moodKey === "neutral" ? "#000" : "#fff";
+}
+
+interface MoodSelectorProps {
+  selectedMood: MoodType | null;
+  onSelectMood: (mood: MoodType) => void;
+}
+
+function MoodSelector({ selectedMood, onSelectMood }: MoodSelectorProps) {
+  const [hoveredMood, setHoveredMood] = useState<MoodType | null>(null);
+  const activeMood = hoveredMood || selectedMood;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-col items-center gap-3 py-1">
+        <div className="flex gap-2.5">
+          {Object.entries(MOOD_COLORS).map(([key, { color, label }]) => (
+            <button
+              aria-label={label}
+              aria-pressed={selectedMood === key}
+              className={cn(
+                "size-6 rounded-full transition-all duration-300 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                selectedMood === key && "scale-110"
+              )}
+              key={key}
+              onClick={() => onSelectMood(key as MoodType)}
+              onMouseEnter={() => setHoveredMood(key as MoodType)}
+              onMouseLeave={() => setHoveredMood(null)}
+              style={{
+                backgroundColor: color,
+                boxShadow:
+                  selectedMood === key
+                    ? `0 0 0 2px var(--background), 0 0 0 4px ${color}`
+                    : undefined,
+              }}
+              title={label}
+              type="button"
+            >
+              <span className="sr-only">{label}</span>
+            </button>
+          ))}
+        </div>
+
+        <div
+          className={cn(
+            "flex h-7 min-w-40 items-center justify-center rounded-full px-4 font-medium text-xs transition-colors duration-300",
+            !activeMood && "bg-muted/30 text-muted-foreground"
+          )}
+          style={{
+            backgroundColor: activeMood
+              ? MOOD_COLORS[activeMood].color
+              : "#525252",
+            color: activeMood ? getContrastColor(activeMood) : undefined,
+          }}
+        >
+          <AnimatePresence mode="wait">
+            <motion.span
+              animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
+              exit={{ filter: "blur(4px)", opacity: 0, y: -5 }}
+              initial={{ filter: "blur(4px)", opacity: 0, y: 5 }}
+              key={activeMood || "none"}
+              transition={{ duration: 0.2 }}
+            >
+              {activeMood ? MOOD_COLORS[activeMood].label : "select mood"}
+            </motion.span>
+          </AnimatePresence>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 interface DatePopoverProps {
@@ -66,30 +142,86 @@ function DatePopover({
 }: DatePopoverProps) {
   const [open, setOpen] = useState(false);
   const [selectedMood, setSelectedMood] = useState<MoodType | null>(entry.mood);
-  const [remark, setRemark] = useState(entry.remark);
+  const [workLog, setWorkLog] = useState(entry.workLog || "");
+  const [journal, setJournal] = useState(entry.journal || "");
 
   useEffect(() => {
     setSelectedMood(entry.mood);
-    setRemark(entry.remark);
-  }, [entry.mood, entry.remark]);
+    setWorkLog(entry.workLog || "");
+    setJournal(entry.journal || "");
+  }, [entry.mood, entry.workLog, entry.journal]);
 
   const handleSave = () => {
-    onSave(dateKey, { mood: selectedMood, remark });
+    onSave(dateKey, { mood: selectedMood, workLog, journal });
     setOpen(false);
   };
 
   const handleClear = () => {
     setSelectedMood(null);
-    setRemark("");
-    onSave(dateKey, { mood: null, remark: "" });
+    setWorkLog("");
+    setJournal("");
+    onSave(dateKey, { mood: null, workLog: "", journal: "" });
     setOpen(false);
   };
 
+  const hasContent = Boolean(entry.workLog || entry.journal);
+
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-64" side="right" sideOffset={12}>
-        <div className="space-y-3">
+      <TooltipProvider>
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>
+            <PopoverTrigger asChild>{children}</PopoverTrigger>
+          </TooltipTrigger>
+          {hasContent && (
+            <TooltipContent
+              className="min-w-40 max-w-60 p-2.5 text-xs"
+              side="top"
+            >
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-row items-center justify-between">
+                  <h2 className="font-medium text-sm">
+                    {Intl.DateTimeFormat().format(new Date(dateKey))}
+                  </h2>
+                  <div
+                    className="h-4 w-4 rounded-full border"
+                    style={{
+                      backgroundColor: entry.mood
+                        ? MOOD_COLORS[entry.mood].color
+                        : "#525252",
+                      borderColor: entry.mood
+                        ? MOOD_COLORS[entry.mood].color
+                        : undefined,
+                    }}
+                  />
+                </div>
+                {entry.workLog && (
+                  <div className="space-y-0.5">
+                    <span className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                      Work
+                    </span>
+                    <p className="wrap-break-word line-clamp-2 text-wrap text-xs">
+                      {entry.workLog}
+                    </p>
+                  </div>
+                )}
+                {entry.journal && (
+                  <div className="space-y-0.5">
+                    <span className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                      Journal
+                    </span>
+                    <p className="wrap-break-word line-clamp-2 text-wrap text-xs">
+                      {entry.journal}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+      <PopoverContent className="w-72" side="right" sideOffset={12}>
+        <div className="space-y-4 text-center">
           <div className="space-y-0.5">
             <h4 className="font-medium text-foreground text-sm">
               {displayDate}
@@ -97,50 +229,42 @@ function DatePopover({
             <p className="text-muted-foreground text-xs">how was your day?</p>
           </div>
 
-          <div className="space-y-2">
-            <Label className="font-medium text-xs lowercase">mood</Label>
-            <div className="grid grid-cols-1 gap-1.5">
-              {Object.entries(MOOD_COLORS).map(([key, { color, label }]) => (
-                <button
-                  aria-label={label}
-                  aria-pressed={selectedMood === key}
-                  className={cn(
-                    "flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs transition-all duration-200",
-                    selectedMood === key
-                      ? "border-2"
-                      : "border-2 border-border/50 hover:border-border hover:bg-accent/30"
-                  )}
-                  key={key}
-                  onClick={() => setSelectedMood(key as MoodType)}
-                  style={{
-                    borderColor: selectedMood === key ? color : undefined,
-                  }}
-                  title={label}
-                  type="button"
-                >
-                  <span
-                    className="size-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: color }}
-                  />
-                  <span className="text-foreground">{label}</span>
-                </button>
-              ))}
-            </div>
+          <MoodSelector
+            onSelectMood={setSelectedMood}
+            selectedMood={selectedMood}
+          />
+
+          <div className="space-y-1.5">
+            <Label
+              className="font-medium text-xs lowercase"
+              htmlFor={`work-${dateKey}`}
+            >
+              work log
+            </Label>
+            <Textarea
+              className="min-h-15"
+              id={`work-${dateKey}`}
+              onChange={(e) => setWorkLog(e.target.value)}
+              placeholder="what did you get done today?"
+              rows={3}
+              value={workLog}
+            />
           </div>
 
           <div className="space-y-1.5">
             <Label
               className="font-medium text-xs lowercase"
-              htmlFor={`remark-${dateKey}`}
+              htmlFor={`journal-${dateKey}`}
             >
-              notes
+              journal
             </Label>
             <Textarea
-              id={`remark-${dateKey}`}
-              onChange={(e) => setRemark(e.target.value)}
-              placeholder="add a note about your day..."
+              className="min-h-15"
+              id={`journal-${dateKey}`}
+              onChange={(e) => setJournal(e.target.value)}
+              placeholder="how did it go overall?"
               rows={3}
-              value={remark}
+              value={journal}
             />
           </div>
 
@@ -167,18 +291,18 @@ const DAY_LABELS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 // 2026 calendar configuration: startDay (0=Monday through 6=Sunday)
 const MONTHS_2026 = [
-  { name: "JAN", days: 31, startDay: 3 },
-  { name: "FEB", days: 28, startDay: 6 },
-  { name: "MAR", days: 31, startDay: 6 },
-  { name: "APR", days: 30, startDay: 2 },
+  { name: "JANUARY", days: 31, startDay: 3 },
+  { name: "FEBRUARY", days: 28, startDay: 6 },
+  { name: "MARCH", days: 31, startDay: 6 },
+  { name: "APRIL", days: 30, startDay: 2 },
   { name: "MAY", days: 31, startDay: 4 },
-  { name: "JUN", days: 30, startDay: 0 },
-  { name: "JUL", days: 31, startDay: 2 },
-  { name: "AUG", days: 31, startDay: 5 },
-  { name: "SEP", days: 30, startDay: 1 },
-  { name: "OCT", days: 31, startDay: 3 },
-  { name: "NOV", days: 30, startDay: 6 },
-  { name: "DEC", days: 31, startDay: 1 },
+  { name: "JUNE", days: 30, startDay: 0 },
+  { name: "JULY", days: 31, startDay: 2 },
+  { name: "AUGUST", days: 31, startDay: 5 },
+  { name: "SEPTEMBER", days: 30, startDay: 1 },
+  { name: "OCTOBER", days: 31, startDay: 3 },
+  { name: "NOVEMBER", days: 30, startDay: 6 },
+  { name: "DECEMBER", days: 31, startDay: 1 },
 ];
 
 interface DateCell {
@@ -286,7 +410,7 @@ function MonthGrid({
             <text
               dominantBaseline="middle"
               fill="#888888"
-              fontFamily="system-ui, -apple-system, sans-serif"
+              fontFamily="DMMono, monospace"
               fontSize={labelFontSize}
               fontWeight="500"
               key={label}
@@ -343,7 +467,7 @@ function MonthGrid({
                             )?.[0] || ""
                           )
                     }
-                    fontFamily="system-ui, -apple-system, sans-serif"
+                    fontFamily="DMMono, monospace"
                     fontSize={fontSize}
                     fontWeight="500"
                     textAnchor="middle"
@@ -361,7 +485,7 @@ function MonthGrid({
         <text
           dominantBaseline="middle"
           fill="#ffffff"
-          fontFamily="system-ui, -apple-system, sans-serif"
+          fontFamily="DMMono, monospace"
           fontSize={showAllYear ? 10 : 14}
           fontWeight="600"
           textAnchor="middle"
@@ -401,7 +525,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
 
   const getEntryForDate = useCallback(
     (dateKey: string): DayEntry => {
-      return calendarData[dateKey] ?? { mood: null, remark: "" };
+      return calendarData[dateKey] ?? { mood: null, workLog: "", journal: "" };
     },
     [calendarData]
   );
@@ -411,6 +535,9 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
       const entry = getEntryForDate(dateKey);
       if (entry.mood) {
         return MOOD_COLORS[entry.mood].color;
+      }
+      if (entry.workLog || entry.journal) {
+        return "#525252"; // Color for entries without mood
       }
       return "#323232";
     },
@@ -473,10 +600,10 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
             <motion.div
               animate={{ filter: "blur(0px)", opacity: 1 }}
               className={cn(
-                "m-auto grid h-full w-full place-content-center items-center justify-center",
+                "m-auto flex h-full w-full flex-col place-content-center items-center justify-start gap-4 lg:grid lg:justify-center lg:gap-2",
                 showAllYear
-                  ? "grid-cols-4 grid-rows-3"
-                  : "grid-cols-2 grid-rows-2 gap-x-8 gap-y-4"
+                  ? "grid h-[250%] grid-cols-2 grid-rows-6 lg:h-full lg:grid-cols-4 lg:grid-rows-3"
+                  : "grid-cols-1 grid-rows-4 gap-x-8 gap-y-4 lg:grid-cols-2 lg:grid-rows-2"
               )}
               exit={{ filter: "blur(4px)", opacity: 0 }}
               initial={{ filter: "blur(4px)", opacity: 0 }}

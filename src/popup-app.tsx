@@ -46,8 +46,7 @@ function PopupApp() {
           <div>
             <h1 className="font-semibold text-sm">better-home</h1>
             <p className="text-[11px] text-muted-foreground">
-              minimal new tab, no{" "}
-              <span className="text-destructive">clutter</span>
+              your minimal new tab experience
             </p>
           </div>
         </header>
