@@ -1,6 +1,11 @@
+// Extension popup settings panel with widget toggles and attribution
 import {
+  IconBrandGithub,
+  IconBrandLinkedin,
+  IconBrandX,
   IconCalendarHeart,
   IconChecklist,
+  IconExternalLink,
   IconLink,
 } from "@tabler/icons-react";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -94,6 +99,55 @@ function PopupApp() {
               id="show-calendar"
               onCheckedChange={() => toggleSetting("showCalendar")}
             />
+          </div>
+        </div>
+
+        <Separator className="my-4" />
+
+        <a
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-border/50 py-2.5 text-sm transition-colors hover:bg-accent/30"
+          href="https://github.com/SatyamVyas04/better-home/issues"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <IconExternalLink className="size-4" />
+          Suggest Changes
+        </a>
+
+        <Separator className="my-4" />
+
+        <div className="text-center">
+          <p className="mb-2 text-muted-foreground text-xs">
+            Made with ♥ by Satyam Vyas
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <a
+              aria-label="LinkedIn"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+              href="https://www.linkedin.com/in/satyam-vyas/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <IconBrandLinkedin className="size-5" />
+            </a>
+            <a
+              aria-label="GitHub"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+              href="https://github.com/SatyamVyas04"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <IconBrandGithub className="size-5" />
+            </a>
+            <a
+              aria-label="X (Twitter)"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+              href="https://x.com/SatyamVyas04"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <IconBrandX className="size-5" />
+            </a>
           </div>
         </div>
       </div>

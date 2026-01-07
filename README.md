@@ -6,7 +6,11 @@ A minimal, sleek new tab Chrome extension with tasks, quick links, and a mood ca
 
 - **Tasks** - Simple todo list to track what needs to be done
 - **Quick Links** - Save your favorite websites with one click
-- **Mood Calendar** - Track your daily mood (coming soon)
+- **Mood Calendar** - Track your daily mood throughout 2026 with beautiful animations
+  - Quadrimester and full year views
+  - Animated transitions with blur effects
+  - Toggle date numbers on/off
+  - Add notes to each day
 - **Dark/Light Mode** - Toggle between themes
 - **Responsive** - Works on all screen sizes
 - **Customizable** - Toggle widgets on/off from the popup
@@ -58,6 +62,7 @@ Note: For extension development, you'll need to rebuild and reload the extension
 - [Vite](https://vite.dev) - Build tool
 - [Tailwind CSS](https://tailwindcss.com) - Styling
 - [shadcn/ui](https://ui.shadcn.com) - UI components
+- [Motion](https://motion.dev) - Animations
 - [Tabler Icons](https://tabler.io/icons) - Icons
 - [Bun](https://bun.sh) - Package manager
 
@@ -69,5 +74,6 @@ MIT
 
 **Satyam Vyas**
 
+- [LinkedIn](https://www.linkedin.com/in/satyam-vyas/)
 - [GitHub](https://github.com/SatyamVyas04)
 - [X/Twitter](https://x.com/SatyamVyas04)

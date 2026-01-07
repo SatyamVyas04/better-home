@@ -1,3 +1,4 @@
+// Quick links widget for saving and accessing favorite URLs
 import {
   IconExternalLink,
   IconPlus,
@@ -233,7 +234,7 @@ export function QuickLinks({
         >
           <div className="flex gap-1">
             <Input
-              className="h-8 flex-1 border-border/50 text-xs lowercase"
+              className="h-8 flex-1 border-border/50 text-xs"
               onChange={(e) => setNewUrl(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="add a link..."

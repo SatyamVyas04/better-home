@@ -1,3 +1,4 @@
+// Task management widget with local storage persistence
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";

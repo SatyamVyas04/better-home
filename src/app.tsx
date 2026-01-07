@@ -1,5 +1,6 @@
+// Main application component with responsive widget layout
 import { IconBrandGithub, IconBrandX } from "@tabler/icons-react";
-import { CalendarPlaceholder } from "@/components/calendar-placeholder";
+import { InteractiveCalendar } from "@/components/interactive-calendar";
 import { QuickLinks } from "@/components/quick-links";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TodoList } from "@/components/todo-list";
@@ -73,7 +74,7 @@ function App() {
             <TodoList />
           </div>
           <div className="flex min-h-0 min-w-0 flex-1">
-            <CalendarPlaceholder />
+            <InteractiveCalendar />
           </div>
         </div>
       );
@@ -86,7 +87,7 @@ function App() {
             <QuickLinks expanded />
           </div>
           <div className="flex min-h-0 min-w-0 flex-1">
-            <CalendarPlaceholder />
+            <InteractiveCalendar />
           </div>
         </div>
       );
@@ -95,7 +96,7 @@ function App() {
     if (onlyCalendar) {
       return (
         <div className="flex min-h-0 flex-1">
-          <CalendarPlaceholder />
+          <InteractiveCalendar />
         </div>
       );
     }
@@ -108,7 +109,7 @@ function App() {
             <QuickLinks />
           </div>
           <div className="flex min-h-0 min-w-0 flex-1">
-            <CalendarPlaceholder />
+            <InteractiveCalendar />
           </div>
         </div>
       );
