@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "better-home",
-  "description": "A better home page for your browser. Just what you need, without the clutter. Journal your thoughts, track your tasks, and stay focused with ease.",
-  "version": "0.2.0",
+  "description": "A minimal, delightful new-tab replacement with tasks, quick links, and a mood calendar.",
+  "version": "0.3.0",
   "icons": {
     "16": "better-home-logo-16.png",
     "32": "better-home-logo-32.png",
