@@ -5,9 +5,11 @@ import {
   IconBrandX,
   IconCalendarHeart,
   IconChecklist,
+  IconDownload,
   IconHeart,
   IconLink,
   IconMessageReport,
+  IconUpload,
 } from "@tabler/icons-react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Label } from "@/components/ui/label";
@@ -30,6 +32,61 @@ function PopupApp() {
       ...prev,
       [key]: !prev[key],
     }));
+  };
+
+  const handleDownloadBackup = () => {
+    const keys = [
+      "better-home-widget-settings",
+      "better-home-todos",
+      "better-home-quick-links",
+      "mood-calendar-2026-data",
+      "mood-calendar-show-numbers",
+      "vite-ui-theme",
+    ];
+
+    const backup: Record<string, unknown> = {};
+    for (const key of keys) {
+      const value = localStorage.getItem(key);
+      if (value) {
+        backup[key] = JSON.parse(value);
+      }
+    }
+
+    const dataStr = JSON.stringify(backup, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(dataBlob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `better-home-backup-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleUploadBackup = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const backup = JSON.parse(e.target?.result as string);
+        for (const key of Object.keys(backup)) {
+          localStorage.setItem(key, JSON.stringify(backup[key]));
+        }
+        // Reload the page to reflect changes
+        window.location.reload();
+      } catch {
+        console.error("Invalid backup file. Please select a valid JSON file.");
+      }
+    };
+    reader.readAsText(file);
+    // Reset the input
+    event.target.value = "";
   };
 
   return (
@@ -108,6 +165,34 @@ function PopupApp() {
                 onCheckedChange={() => toggleSetting("showCalendar")}
               />
             </div>
+          </div>
+        </div>
+
+        <Separator className="my-3" />
+
+        <div className="space-y-2">
+          <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
+            Data
+          </p>
+          <div className="flex gap-2">
+            <button
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border/50 py-2 text-[11px] transition-colors hover:bg-accent/30"
+              onClick={handleDownloadBackup}
+              type="button"
+            >
+              <IconDownload className="size-3.5" />
+              backup
+            </button>
+            <label className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border/50 py-2 text-[11px] transition-colors hover:bg-accent/30">
+              <IconUpload className="size-3.5" />
+              restore
+              <input
+                accept=".json"
+                className="hidden"
+                onChange={handleUploadBackup}
+                type="file"
+              />
+            </label>
           </div>
         </div>
 

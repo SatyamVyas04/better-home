@@ -126,7 +126,7 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="flex h-screen flex-col overflow-hidden overscroll-none bg-background">
+      <div className="flex h-screen flex-col overflow-hidden bg-background">
         <main className="flex min-h-0 flex-1 flex-col p-3">
           {renderContent()}
         </main>

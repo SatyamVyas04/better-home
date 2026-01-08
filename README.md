@@ -2,7 +2,7 @@
 
 # better-home
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue?style=flat-square)](https://github.com/SatyamVyas04/better-home/releases)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)](https://github.com/SatyamVyas04/better-home/releases)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
@@ -41,6 +41,7 @@ Tasks · Quick Links · Mood Calendar - everything you need, nothing you don't.*
 | **Dark / Light Mode** | Toggle themes to match your vibe or system preference. |
 | **Responsive Layout** | Works seamlessly from ultrawide monitors to small laptops. |
 | **Customizable** | Enable or disable any widget via the extension popup - make it *your* home. |
+| **Backup & Restore** | Download your data as JSON to backup or transfer to another browser. Upload to restore your tasks, links, calendar entries, and settings. |
 
 ---
 
@@ -258,6 +259,7 @@ Extension storage can behave differently in certain scenarios.
 **Fix:**
 - Ensure you're not in Incognito/Private mode
 - Check `chrome://settings/content/cookies` - ensure "Block third-party cookies" isn't affecting extensions
+- Use the **Backup & Restore** feature in the extension popup to save and restore your data
 - Your data lives in localStorage under keys prefixed with `better-home-`
 
 </details>
