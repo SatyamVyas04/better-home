@@ -2,7 +2,7 @@
   "name": "better-home",
   "description": "A minimal, delightful new-tab replacement with tasks, quick links, and a mood calendar.",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",

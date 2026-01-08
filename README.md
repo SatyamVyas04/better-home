@@ -9,7 +9,7 @@
 [![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev)
 [![Bun](https://img.shields.io/badge/Bun-Package%20Manager-FBF0DF?style=flat-square&logo=bun&logoColor=black)](https://bun.sh)
 
-**A minimal, delightful new-tab replacement for Chrome/Edge.  
+**A minimal, delightful new-tab replacement for Chromium-based browsers.  
 Tasks · Quick Links · Mood Calendar - everything you need, nothing you don't.**
 
 </div>
@@ -22,7 +22,12 @@ Tasks · Quick Links · Mood Calendar - everything you need, nothing you don't.*
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [From Source](#from-source-development)
+  - [Compatible Browsers](#compatible-browsers)
+    - [Chrome](#chrome)
+    - [Edge](#edge)
+    - [Brave](#brave)
   - [Development Mode](#development-mode)
+- [Customization Notes](#customization-notes)
 - [Troubleshooting](#troubleshooting)
 - [Tech Stack](#tech-stack)
 - [Contributing](#contributing)
@@ -86,13 +91,37 @@ bun run build
 > [!NOTE]
 > The production build outputs to the `dist/` folder.
 
-**Load into Chrome/Edge:**
+### Compatible Browsers
 
-1. Navigate to `chrome://extensions` (or `edge://extensions`)
+This extension is compatible with Chromium-based browsers, including Chrome, Edge, and Brave. Follow the steps below for your browser.
+
+#### Chrome
+
+1. Navigate to `chrome://extensions`
 2. Enable **Developer mode** (toggle in the top-right corner)
 3. Click **Load unpacked**
 4. Select the `dist` folder
 5. Open a **new tab** - welcome home!
+
+#### Edge
+
+1. Navigate to `edge://extensions`
+2. Enable **Developer mode** (toggle in the bottom-left corner)
+3. Click **Load unpacked**
+4. Select the `dist` folder
+5. Open a **new tab** - welcome home!
+
+#### Brave
+
+1. Navigate to `brave://extensions`
+2. Enable **Developer mode** (toggle in the top-right corner)
+3. Click **Load unpacked**
+4. Select the `dist` folder
+5. Open a **new tab** - welcome home!
+
+### Customization Notes
+
+- **Chrome/Brave Warning:** When you first open a new tab after installing, Chrome/Brave may display a warning about the changed new tab appearance. Select **"Keep it"** as this is the intended behavior for the extension.
 
 ### Development Mode
 
