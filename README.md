@@ -2,6 +2,8 @@
 
 # better-home
 
+https://github.com/user-attachments/assets/39b9ee4d-2ef4-41a9-99c7-2e432873db2d
+
 [![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)](https://github.com/SatyamVyas04/better-home/releases)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
@@ -43,7 +45,6 @@ Tasks · Quick Links · Mood Calendar - everything you need, nothing you don't.*
 | **Tasks** | A lightweight to-do list that remembers your items across sessions. Add, check-off, and delete tasks in a snap. |
 | **Quick Links** | One-click bookmarks with auto-fetched favicons. Save your most-visited sites and jump to them instantly. |
 | **Mood Calendar** | Track how you feel every day of 2026 with a beautiful, color-coded calendar. Supports quadrimester and full-year views with smooth Motion animations, optional day-number toggle, and inline notes. |
-| **Dark / Light Mode** | Toggle themes to match your vibe or system preference. |
 | **Responsive Layout** | Works seamlessly from ultrawide monitors to small laptops. |
 | **Customizable** | Enable or disable any widget via the extension popup - make it *your* home. |
 | **Backup & Restore** | Download your data as JSON to backup or transfer to another browser. Upload to restore your tasks, links, calendar entries, and settings. |
