@@ -242,7 +242,7 @@ function DatePopover({
               work log
             </Label>
             <Textarea
-              className="min-h-15"
+              className="min-h-15 resize-y"
               id={`work-${dateKey}`}
               onChange={(e) => setWorkLog(e.target.value)}
               placeholder="what did you get done today?"
@@ -259,7 +259,7 @@ function DatePopover({
               journal
             </Label>
             <Textarea
-              className="min-h-15"
+              className="min-h-15 resize-y"
               id={`journal-${dateKey}`}
               onChange={(e) => setJournal(e.target.value)}
               placeholder="how did it go overall?"
