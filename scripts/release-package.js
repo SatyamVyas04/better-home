@@ -1,10 +1,15 @@
 import { execSync } from "node:child_process";
-import { existsSync, rmSync } from "node:fs";
+import {
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
 import { join } from "node:path";
+import archiver from "archiver";
 
-const pkg = JSON.parse(
-  (await import("node:fs")).readFileSync("./package.json", "utf-8")
-);
+const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 const version = pkg.version;
 const name = pkg.name;
 
@@ -15,7 +20,7 @@ const releaseDir = "release";
 if (existsSync(releaseDir)) {
   rmSync(releaseDir, { recursive: true });
 }
-execSync(`mkdir ${releaseDir}`, { stdio: "inherit" });
+mkdirSync(releaseDir, { recursive: true });
 
 // Build the project
 console.log("[build] Building project...");
@@ -31,37 +36,41 @@ console.log("[package] Creating archives...");
 const baseName = `${name}-v${version}`;
 const zipFile = join(releaseDir, `${baseName}.zip`);
 const tarFile = join(releaseDir, `${baseName}.tar.gz`);
-const sevenZipFile = join(releaseDir, `${baseName}.7z`);
 
-// Create ZIP (using PowerShell on Windows)
-try {
-  execSync(
-    `powershell -Command "Compress-Archive -Path '${distDir}\\*' -DestinationPath '${zipFile}' -Force"`,
-    { stdio: "inherit" }
-  );
-  console.log(`  -> Created ${zipFile}`);
-} catch {
-  console.error("[error] Failed to create ZIP archive");
+/**
+ * Create an archive using archiver
+ */
+function createArchive(outputPath, format, options = {}) {
+  return new Promise((resolve, reject) => {
+    const output = createWriteStream(outputPath);
+    const archive = archiver(format, options);
+
+    output.on("close", () => resolve(archive.pointer()));
+    archive.on("error", (err) => reject(err));
+
+    archive.pipe(output);
+    archive.directory(distDir, false);
+    archive.finalize();
+  });
 }
 
-// Create TAR.GZ (using tar if available)
+// Create ZIP
 try {
-  execSync(`tar -czvf "${tarFile}" -C "${distDir}" .`, { stdio: "inherit" });
-  console.log(`  -> Created ${tarFile}`);
-} catch {
-  console.error(
-    "[warn] Failed to create TAR.GZ archive (tar may not be available)"
-  );
+  const bytes = await createArchive(zipFile, "zip", { zlib: { level: 9 } });
+  console.log(`  -> Created ${zipFile} (${(bytes / 1024).toFixed(1)} KB)`);
+} catch (err) {
+  console.error("[error] Failed to create ZIP archive:", err.message);
 }
 
-// Create 7z (using 7z if available)
+// Create TAR.GZ
 try {
-  execSync(`7z a "${sevenZipFile}" "./${distDir}/*"`, { stdio: "inherit" });
-  console.log(`  -> Created ${sevenZipFile}`);
-} catch {
-  console.error(
-    "[warn] Failed to create 7z archive (7-Zip may not be installed)"
-  );
+  const bytes = await createArchive(tarFile, "tar", {
+    gzip: true,
+    gzipOptions: { level: 9 },
+  });
+  console.log(`  -> Created ${tarFile} (${(bytes / 1024).toFixed(1)} KB)`);
+} catch (err) {
+  console.error("[error] Failed to create TAR.GZ archive:", err.message);
 }
 
 console.log("[done] Release packaging complete!");

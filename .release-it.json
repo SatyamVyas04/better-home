@@ -7,7 +7,7 @@
   },
   "github": {
     "release": true,
-    "assets": ["release/*.zip", "release/*.tar.gz", "release/*.7z"]
+    "assets": ["release/*.zip", "release/*.tar.gz"]
   },
   "npm": {
     "publish": false
