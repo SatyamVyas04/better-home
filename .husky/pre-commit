@@ -21,7 +21,12 @@ git stash push --quiet --keep-index --message "pre-commit-stash" || true
 STASHED=$?
 
 # Run formatter on the staged files
-bun x ultracite fix
+# Use ULTRACITE_UNSAFE=1 environment variable to enable unsafe fixes
+if [ "$ULTRACITE_UNSAFE" = "1" ]; then
+  bun x ultracite fix --unsafe
+else
+  bun x ultracite fix
+fi
 FORMAT_EXIT_CODE=$?
 
 # Restore working directory state
