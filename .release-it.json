@@ -1,0 +1,24 @@
+{
+  "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+  "git": {
+    "tagName": "v${version}",
+    "commitMessage": "chore: release v${version}"
+  },
+  "github": {
+    "release": true,
+    "assets": ["release/*.zip", "release/*.tar.gz", "release/*.7z"]
+  },
+  "npm": {
+    "publish": false
+  },
+  "hooks": {
+    "after:bump": "node scripts/sync-manifest.js",
+    "before:release": "node scripts/release-package.js"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "infile": "CHANGELOG.md",
+      "preset": "conventionalcommits"
+    }
+  }
+}
