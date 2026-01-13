@@ -2,7 +2,8 @@
   "$schema": "https://unpkg.com/release-it/schema/release-it.json",
   "git": {
     "tagName": "v${version}",
-    "commitMessage": "chore: release v${version}"
+    "commitMessage": "chore: release v${version}",
+    "addUntrackedFiles": true
   },
   "github": {
     "release": true,
@@ -12,7 +13,7 @@
     "publish": false
   },
   "hooks": {
-    "after:bump": "node scripts/sync-manifest.js",
+    "after:bump": "node scripts/sync-manifest.js && git add public/manifest.json",
     "before:release": "node scripts/release-package.js"
   },
   "plugins": {
