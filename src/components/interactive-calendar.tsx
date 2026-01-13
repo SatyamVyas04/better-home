@@ -389,7 +389,7 @@ function MonthGrid({
         opacity: 1,
         scale: showAllYear ? 1.1 : 1,
       }}
-      className="flex flex-col items-center"
+      className="flex h-full flex-col items-center justify-center"
       initial={{ filter: "blur(8px)", opacity: 0, scale: 0.95 }}
       transition={{
         delay: animationDelay,
@@ -437,6 +437,12 @@ function MonthGrid({
             day: "numeric",
           });
 
+          const _today = new Date();
+          const isToday =
+            _today.getFullYear() === 2026 &&
+            _today.getMonth() === monthIndex &&
+            _today.getDate() === cell.day;
+
           return (
             <DatePopover
               dateKey={dateKey}
@@ -455,6 +461,26 @@ function MonthGrid({
                   x={x}
                   y={y}
                 />
+
+                {isToday && (
+                  <motion.rect
+                    animate={{ opacity: [0.1, 1, 0.1] }}
+                    className="pointer-events-none text-foreground shadow-sm-foreground"
+                    fill="none"
+                    height={cellSize + 4}
+                    rx={6}
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    transition={{
+                      duration: 4,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "easeInOut",
+                    }}
+                    width={cellSize + 4}
+                    x={x - 2}
+                    y={y - 2}
+                  />
+                )}
                 {showNumbers && (
                   <text
                     dominantBaseline="central"
@@ -603,7 +629,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
                 "m-auto flex h-full w-full flex-col place-content-center items-center justify-start gap-4 lg:grid lg:justify-center lg:gap-2",
                 showAllYear
                   ? "grid h-[250%] grid-cols-2 grid-rows-6 lg:h-full lg:grid-cols-4 lg:grid-rows-3"
-                  : "grid-cols-1 grid-rows-4 gap-x-8 gap-y-4 lg:grid-cols-2 lg:grid-rows-2"
+                  : "wide-mode grid-cols-1 grid-rows-4 gap-x-8 gap-y-4 lg:grid-cols-2 lg:grid-rows-2"
               )}
               exit={{ filter: "blur(4px)", opacity: 0 }}
               initial={{ filter: "blur(4px)", opacity: 0 }}
