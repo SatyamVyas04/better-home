@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.1](https://github.com/SatyamVyas04/better-home/compare/v1.2.0...v1.2.1) (2026-01-14)
+
+### Bug Fixes
+
+* normalize card spacing and padding across all widgets ([49d444e](https://github.com/SatyamVyas04/better-home/commit/49d444e212dad1452f18a3e0e36fc5b9dcc7703f))
+
 ## [1.2.0](https://github.com/SatyamVyas04/better-home/compare/v1.1.0...v1.2.0) (2026-01-14)
 
 ### Features
