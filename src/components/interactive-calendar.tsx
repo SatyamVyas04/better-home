@@ -58,7 +58,7 @@ function getDateKey(year: number, month: number, day: number): string {
 }
 
 function getContrastColor(moodKey: string): string {
-  return moodKey === "neutral" ? "#000" : "#fff";
+  return moodKey === "neutral" ? "black" : "white";
 }
 
 interface MoodSelectorProps {
@@ -109,7 +109,7 @@ function MoodSelector({ selectedMood, onSelectMood }: MoodSelectorProps) {
           style={{
             backgroundColor: activeMood
               ? MOOD_COLORS[activeMood].color
-              : "#525252",
+              : "var(--muted)",
             color: activeMood ? getContrastColor(activeMood) : undefined,
           }}
         >
@@ -193,7 +193,7 @@ function DatePopover({
                     style={{
                       backgroundColor: entry.mood
                         ? MOOD_COLORS[entry.mood].color
-                        : "#525252",
+                        : "var(--muted)",
                       borderColor: entry.mood
                         ? MOOD_COLORS[entry.mood].color
                         : undefined,
@@ -294,7 +294,6 @@ function DatePopover({
 
 const DAY_LABELS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
-// 2026 calendar configuration: startDay (0=Monday through 6=Sunday)
 const MONTHS_2026 = [
   { name: "JANUARY", days: 31, startDay: 3 },
   { name: "FEBRUARY", days: 28, startDay: 6 },
@@ -415,7 +414,7 @@ function MonthGrid({
           {DAY_LABELS.map((label, i) => (
             <text
               dominantBaseline="middle"
-              fill="#666666"
+              fill="var(--muted-foreground)"
               fontFamily="DMMono, monospace"
               fontSize={labelFontSize}
               fontWeight="500"
@@ -491,8 +490,8 @@ function MonthGrid({
                   <text
                     dominantBaseline="central"
                     fill={
-                      getFillColor(dateKey) === "#323232"
-                        ? "#666"
+                      getFillColor(dateKey) === "var(--muted)"
+                        ? "var(--muted-foreground)"
                         : getContrastColor(
                             Object.entries(MOOD_COLORS).find(
                               ([, v]) => v.color === getFillColor(dateKey)
@@ -569,9 +568,9 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
         return MOOD_COLORS[entry.mood].color;
       }
       if (entry.workLog || entry.journal) {
-        return "#525252"; // Color for entries without mood
+        return "var(--muted)"; // Color for entries without mood
       }
-      return "#323232";
+      return "var(--muted)";
     },
     [getEntryForDate]
   );
@@ -590,8 +589,8 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
 
   return (
     <div className={cn("flex min-h-0 flex-1 gap-2", className)}>
-      <Card className="flex min-h-0 flex-1 flex-col gap-0 border-border/50 py-2">
-        <CardHeader className="flex flex-row items-center justify-between px-3 pb-1">
+      <Card className="flex min-h-0 flex-1 flex-col gap-0 border-border/50 py-3">
+        <CardHeader className="flex flex-row items-center justify-between px-4 pb-2">
           <CardTitle className="font-medium text-xs lowercase">
             mood calendar 2026
           </CardTitle>
@@ -609,7 +608,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
               <IconMenu2 className="size-4" />
             </Button>
             <Button
-              className="h-6 px-2 text-xs"
+              className="h-6 transform-gpu px-2 text-xs will-change-transform"
               onClick={() => setShowAllYear(!showAllYear)}
               size="sm"
               variant={showAllYear ? "default" : "outline"}
@@ -618,7 +617,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="flex min-h-0 flex-1 overflow-auto px-4 py-3">
+        <CardContent className="flex min-h-0 flex-1 overflow-auto px-4 py-4">
           <AnimatePresence mode="wait">
             <motion.div
               animate={{ filter: "blur(0px)", opacity: 1 }}
@@ -638,7 +637,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
                 const month = MONTHS_2026[monthIndex];
                 return (
                   <MonthGrid
-                    animationDelay={i * 0.05}
+                    animationDelay={i * 0.1}
                     getEntryForDate={getEntryForDate}
                     getFillColor={getFillColor}
                     handleSaveEntry={handleSaveEntry}
@@ -653,7 +652,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
             </motion.div>
           </AnimatePresence>
         </CardContent>
-        <CardFooter className="flex items-center justify-end px-3 pt-1">
+        <CardFooter className="flex items-center justify-end px-4 pt-2">
           {!showAllYear && (
             <div className="flex items-center gap-1">
               <Button

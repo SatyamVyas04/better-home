@@ -11,6 +11,7 @@ import {
   IconMessageReport,
   IconUpload,
 } from "@tabler/icons-react";
+import { ModeToggle } from "@/components/mode-toggle";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -91,21 +92,24 @@ function PopupApp() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="w-72 bg-background p-4">
-        <header className="flex items-center gap-3">
-          <img
-            alt="better-home"
-            className="size-10"
-            height={40}
-            src="/better-home-logo-128.png"
-            width={40}
-          />
-          <div>
-            <h1 className="font-semibold text-sm">better-home</h1>
-            <p className="text-pretty text-[11px] text-muted-foreground">
-              your minimal new tab experience
-            </p>
+      <div className="w-72 bg-card p-4">
+        <header className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <img
+              alt="better-home"
+              className="size-10"
+              height={40}
+              src="/better-home-logo-128.png"
+              width={40}
+            />
+            <div>
+              <h1 className="font-semibold text-sm">better-home</h1>
+              <p className="text-pretty text-[11px] text-muted-foreground">
+                your minimal new tab experience
+              </p>
+            </div>
           </div>
+          <ModeToggle />
         </header>
 
         <Separator className="my-3" />
@@ -176,7 +180,7 @@ function PopupApp() {
           </p>
           <div className="flex gap-2">
             <button
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border/50 py-2 text-[11px] transition-colors hover:bg-accent/30"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border/50 py-3 text-[11px] transition-colors hover:bg-accent/30"
               onClick={handleDownloadBackup}
               type="button"
             >

@@ -123,7 +123,13 @@ export function QuickLinks({
             <AnimatePresence mode="popLayout">
               {links.map((link) => (
                 <motion.a
-                  animate={{ filter: "blur(0px)", opacity: 1, x: 0, scale: 1 }}
+                  animate={{
+                    filter: "blur(0px)",
+                    opacity: 1,
+                    x: 0,
+                    scale: 1,
+                    transition: { delay: 0.4 * links.indexOf(link) },
+                  }}
                   className="group flex items-center gap-2 rounded-md border border-border/50 px-1.5 py-1 transition-colors hover:bg-accent/30"
                   exit={{
                     filter: "blur(4px)",
@@ -194,7 +200,7 @@ export function QuickLinks({
 
     return (
       <div className="min-h-0 flex-1">
-        <div className="grid grid-cols-7 gap-1.5 sm:grid-cols-11 md:grid-cols-15 lg:grid-cols-7">
+        <div className="grid grid-cols-7 gap-x-2 gap-y-1 sm:grid-cols-11 md:grid-cols-15 lg:grid-cols-7">
           <AnimatePresence mode="popLayout">
             {links.map((link) => (
               <motion.div
@@ -203,7 +209,11 @@ export function QuickLinks({
                 initial={{ filter: "blur(4px)", opacity: 0, scale: 0.5 }}
                 key={link.id}
                 layout
-                transition={{ duration: 0.3, ease: "easeOut" }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeOut",
+                  delay: 0.1 * links.indexOf(link),
+                }}
               >
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -228,7 +238,7 @@ export function QuickLinks({
                         )}
                       </a>
                       <button
-                        className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-white opacity-0 transition-opacity hover:bg-destructive/90 group-hover:opacity-100"
+                        className="absolute -top-1.5 -right-1.5 z-10 flex size-4 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 transition-opacity hover:bg-destructive/90 group-hover:opacity-100"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -236,7 +246,7 @@ export function QuickLinks({
                         }}
                         type="button"
                       >
-                        <IconX className="size-2" />
+                        <IconX className="color-white size-2" />
                         <span className="sr-only">Delete {link.title}</span>
                       </button>
                     </div>
@@ -269,7 +279,7 @@ export function QuickLinks({
 
   const getCardClasses = () => {
     if (fullSize) {
-      return "flex min-h-0 w-full flex-1 flex-col gap-0 border-border/50 py-2";
+      return "flex min-h-0 w-full flex-1 flex-col gap-0 border-border/50 py-3";
     }
     if (expanded) {
       return "flex min-h-0 w-full flex-1 flex-col gap-0 border-border/50 py-2 lg:w-71";
@@ -280,13 +290,13 @@ export function QuickLinks({
   return (
     <TooltipProvider delayDuration={200}>
       <Card className={getCardClasses()}>
-        <CardHeader className="px-3 pb-1">
+        <CardHeader className="px-4 pb-2">
           <CardTitle className="font-medium text-xs lowercase">
             quick links
           </CardTitle>
         </CardHeader>
         <CardContent
-          className={`flex flex-col gap-1.5 px-3 ${expanded || fullSize ? "min-h-0 flex-1" : ""}`}
+          className={`flex flex-col gap-1.5 px-4 ${expanded || fullSize ? "min-h-0 flex-1" : ""}`}
         >
           <div className="flex gap-1">
             <Input

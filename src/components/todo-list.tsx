@@ -1,7 +1,7 @@
 // Task management widget with local storage persistence
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -30,6 +30,11 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     },
   ]);
   const [newTodo, setNewTodo] = useState("");
+  const isFirstLoadRef = useRef(true);
+
+  useEffect(() => {
+    isFirstLoadRef.current = false;
+  }, []);
 
   const addTodo = () => {
     const trimmedText = newTodo.trim();
@@ -71,11 +76,11 @@ export function TodoList({ fullSize = false }: TodoListProps) {
 
   return (
     <Card
-      className={`flex min-h-0 flex-1 flex-col gap-0 border-border/50 py-2 ${
+      className={`flex min-h-0 flex-1 flex-col gap-0 border-border/50 py-3 ${
         fullSize ? "w-full" : "max-h-48 w-full lg:max-h-none lg:w-71"
       }`}
     >
-      <CardHeader className="px-3 pb-1">
+      <CardHeader className="px-4 pb-2">
         <CardTitle className="flex items-center gap-2 font-medium text-xs lowercase">
           <span>tasks</span>
           {totalCount > 0 && (
@@ -85,7 +90,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 px-3">
+      <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 px-4">
         <div className="flex gap-1">
           <Input
             className="h-8 flex-1 border-border/50 text-xs lowercase"
@@ -131,7 +136,13 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                   }}
                   key={todo.id}
                   layout
-                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                    delay: isFirstLoadRef.current
+                      ? 0.1 * todos.indexOf(todo)
+                      : 0,
+                  }}
                 >
                   <Checkbox
                     checked={todo.completed}

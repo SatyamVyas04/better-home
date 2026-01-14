@@ -37,9 +37,6 @@ const baseName = `${name}-v${version}`;
 const zipFile = join(releaseDir, `${baseName}.zip`);
 const tarFile = join(releaseDir, `${baseName}.tar.gz`);
 
-/**
- * Create an archive using archiver
- */
 function createArchive(outputPath, format, options = {}) {
   return new Promise((resolve, reject) => {
     const output = createWriteStream(outputPath);

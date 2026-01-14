@@ -1,6 +1,19 @@
 // Theme context provider with system preference detection
 import { createContext, useContext, useEffect, useState } from "react";
 
+declare const chrome: {
+  tabs?: {
+    query: (
+      query: { active: boolean; currentWindow: boolean },
+      callback: (tabs: Array<{ id?: number }>) => void
+    ) => void;
+    sendMessage: (
+      tabId: number,
+      message: { type: string; theme?: Theme }
+    ) => void;
+  };
+};
+
 type Theme = "dark" | "light" | "system";
 
 interface ThemeProviderProps {
@@ -47,6 +60,17 @@ export function ThemeProvider({
     }
 
     root.classList.add(theme);
+
+    // Notify the main content window about theme change
+    chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
+      const tabId = tabs[0]?.id;
+      if (tabId) {
+        chrome.tabs?.sendMessage(tabId, {
+          type: "THEME_CHANGED",
+          theme,
+        });
+      }
+    });
   }, [theme]);
 
   const value = {

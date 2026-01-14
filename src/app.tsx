@@ -1,5 +1,6 @@
 // Main application component with responsive widget layout
 import { IconBrandGithub, IconBrandX, IconHeart } from "@tabler/icons-react";
+import { useEffect } from "react";
 import { InteractiveCalendar } from "@/components/interactive-calendar";
 import { QuickLinks } from "@/components/quick-links";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -16,11 +17,60 @@ import {
   type WidgetSettings,
 } from "@/types/widget-settings";
 
+declare const chrome: {
+  runtime: {
+    onMessage: {
+      addListener: (
+        callback: (
+          message: unknown,
+          sender: unknown,
+          sendResponse: unknown
+        ) => void
+      ) => void;
+      removeListener: (
+        callback: (
+          message: unknown,
+          sender: unknown,
+          sendResponse: unknown
+        ) => void
+      ) => void;
+    };
+  };
+};
+
 function App() {
   const [settings] = useLocalStorage<WidgetSettings>(
     "better-home-widget-settings",
     DEFAULT_WIDGET_SETTINGS
   );
+
+  useEffect(() => {
+    const handleThemeMessage = (
+      message: unknown,
+      _sender: unknown,
+      _sendResponse: unknown
+    ) => {
+      if (
+        message &&
+        typeof message === "object" &&
+        "type" in message &&
+        message.type === "THEME_CHANGED" &&
+        "theme" in message &&
+        typeof message.theme === "string"
+      ) {
+        const root = window.document.documentElement;
+        root.classList.remove("light", "dark");
+        root.classList.add(message.theme);
+        localStorage.setItem("vite-ui-theme", message.theme);
+      }
+    };
+
+    chrome?.runtime?.onMessage?.addListener?.(handleThemeMessage);
+
+    return () => {
+      chrome?.runtime?.onMessage?.removeListener?.(handleThemeMessage);
+    };
+  }, []);
 
   const { showTasks, showQuickLinks, showCalendar } = settings;
 
@@ -125,13 +175,13 @@ function App() {
   };
 
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <div className="flex h-screen flex-col overflow-hidden bg-background">
         <main className="flex min-h-0 flex-1 flex-col p-3">
           {renderContent()}
         </main>
 
-        <footer className="border-border/40 border-t py-2">
+        <footer className="border-border border-t bg-card py-2">
           <TooltipProvider delayDuration={200}>
             <div className="flex items-center justify-between px-3 text-muted-foreground text-xs">
               <div className="flex items-center gap-2">

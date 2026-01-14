@@ -20,7 +20,7 @@ export function useLocalStorage<T>(
         try {
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
         } catch {
-          // Storage quota exceeded or private browsing - silently fail
+          // Silently fail on quota exceeded or private browsing
         }
         return valueToStore;
       });
@@ -34,7 +34,7 @@ export function useLocalStorage<T>(
         try {
           setStoredValue(JSON.parse(e.newValue) as T);
         } catch {
-          // Ignore parse errors
+          // Silently ignore parse errors
         }
       }
     };
