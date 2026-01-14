@@ -156,8 +156,8 @@
   background: var(--background);
 }
 
-@media (min-aspect-ratio: 18 / 9) {
+@media (min-aspect-ratio: 19 / 9) {
   .wide-mode {
-    @apply grid-rows-1 grid-cols-4 gap-x-50 gap-y-4 scale-80;
+    @apply grid-rows-1 grid-cols-4 scale-95 gap-x-80;
   }
 }

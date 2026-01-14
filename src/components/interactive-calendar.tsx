@@ -1,6 +1,11 @@
 // Interactive mood calendar with quadrimester/yearly view and animated transitions
 "use client";
 
+import {
+  IconCaretLeftFilled,
+  IconCaretRightFilled,
+  IconMenu2,
+} from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -376,7 +381,7 @@ function MonthGrid({
   const cellSize = showAllYear ? CELL_SIZE : QUAD_CELL_SIZE;
   const cellGap = showAllYear ? CELL_GAP : QUAD_CELL_GAP;
   const dayLabelWidth = showAllYear ? DAY_LABEL_WIDTH : QUAD_DAY_LABEL_WIDTH;
-  const fontSize = showAllYear ? 10 : 14;
+  const fontSize = showAllYear ? 8 : 14;
   const labelFontSize = showAllYear ? 7 : 11;
 
   const svgWidth = dayLabelWidth + maxWeeks * (cellSize + cellGap);
@@ -389,7 +394,7 @@ function MonthGrid({
         opacity: 1,
         scale: showAllYear ? 1.1 : 1,
       }}
-      className="flex h-full flex-col items-center justify-center"
+      className="mx-auto flex h-full w-fit flex-col items-center justify-center"
       initial={{ filter: "blur(8px)", opacity: 0, scale: 0.95 }}
       transition={{
         delay: animationDelay,
@@ -400,7 +405,8 @@ function MonthGrid({
       {/** biome-ignore lint/a11y/noSvgWithoutTitle: Calendar month grid */}
       <svg
         aria-label={`${month.name} 2026 Mood Calendar`}
-        height={svgHeight}
+        className="h-full"
+        height={svgHeight + (showAllYear ? 10 : 20)}
         viewBox={`0 0 ${svgWidth} ${svgHeight + (showAllYear ? 10 : 20)}`}
         width={svgWidth}
         xmlns="http://www.w3.org/2000/svg"
@@ -409,7 +415,7 @@ function MonthGrid({
           {DAY_LABELS.map((label, i) => (
             <text
               dominantBaseline="middle"
-              fill="#888888"
+              fill="#666666"
               fontFamily="DMMono, monospace"
               fontSize={labelFontSize}
               fontWeight="500"
@@ -513,7 +519,7 @@ function MonthGrid({
           fill="#ffffff"
           fontFamily="DMMono, monospace"
           fontSize={showAllYear ? 10 : 14}
-          fontWeight="600"
+          fontWeight="500"
           textAnchor="middle"
           x={
             dayLabelWidth + (maxWeeks * (cellSize + cellGap)) / 2 - cellGap / 2
@@ -600,16 +606,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
               title={showNumbers ? "Hide numbers" : "Show numbers"}
               variant={showNumbers ? "default" : "outline"}
             >
-              <svg
-                aria-hidden="true"
-                className="size-3"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <IconMenu2 className="size-4" />
             </Button>
             <Button
               className="h-6 px-2 text-xs"
@@ -629,7 +626,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
                 "m-auto flex h-full w-full flex-col place-content-center items-center justify-start gap-4 lg:grid lg:justify-center lg:gap-2",
                 showAllYear
                   ? "grid h-[250%] grid-cols-2 grid-rows-6 lg:h-full lg:grid-cols-4 lg:grid-rows-3"
-                  : "wide-mode grid-cols-1 grid-rows-4 gap-x-8 gap-y-4 lg:grid-cols-2 lg:grid-rows-2"
+                  : "wide-mode grid-cols-1 grid-rows-4 gap-y- gap-x-8 lg:grid-cols-2 lg:grid-rows-2"
               )}
               exit={{ filter: "blur(4px)", opacity: 0 }}
               initial={{ filter: "blur(4px)", opacity: 0 }}
@@ -666,16 +663,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
                 size="sm"
                 variant="ghost"
               >
-                <svg
-                  aria-hidden="true"
-                  className="size-3"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M15 19l-7-7 7-7" />
-                </svg>
+                <IconCaretLeftFilled className="size-4" />
               </Button>
               <span className="min-w-16 text-center font-medium text-muted-foreground text-xs">
                 {QUADRIMESTERS[currentQuadrimester].label}
@@ -687,16 +675,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
                 size="sm"
                 variant="ghost"
               >
-                <svg
-                  aria-hidden="true"
-                  className="size-3"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M9 5l7 7-7 7" />
-                </svg>
+                <IconCaretRightFilled className="size-4" />
               </Button>
             </div>
           )}
