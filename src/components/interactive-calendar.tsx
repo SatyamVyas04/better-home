@@ -391,7 +391,7 @@ function MonthGrid({
       animate={{
         filter: "blur(0px)",
         opacity: 1,
-        scale: showAllYear ? 1.1 : 1,
+        scale: showAllYear ? 1.05 : 1,
       }}
       className="mx-auto flex h-full w-fit flex-col items-center justify-center"
       initial={{ filter: "blur(8px)", opacity: 0, scale: 0.95 }}
@@ -589,8 +589,8 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
 
   return (
     <div className={cn("flex min-h-0 flex-1 gap-2", className)}>
-      <Card className="flex min-h-0 flex-1 flex-col gap-0 border-border/50 py-3">
-        <CardHeader className="flex flex-row items-center justify-between px-4 pb-2">
+      <Card className="flex min-h-0 flex-1 flex-col gap-0 border-border/50 py-2">
+        <CardHeader className="flex flex-row items-center justify-between px-3 pb-1">
           <CardTitle className="font-medium text-xs lowercase">
             mood calendar 2026
           </CardTitle>
@@ -608,7 +608,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
               <IconMenu2 className="size-4" />
             </Button>
             <Button
-              className="h-6 transform-gpu px-2 text-xs will-change-transform"
+              className="h-6 transform-gpu px-2 text-xs will-change-auto"
               onClick={() => setShowAllYear(!showAllYear)}
               size="sm"
               variant={showAllYear ? "default" : "outline"}
@@ -617,7 +617,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="flex min-h-0 flex-1 overflow-auto px-4 py-4">
+        <CardContent className="flex min-h-0 flex-1 overflow-auto px-3 py-1.5">
           <AnimatePresence mode="wait">
             <motion.div
               animate={{ filter: "blur(0px)", opacity: 1 }}
@@ -631,13 +631,13 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
               initial={{ filter: "blur(4px)", opacity: 0 }}
               key={showAllYear ? "full-year" : `quad-${currentQuadrimester}`}
               style={{ gap: showAllYear ? `${MONTH_GAP}px` : undefined }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
             >
               {currentMonths.map((monthIndex, i) => {
                 const month = MONTHS_2026[monthIndex];
                 return (
                   <MonthGrid
-                    animationDelay={i * 0.1}
+                    animationDelay={i * 0.05}
                     getEntryForDate={getEntryForDate}
                     getFillColor={getFillColor}
                     handleSaveEntry={handleSaveEntry}

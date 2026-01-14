@@ -104,7 +104,7 @@ function PopupApp() {
             />
             <div>
               <h1 className="font-semibold text-sm">better-home</h1>
-              <p className="text-pretty text-[11px] text-muted-foreground">
+              <p className="mr-4 text-pretty text-[12px] text-muted-foreground">
                 your minimal new tab experience
               </p>
             </div>

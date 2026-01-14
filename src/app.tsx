@@ -181,7 +181,7 @@ function App() {
           {renderContent()}
         </main>
 
-        <footer className="border-border border-t bg-card py-2">
+        <footer className="border-border border-t bg-card py-2 shadow-black/10 shadow-sm ring-1 ring-black/10 transition-all duration-200 hover:shadow-md hover:ring-black/20 dark:shadow-white/10 dark:ring-white/10 dark:hover:ring-white/20">
           <TooltipProvider delayDuration={200}>
             <div className="flex items-center justify-between px-3 text-muted-foreground text-xs">
               <div className="flex items-center gap-2">
