@@ -49,7 +49,12 @@ function PopupApp() {
     for (const key of keys) {
       const value = localStorage.getItem(key);
       if (value) {
-        backup[key] = JSON.parse(value);
+        try {
+          backup[key] = JSON.parse(value);
+        } catch {
+          // If parsing fails, store the raw value
+          backup[key] = value;
+        }
       }
     }
 
@@ -60,9 +65,13 @@ function PopupApp() {
     const link = document.createElement("a");
     link.href = url;
     link.download = `better-home-backup-${new Date().toISOString().split("T")[0]}.json`;
-    document.body.appendChild(link);
+    link.style.display = "none";
+
+    // Use documentElement as fallback if body is not available
+    const container = document.body || document.documentElement;
+    container.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    container.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
@@ -77,7 +86,13 @@ function PopupApp() {
       try {
         const backup = JSON.parse(e.target?.result as string);
         for (const key of Object.keys(backup)) {
-          localStorage.setItem(key, JSON.stringify(backup[key]));
+          const value = backup[key];
+          // Store as-is if already a string (like theme values), otherwise JSON stringify
+          if (typeof value === "string" && key === "vite-ui-theme") {
+            localStorage.setItem(key, value);
+          } else {
+            localStorage.setItem(key, JSON.stringify(value));
+          }
         }
         // Reload the page to reflect changes
         window.location.reload();
