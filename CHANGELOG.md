@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/SatyamVyas04/better-home/compare/v1.2.1...v1.2.2) (2026-01-21)
+
+### Bug Fixes
+
+* improve backup and restore functionality for local storage ([1734bdd](https://github.com/SatyamVyas04/better-home/commit/1734bdd4222d046c9e458eec57d37f11c60a8b77))
+* remove storage permission from manifest ([8e747ae](https://github.com/SatyamVyas04/better-home/commit/8e747aeb0ef52692d91b60f1a12554d015bf0106))
+
 ## [1.2.1](https://github.com/SatyamVyas04/better-home/compare/v1.2.0...v1.2.1) (2026-01-14)
 
 ### Bug Fixes
