@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.0](https://github.com/SatyamVyas04/better-home/compare/v1.2.2...v1.3.0) (2026-02-01)
+
+### Features
+
+* add context menu functionality and enhance todo list features ([dd4c1f6](https://github.com/SatyamVyas04/better-home/commit/dd4c1f6b9a0728dcaae21c0bbdc46010aa304852))
+* refactor calendar components and add hold-to-clear functionality ([758e2e6](https://github.com/SatyamVyas04/better-home/commit/758e2e60bbba64a8e8c91fa249938041ce3d433f))
+
+### Bug Fixes
+
+* adjust spacing and styling in todo list component for improved UI ([e722cdf](https://github.com/SatyamVyas04/better-home/commit/e722cdf7bbe6c51e25261d46f3235f4a420044b0))
+
 ## [1.2.2](https://github.com/SatyamVyas04/better-home/compare/v1.2.1...v1.2.2) (2026-01-21)
 
 ### Bug Fixes
