@@ -39,6 +39,8 @@ function PopupApp() {
     const keys = [
       "better-home-widget-settings",
       "better-home-todos",
+      "better-home-todo-sort",
+      "better-home-todo-filters",
       "better-home-quick-links",
       "mood-calendar-2026-data",
       "mood-calendar-show-numbers",
