@@ -272,7 +272,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                 <Reorder.Group
                   as="div"
                   axis="y"
-                  className="flex flex-col space-y-0.5"
+                  className="flex flex-col space-y-1"
                   onReorder={handleReorder}
                   values={displayedTodos}
                 >
@@ -287,7 +287,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                               y: 0,
                               scale: 1,
                             }}
-                            className="group flex items-center gap-2 rounded-md border border-border/50 px-1.5 py-2 transition-colors hover:bg-accent/30"
+                            className="group flex items-center gap-1 rounded-md border border-border/50 px-1.5 py-1.5 transition-colors hover:bg-accent/30"
                             exit={{
                               filter: "blur(4px)",
                               opacity: 0,
@@ -339,7 +339,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                                     opacity: 1,
                                     scale: 1,
                                   }}
-                                  className="translate-x-7 transform transition-transform group-hover:translate-x-0"
+                                  className="translate-x-6 transform transition-transform group-hover:translate-x-0"
                                   exit={{
                                     filter: "blur(4px)",
                                     opacity: 0,
@@ -361,10 +361,10 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                               )}
                             </AnimatePresence>
                             <TooltipProvider>
-                              <Tooltip delayDuration={300}>
+                              <Tooltip delayDuration={500}>
                                 <TooltipTrigger asChild>
                                   <Button
-                                    className="relative -my-1 size-6 translate-x-7 transform overflow-clip opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+                                    className="relative -my-0.75 -mr-0.75 size-6 translate-x-6 transform overflow-clip opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
                                     onMouseDown={() =>
                                       handleDeleteMouseDown(todo.id)
                                     }
