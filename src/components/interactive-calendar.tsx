@@ -1,6 +1,3 @@
-// Interactive mood calendar with quadrimester/yearly view and animated transitions
-"use client";
-
 import {
   IconCaretLeftFilled,
   IconCaretRightFilled,

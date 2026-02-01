@@ -1,4 +1,3 @@
-// Mood colors and type definitions for the calendar application
 export const MOOD_COLORS = {
   coreMemory: { color: "#00C0E8", label: "Core Memory" },
   goodDay: { color: "#34C759", label: "A Good Day" },

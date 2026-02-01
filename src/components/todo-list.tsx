@@ -1,4 +1,3 @@
-// Task management widget with local storage persistence
 import {
   IconCheck,
   IconGripVertical,
@@ -31,24 +30,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-
-interface Todo {
-  id: string;
-  text: string;
-  completed: boolean;
-  important: boolean;
-  createdAt: number;
-}
+import {
+  applyFiltersAndSorting,
+  DELETE_HOLD_DURATION,
+  mergeReorderedWithHidden,
+} from "@/lib/todo-utils";
+import type { SortMode, Todo, TodoFilters } from "@/types/todo";
 
 interface TodoListProps {
   fullSize?: boolean;
-}
-
-type SortMode = "manual" | "oldest" | "newest";
-
-interface Filters {
-  hideCompleted: boolean;
-  importantOnly: boolean;
 }
 
 export function TodoList({ fullSize = false }: TodoListProps) {
@@ -66,7 +56,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     "better-home-todo-sort",
     "manual"
   );
-  const [filters, setFilters] = useLocalStorage<Filters>(
+  const [filters, setFilters] = useLocalStorage<TodoFilters>(
     "better-home-todo-filters",
     {
       hideCompleted: false,
@@ -123,7 +113,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     setHoldingDelete(id);
     holdTimeoutRef.current = window.setTimeout(() => {
       deleteTodo(id);
-    }, 2000);
+    }, DELETE_HOLD_DURATION);
   };
 
   const handleDeleteMouseUp = () => {
@@ -135,59 +125,15 @@ export function TodoList({ fullSize = false }: TodoListProps) {
   };
 
   const handleReorder = (reorderedTodos: Todo[]) => {
-    // Switch to manual mode when reordering
     setSortMode("manual");
 
-    // If no filters are active, just update the order
     const hasActiveFilters = filters.hideCompleted || filters.importantOnly;
     if (!hasActiveFilters) {
       setTodos(reorderedTodos);
       return;
     }
 
-    // When filters are active, merge reordered visible items with hidden items
-    setTodos((prev) => {
-      // Get the IDs of visible (reordered) todos
-      const visibleIds = new Set(reorderedTodos.map((t) => t.id));
-
-      // Get hidden todos (those not in the reordered list)
-      const hiddenTodos = prev.filter((todo) => !visibleIds.has(todo.id));
-
-      // Separate hidden todos into categories
-      const hiddenCompleted = hiddenTodos.filter((t) => t.completed);
-      const isNonImportantIncomplete = (t: Todo) => {
-        const isComplete = t.completed;
-        const isImportant = t.important;
-        return !(isComplete || isImportant);
-      };
-      const hiddenNonImportant = hiddenTodos.filter(isNonImportantIncomplete);
-      const isImportantIncomplete = (t: Todo) => {
-        const isComplete = t.completed;
-        const isImportant = t.important;
-        return !isComplete && isImportant;
-      };
-      const otherHidden = hiddenTodos.filter(isImportantIncomplete);
-
-      // Build the new array based on active filters
-      const result = [...reorderedTodos];
-
-      // If hiding completed, put them at the bottom
-      if (filters.hideCompleted) {
-        result.push(...hiddenCompleted);
-      }
-
-      // If showing only important, put non-important at the bottom
-      if (filters.importantOnly) {
-        result.push(...hiddenNonImportant);
-      }
-
-      // Add any other hidden items
-      if (otherHidden.length > 0) {
-        result.push(...otherHidden);
-      }
-
-      return result;
-    });
+    setTodos((prev) => mergeReorderedWithHidden(reorderedTodos, prev, filters));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -196,32 +142,9 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     }
   };
 
-  // Apply filtering and sorting
-  const getFilteredAndSortedTodos = () => {
-    let result = [...todos];
-
-    // Apply filters
-    if (filters.hideCompleted) {
-      result = result.filter((todo) => !todo.completed);
-    }
-    if (filters.importantOnly) {
-      result = result.filter((todo) => todo.important);
-    }
-
-    // Apply sorting
-    if (sortMode === "oldest") {
-      result.sort((a, b) => a.createdAt - b.createdAt);
-    } else if (sortMode === "newest") {
-      result.sort((a, b) => b.createdAt - a.createdAt);
-    }
-
-    return result;
-  };
-
-  const displayedTodos = getFilteredAndSortedTodos();
+  const displayedTodos = applyFiltersAndSorting(todos, filters, sortMode);
   const completedCount = todos.filter((t) => t.completed).length;
   const totalCount = todos.length;
-  // Allow reordering in manual mode (reordering will auto-switch to manual)
   const canReorder = sortMode === "manual";
 
   return (
@@ -322,7 +245,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                               onCheckedChange={() => toggleTodo(todo.id)}
                             />
                             <label
-                              className={`w-full flex-1 cursor-pointer break-all text-xs ${
+                              className={`ml-1 w-full flex-1 cursor-pointer break-all text-xs ${
                                 todo.completed
                                   ? "text-muted-foreground line-through"
                                   : ""

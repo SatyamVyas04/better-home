@@ -1,4 +1,3 @@
-// Custom hook for managing calendar data with local storage persistence
 import { useCallback } from "react";
 
 import { useLocalStorage } from "@/hooks/use-local-storage";

@@ -1,4 +1,3 @@
-// Quick links widget for saving and accessing favorite URLs
 import {
   IconExternalLink,
   IconPlus,
@@ -18,6 +17,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import {
+  extractTitle,
+  getFaviconUrl,
+  isValidUrl,
+  normalizeUrl,
+} from "@/lib/url-utils";
 
 interface QuickLinksProps {
   expanded?: boolean;
@@ -29,40 +34,6 @@ interface QuickLink {
   title: string;
   url: string;
   favicon: string;
-}
-
-const HTTPS_REGEX = /^https?:\/\//i;
-const WWW_REGEX = /^www\./;
-
-function getFaviconUrl(url: string): string {
-  try {
-    const urlObj = new URL(url);
-    return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
-  } catch {
-    return "";
-  }
-}
-
-function normalizeUrl(url: string): string {
-  const trimmed = url.trim();
-  if (!trimmed) {
-    return "";
-  }
-
-  if (!HTTPS_REGEX.test(trimmed)) {
-    return `https://${trimmed}`;
-  }
-  return trimmed;
-}
-
-function extractTitle(url: string): string {
-  try {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname.replace(WWW_REGEX, "");
-    return hostname.toLowerCase();
-  } catch {
-    return url.toLowerCase();
-  }
 }
 
 export function QuickLinks({
@@ -88,9 +59,7 @@ export function QuickLinks({
       return;
     }
 
-    try {
-      new URL(normalizedUrl);
-    } catch {
+    if (!isValidUrl(normalizedUrl)) {
       return;
     }
 

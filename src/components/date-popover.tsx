@@ -58,7 +58,7 @@ export function DatePopover({
     setIsHolding(true);
     holdTimeoutRef.current = setTimeout(() => {
       handleClear();
-    }, 2000);
+    }, 1500);
   };
 
   const handleMouseUp = () => {
@@ -188,7 +188,7 @@ export function DatePopover({
                 aria-hidden="true"
                 className={`absolute flex h-full w-full flex-row items-center justify-center gap-2 bg-destructive transition-[clip-path] ${
                   isHolding
-                    ? "duration-2000 ease-linear [clip-path:inset(0px_0px_0px_0px)]"
+                    ? "duration-1500 ease-linear [clip-path:inset(0px_0px_0px_0px)]"
                     : "duration-200 ease-out [clip-path:inset(0px_100%_0px_0px)]"
                 }`}
               >

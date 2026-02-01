@@ -1,4 +1,3 @@
-// Utility functions and constants for calendar operations and data generation
 export function getDateKey(year: number, month: number, day: number): string {
   return `${year}-${month}-${day}`;
 }

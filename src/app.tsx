@@ -1,4 +1,3 @@
-// Main application component with responsive widget layout
 import { IconBrandGithub, IconBrandX, IconHeart } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { InteractiveCalendar } from "@/components/interactive-calendar";
@@ -17,19 +16,24 @@ import {
   type WidgetSettings,
 } from "@/types/widget-settings";
 
+interface ChromeMessage {
+  type: string;
+  theme?: string;
+}
+
 declare const chrome: {
-  runtime: {
-    onMessage: {
+  runtime?: {
+    onMessage?: {
       addListener: (
         callback: (
-          message: unknown,
+          message: ChromeMessage,
           sender: unknown,
           sendResponse: unknown
         ) => void
       ) => void;
       removeListener: (
         callback: (
-          message: unknown,
+          message: ChromeMessage,
           sender: unknown,
           sendResponse: unknown
         ) => void
@@ -37,6 +41,34 @@ declare const chrome: {
     };
   };
 };
+
+type LayoutKey =
+  | "none"
+  | "tasks"
+  | "links"
+  | "calendar"
+  | "tasks-links"
+  | "tasks-calendar"
+  | "links-calendar"
+  | "all";
+
+function getLayoutKey(settings: WidgetSettings): LayoutKey {
+  const { showTasks, showQuickLinks, showCalendar } = settings;
+  const flags = `${showTasks ? "1" : "0"}${showQuickLinks ? "1" : "0"}${showCalendar ? "1" : "0"}`;
+
+  const mapping: Record<string, LayoutKey> = {
+    "000": "none",
+    100: "tasks",
+    "010": "links",
+    "001": "calendar",
+    110: "tasks-links",
+    101: "tasks-calendar",
+    "011": "links-calendar",
+    111: "all",
+  };
+
+  return mapping[flags] || "none";
+}
 
 function App() {
   const [settings] = useLocalStorage<WidgetSettings>(
@@ -46,18 +78,11 @@ function App() {
 
   useEffect(() => {
     const handleThemeMessage = (
-      message: unknown,
+      message: ChromeMessage,
       _sender: unknown,
       _sendResponse: unknown
     ) => {
-      if (
-        message &&
-        typeof message === "object" &&
-        "type" in message &&
-        message.type === "THEME_CHANGED" &&
-        "theme" in message &&
-        typeof message.theme === "string"
-      ) {
+      if (message.type === "THEME_CHANGED" && message.theme) {
         const root = window.document.documentElement;
         root.classList.remove("light", "dark");
         root.classList.add(message.theme);
@@ -72,113 +97,79 @@ function App() {
     };
   }, []);
 
-  const { showTasks, showQuickLinks, showCalendar } = settings;
+  const layoutKey = getLayoutKey(settings);
 
-  const hasAnyWidget = showTasks || showQuickLinks || showCalendar;
-  const onlyTodo = showTasks && !showQuickLinks && !showCalendar;
-  const onlyQuickLinks = !showTasks && showQuickLinks && !showCalendar;
-  const todoAndQuickOnly = showTasks && showQuickLinks && !showCalendar;
-  const todoAndCalendarOnly = showTasks && !showQuickLinks && showCalendar;
-  const quickAndCalendarOnly = !showTasks && showQuickLinks && showCalendar;
-  const onlyCalendar = showCalendar && !showTasks && !showQuickLinks;
-  const allThree = showTasks && showQuickLinks && showCalendar;
-
-  const renderContent = () => {
-    if (!hasAnyWidget) {
-      return (
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-muted-foreground text-sm lowercase">
-            no widgets enabled *_*
-          </p>
-        </div>
-      );
-    }
-
-    if (onlyTodo) {
-      return (
+  const layouts: Record<LayoutKey, React.ReactNode> = {
+    none: (
+      <div className="flex flex-1 items-center justify-center">
+        <p className="text-muted-foreground text-sm lowercase">
+          no widgets enabled *_*
+        </p>
+      </div>
+    ),
+    tasks: (
+      <div className="flex min-h-0 flex-1">
+        <TodoList fullSize />
+      </div>
+    ),
+    links: (
+      <div className="flex min-h-0 flex-1">
+        <QuickLinks expanded fullSize />
+      </div>
+    ),
+    calendar: (
+      <div className="flex min-h-0 flex-1">
+        <InteractiveCalendar />
+      </div>
+    ),
+    "tasks-links": (
+      <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
         <div className="flex min-h-0 flex-1">
           <TodoList fullSize />
         </div>
-      );
-    }
-
-    if (onlyQuickLinks) {
-      return (
         <div className="flex min-h-0 flex-1">
           <QuickLinks expanded fullSize />
         </div>
-      );
-    }
-
-    if (todoAndQuickOnly) {
-      return (
-        <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
-          <div className="flex min-h-0 flex-1">
-            <TodoList fullSize />
-          </div>
-          <div className="flex min-h-0 flex-1">
-            <QuickLinks expanded fullSize />
-          </div>
+      </div>
+    ),
+    "tasks-calendar": (
+      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+        <div className="flex min-h-0 shrink-0">
+          <TodoList />
         </div>
-      );
-    }
-
-    if (todoAndCalendarOnly) {
-      return (
-        <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-          <div className="flex min-h-0 shrink-0">
-            <TodoList />
-          </div>
-          <div className="flex min-h-0 min-w-0 flex-1">
-            <InteractiveCalendar />
-          </div>
-        </div>
-      );
-    }
-
-    if (quickAndCalendarOnly) {
-      return (
-        <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-          <div className="flex min-h-0 shrink-0">
-            <QuickLinks expanded />
-          </div>
-          <div className="flex min-h-0 min-w-0 flex-1">
-            <InteractiveCalendar />
-          </div>
-        </div>
-      );
-    }
-
-    if (onlyCalendar) {
-      return (
-        <div className="flex min-h-0 flex-1">
+        <div className="flex min-h-0 min-w-0 flex-1">
           <InteractiveCalendar />
         </div>
-      );
-    }
-
-    if (allThree) {
-      return (
-        <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-          <div className="flex min-h-0 shrink-0 flex-col gap-3">
-            <TodoList />
-            <QuickLinks />
-          </div>
-          <div className="flex min-h-0 min-w-0 flex-1">
-            <InteractiveCalendar />
-          </div>
+      </div>
+    ),
+    "links-calendar": (
+      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+        <div className="flex min-h-0 shrink-0">
+          <QuickLinks expanded />
         </div>
-      );
-    }
-
-    return null;
+        <div className="flex min-h-0 min-w-0 flex-1">
+          <InteractiveCalendar />
+        </div>
+      </div>
+    ),
+    all: (
+      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+        <div className="flex min-h-0 shrink-0 flex-col gap-3">
+          <TodoList />
+          <QuickLinks />
+        </div>
+        <div className="flex min-h-0 min-w-0 flex-1">
+          <InteractiveCalendar />
+        </div>
+      </div>
+    ),
   };
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <div className="flex h-screen flex-col overflow-hidden bg-background">
         <main className="flex min-h-0 flex-1 flex-col p-3">
-          {renderContent()}
+          {layouts[layoutKey]}
         </main>
 
         <footer className="border-border border-t bg-card py-2 shadow-black/10 shadow-sm ring-1 ring-black/10 transition-all duration-200 hover:shadow-md hover:ring-black/20 dark:shadow-white/10 dark:ring-white/10 dark:hover:ring-white/20">

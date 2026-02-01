@@ -1,4 +1,3 @@
-// Extension popup settings panel with widget toggles and attribution
 import {
   IconBrandGithub,
   IconBrandLinkedin,
@@ -18,6 +17,12 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
+  createBackup,
+  downloadBackup,
+  parseBackupFile,
+  restoreBackup,
+} from "@/lib/backup-utils";
+import {
   DEFAULT_WIDGET_SETTINGS,
   type WidgetSettings,
 } from "@/types/widget-settings";
@@ -36,45 +41,8 @@ function PopupApp() {
   };
 
   const handleDownloadBackup = () => {
-    const keys = [
-      "better-home-widget-settings",
-      "better-home-todos",
-      "better-home-todo-sort",
-      "better-home-todo-filters",
-      "better-home-quick-links",
-      "mood-calendar-2026-data",
-      "mood-calendar-show-numbers",
-      "vite-ui-theme",
-    ];
-
-    const backup: Record<string, unknown> = {};
-    for (const key of keys) {
-      const value = localStorage.getItem(key);
-      if (value) {
-        try {
-          backup[key] = JSON.parse(value);
-        } catch {
-          // If parsing fails, store the raw value
-          backup[key] = value;
-        }
-      }
-    }
-
-    const dataStr = JSON.stringify(backup, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `better-home-backup-${new Date().toISOString().split("T")[0]}.json`;
-    link.style.display = "none";
-
-    // Use documentElement as fallback if body is not available
-    const container = document.body || document.documentElement;
-    container.appendChild(link);
-    link.click();
-    container.removeChild(link);
-    URL.revokeObjectURL(url);
+    const backup = createBackup();
+    downloadBackup(backup);
   };
 
   const handleUploadBackup = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,27 +51,11 @@ function PopupApp() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const backup = JSON.parse(e.target?.result as string);
-        for (const key of Object.keys(backup)) {
-          const value = backup[key];
-          // Store as-is if already a string (like theme values), otherwise JSON stringify
-          if (typeof value === "string" && key === "vite-ui-theme") {
-            localStorage.setItem(key, value);
-          } else {
-            localStorage.setItem(key, JSON.stringify(value));
-          }
-        }
-        // Reload the page to reflect changes
-        window.location.reload();
-      } catch {
-        console.error("Invalid backup file. Please select a valid JSON file.");
-      }
-    };
-    reader.readAsText(file);
-    // Reset the input
+    parseBackupFile(file, (backup) => {
+      restoreBackup(backup);
+      window.location.reload();
+    });
+
     event.target.value = "";
   };
 

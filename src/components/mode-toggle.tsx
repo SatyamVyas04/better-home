@@ -1,4 +1,3 @@
-// Theme switcher dropdown component
 import { IconMoon, IconSun } from "@tabler/icons-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";

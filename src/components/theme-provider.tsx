@@ -1,4 +1,3 @@
-// Theme context provider with system preference detection
 import { createContext, useContext, useEffect, useState } from "react";
 
 declare const chrome: {
