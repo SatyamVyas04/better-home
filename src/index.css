@@ -77,6 +77,18 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --todo-group-red: oklch(0.6532 0.2328 25.74);
+  --todo-group-orange: oklch(0.7533 0.172 55.72);
+  --todo-group-yellow: oklch(0.8652 0.1768 90.38);
+  --todo-group-green: oklch(0.7303 0.1944 147.44);
+  --todo-group-mint: oklch(0.7471 0.134 181.77);
+  --todo-group-teal: oklch(0.7534 0.1209 193.26);
+  --todo-group-cyan: oklch(0.7859 0.1304 203.53);
+  --todo-group-blue: oklch(0.5934 0.2196 258.09);
+  --todo-group-indigo: oklch(0.5534 0.2215 275.72);
+  --todo-group-purple: oklch(0.5944 0.2769 307.32);
+  --todo-group-pink: oklch(0.6269 0.2706 13.33);
+  --todo-group-brown: oklch(0.5962 0.0778 55.29);
 }
 
 .dark {
@@ -111,6 +123,18 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --todo-group-red: oklch(0.6609 0.2257 27.31);
+  --todo-group-orange: oklch(0.7619 0.167 57.05);
+  --todo-group-yellow: oklch(0.8848 0.1816 94.9);
+  --todo-group-green: oklch(0.7556 0.2082 146.98);
+  --todo-group-mint: oklch(0.7969 0.143 181.65);
+  --todo-group-teal: oklch(0.8053 0.1199 193.99);
+  --todo-group-cyan: oklch(0.8438 0.1073 207.57);
+  --todo-group-blue: oklch(0.6106 0.2217 258.53);
+  --todo-group-indigo: oklch(0.5868 0.2093 275.81);
+  --todo-group-purple: oklch(0.6139 0.2839 308.64);
+  --todo-group-pink: oklch(0.6446 0.2629 15.28);
+  --todo-group-brown: oklch(0.6211 0.0785 55.96);
 }
 
 @font-face {
@@ -133,19 +157,19 @@
 
 /* Custom Scrollbar for Chrome and Edge */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--background);
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--muted);
-  border-radius: 6px;
-  border: 2px solid var(--background);
+  border-radius: 4px;
+  border: 1px solid var(--background);
 }
 
 ::-webkit-scrollbar-thumb:hover {

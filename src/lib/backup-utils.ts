@@ -1,6 +1,7 @@
 const STORAGE_KEYS = [
   "better-home-widget-settings",
   "better-home-todos",
+  "better-home-todo-groups",
   "better-home-todo-sort",
   "better-home-todo-filters",
   "better-home-quick-links",

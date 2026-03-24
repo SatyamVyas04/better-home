@@ -7,7 +7,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion, Reorder } from "motion/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,7 +35,15 @@ import {
   DELETE_HOLD_DURATION,
   mergeReorderedWithHidden,
 } from "@/lib/todo-utils";
-import type { SortMode, Todo, TodoFilters } from "@/types/todo";
+import { cn } from "@/lib/utils";
+import {
+  type SortMode,
+  TODO_GROUP_COLOR_NAMES,
+  type Todo,
+  type TodoFilters,
+  type TodoGroup,
+  type TodoGroupColorName,
+} from "@/types/todo";
 
 interface TodoListProps {
   fullSize?: boolean;
@@ -48,9 +56,14 @@ export function TodoList({ fullSize = false }: TodoListProps) {
       text: "get shit done",
       completed: false,
       important: false,
+      groupId: null,
       createdAt: Date.now(),
     },
   ]);
+  const [todoGroups, setTodoGroups] = useLocalStorage<TodoGroup[]>(
+    "better-home-todo-groups",
+    []
+  );
   const [newTodo, setNewTodo] = useState("");
   const [sortMode, setSortMode] = useLocalStorage<SortMode>(
     "better-home-todo-sort",
@@ -63,8 +76,83 @@ export function TodoList({ fullSize = false }: TodoListProps) {
       importantOnly: false,
     }
   );
+  const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
+  const [editTodoText, setEditTodoText] = useState("");
+  const [groupDraftName, setGroupDraftName] = useState("");
+  const [groupDraftColor, setGroupDraftColor] =
+    useState<TodoGroupColorName>("blue");
   const [holdingDelete, setHoldingDelete] = useState<string | null>(null);
   const holdTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const hasLegacyTodoShape = todos.some(
+      (todo) => typeof todo.groupId === "undefined"
+    );
+
+    if (!hasLegacyTodoShape) {
+      return;
+    }
+
+    setTodos((prev) =>
+      prev.map((todo) => ({
+        ...todo,
+        groupId: todo.groupId ?? null,
+      }))
+    );
+  }, [todos, setTodos]);
+
+  const getGroupColorVar = (colorName: TodoGroupColorName): string =>
+    `var(--todo-group-${colorName})`;
+
+  const getColorDisplayName = (colorName: TodoGroupColorName): string =>
+    colorName.charAt(0).toUpperCase() + colorName.slice(1);
+
+  const assignTodoGroup = (todoId: string, groupId: string | null) => {
+    setTodos((prev) =>
+      prev.map((todo) => (todo.id === todoId ? { ...todo, groupId } : todo))
+    );
+  };
+
+  const resetGroupDraft = () => {
+    setGroupDraftName("");
+    setGroupDraftColor("blue");
+  };
+
+  const deleteGroupAndClearTodos = (groupId: string) => {
+    setTodoGroups((prev) => prev.filter((group) => group.id !== groupId));
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.groupId === groupId ? { ...todo, groupId: null } : todo
+      )
+    );
+  };
+
+  const createGroupForTodo = (todoId: string) => {
+    const normalizedName = groupDraftName.trim();
+    if (!normalizedName) {
+      return;
+    }
+
+    const existingGroup = todoGroups.find(
+      (group) => group.name.toLowerCase() === normalizedName.toLowerCase()
+    );
+
+    if (existingGroup) {
+      assignTodoGroup(todoId, existingGroup.id);
+      resetGroupDraft();
+      return;
+    }
+
+    const newGroup: TodoGroup = {
+      id: crypto.randomUUID(),
+      name: normalizedName,
+      color: groupDraftColor,
+    };
+
+    setTodoGroups((prev) => [newGroup, ...prev]);
+    assignTodoGroup(todoId, newGroup.id);
+    resetGroupDraft();
+  };
 
   const addTodo = () => {
     const trimmedText = newTodo.trim();
@@ -77,6 +165,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
       text: trimmedText.toLowerCase(),
       completed: false,
       important: false,
+      groupId: null,
       createdAt: Date.now(),
     };
 
@@ -102,11 +191,49 @@ export function TodoList({ fullSize = false }: TodoListProps) {
 
   const deleteTodo = (id: string) => {
     setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    if (editingTodoId === id) {
+      setEditingTodoId(null);
+      setEditTodoText("");
+    }
     setHoldingDelete(null);
     if (holdTimeoutRef.current) {
       clearTimeout(holdTimeoutRef.current);
       holdTimeoutRef.current = null;
     }
+  };
+
+  const startEditingTodo = (todo: Todo) => {
+    if (editingTodoId === todo.id) {
+      return;
+    }
+
+    setEditingTodoId(todo.id);
+    setEditTodoText(todo.text);
+  };
+
+  const cancelEditingTodo = () => {
+    setEditingTodoId(null);
+    setEditTodoText("");
+  };
+
+  const saveEditingTodo = (id: string) => {
+    if (editingTodoId !== id) {
+      return;
+    }
+
+    const trimmedText = editTodoText.trim();
+    if (!trimmedText) {
+      cancelEditingTodo();
+      return;
+    }
+
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, text: trimmedText.toLowerCase() } : todo
+      )
+    );
+
+    cancelEditingTodo();
   };
 
   const handleDeleteMouseDown = (id: string) => {
@@ -142,10 +269,428 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     }
   };
 
+  const handleEditKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.currentTarget.blur();
+      return;
+    }
+
+    if (e.key === "Escape") {
+      cancelEditingTodo();
+      return;
+    }
+
+    if (e.key === " ") {
+      e.stopPropagation();
+    }
+  };
+
+  const handleGroupDraftKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    todoId: string
+  ) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      createGroupForTodo(todoId);
+    }
+
+    if (e.key === "Escape") {
+      resetGroupDraft();
+    }
+  };
+
+  const shouldIgnoreRowToggle = (target: EventTarget | null): boolean => {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    return Boolean(
+      target.closest(
+        'button, input, textarea, [role="button"], [role="checkbox"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]'
+      )
+    );
+  };
+
   const displayedTodos = applyFiltersAndSorting(todos, filters, sortMode);
+  const todoGroupsById = new Map(todoGroups.map((group) => [group.id, group]));
+  const groupUsageCount = todos.reduce((acc, todo) => {
+    if (!todo.groupId) {
+      return acc;
+    }
+
+    acc.set(todo.groupId, (acc.get(todo.groupId) ?? 0) + 1);
+    return acc;
+  }, new Map<string, number>());
+  const groupsForContextMenu = [...todoGroups].sort((a, b) => {
+    const usageA = groupUsageCount.get(a.id) ?? 0;
+    const usageB = groupUsageCount.get(b.id) ?? 0;
+
+    if (usageA !== usageB) {
+      return usageB - usageA;
+    }
+
+    return a.name.localeCompare(b.name);
+  });
   const completedCount = todos.filter((t) => t.completed).length;
   const totalCount = todos.length;
   const canReorder = sortMode === "manual";
+
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This renderer combines drag, edit, delete, and nested menu interactions for a single todo row.
+  const renderTodoItem = (todo: Todo) => {
+    const todoGroup = todo.groupId
+      ? todoGroupsById.get(todo.groupId)
+      : undefined;
+    const todoGroupColor = todoGroup
+      ? getGroupColorVar(todoGroup.color)
+      : undefined;
+
+    return (
+      <ContextMenu key={todo.id}>
+        <ContextMenuTrigger asChild>
+          <Reorder.Item
+            animate={{
+              filter: "blur(0px)",
+              opacity: 1,
+              y: 0,
+              scale: 1,
+            }}
+            className="relative"
+            exit={{
+              filter: "blur(4px)",
+              opacity: 0,
+              y: 10,
+              scale: 0.95,
+            }}
+            initial={{
+              filter: "blur(4px)",
+              opacity: 0,
+              y: 10,
+              scale: 0.95,
+            }}
+            onClick={(e) => {
+              if (editingTodoId === todo.id) {
+                return;
+              }
+
+              if (shouldIgnoreRowToggle(e.target)) {
+                return;
+              }
+
+              toggleTodo(todo.id);
+            }}
+            transition={{
+              duration: 0.3,
+              ease: "easeOut",
+            }}
+            value={todo}
+          >
+            <div className="group mr-px flex items-center gap-1 rounded-md border border-border/50 px-1.5 py-1.5 transition-[background-color] hover:bg-accent/30">
+              <div
+                className={
+                  canReorder
+                    ? "cursor-grab active:cursor-grabbing"
+                    : "cursor-not-allowed opacity-50"
+                }
+              >
+                <IconGripVertical className="size-3.5 text-muted-foreground" />
+              </div>
+              <Checkbox
+                checked={todo.completed}
+                className="size-3.5 rounded-sm"
+                id={todo.id}
+                onCheckedChange={() => toggleTodo(todo.id)}
+              />
+              <div className="ml-0.5 min-w-0 flex-1 -translate-y-px">
+                {editingTodoId === todo.id ? (
+                  <Input
+                    className={`h-5 w-full border-0 bg-transparent! px-1 text-xs lowercase shadow-none transition-colors hover:bg-accent/40 focus:bg-accent/50 focus:ring-0 focus:ring-offset-0 ${
+                      todo.completed ? "text-muted-foreground line-through" : ""
+                    }`}
+                    onBlur={() => saveEditingTodo(todo.id)}
+                    onChange={(e) => setEditTodoText(e.target.value)}
+                    onKeyDown={handleEditKeyDown}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    value={editTodoText}
+                  />
+                ) : (
+                  <button
+                    className={`wrap-anywhere inline-block max-w-full whitespace-pre-wrap rounded px-1 py-0.5 text-left text-xs lowercase transition-colors hover:bg-accent/40 ${
+                      todo.completed ? "text-muted-foreground line-through" : ""
+                    }`}
+                    onClick={() => startEditingTodo(todo)}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    type="button"
+                  >
+                    {todo.text}
+                  </button>
+                )}
+              </div>
+              <div className="ml-auto flex items-center gap-1 pl-1">
+                <AnimatePresence mode="wait">
+                  {todo.important && (
+                    <motion.div
+                      animate={{
+                        filter: "blur(0px)",
+                        opacity: 1,
+                        scale: 1,
+                      }}
+                      className="translate-x-6 transform transition-transform group-hover:translate-x-0"
+                      exit={{
+                        filter: "blur(4px)",
+                        opacity: 0,
+                        scale: 0.8,
+                      }}
+                      initial={{
+                        filter: "blur(4px)",
+                        opacity: 0,
+                        scale: 0.8,
+                      }}
+                      key="star"
+                      transition={{
+                        duration: 0.2,
+                        ease: "easeOut",
+                      }}
+                    >
+                      <IconStarFilled className="size-3.5 text-yellow-500" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <TooltipProvider>
+                  <Tooltip delayDuration={500}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        className="relative -my-0.75 size-6 translate-x-6 transform overflow-clip opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+                        onMouseDown={() => handleDeleteMouseDown(todo.id)}
+                        onMouseLeave={handleDeleteMouseUp}
+                        onMouseUp={handleDeleteMouseUp}
+                        onTouchEnd={handleDeleteMouseUp}
+                        onTouchStart={() => handleDeleteMouseDown(todo.id)}
+                        size="icon-sm"
+                        variant="ghost"
+                      >
+                        <div
+                          aria-hidden="true"
+                          className={`absolute bottom-0 left-0 flex h-full w-full items-center justify-center bg-destructive text-destructive-foreground transition-[clip-path] ${
+                            holdingDelete === todo.id
+                              ? "duration-1500 ease-linear [clip-path:inset(0px_0px_0px_0px)]"
+                              : "duration-200 ease-out [clip-path:inset(100%_0px_0px_0px)]"
+                          }`}
+                        >
+                          <IconTrash className="size-3.5" />
+                        </div>
+                        <IconTrash className="size-3.5 text-destructive" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="text-xs" side="top">
+                      <p className="lowercase">hold to delete</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+            <AnimatePresence mode="wait">
+              {todoGroup && todoGroupColor && (
+                <motion.div
+                  animate={{
+                    filter: "blur(0px)",
+                    opacity: 1,
+                    scale: 1,
+                  }}
+                  className="absolute top-0 right-0 bottom-0 w-3 rounded-md"
+                  exit={{
+                    filter: "blur(4px)",
+                    opacity: 0,
+                    scale: 0.8,
+                  }}
+                  initial={{
+                    filter: "blur(4px)",
+                    opacity: 0,
+                    scale: 0.8,
+                  }}
+                  key="group"
+                  style={{
+                    background:
+                      "linear-gradient(to right, transparent 40%, " +
+                      todoGroupColor +
+                      ")",
+                  }}
+                  transition={{
+                    duration: 0.2,
+                    ease: "easeOut",
+                  }}
+                >
+                  <TooltipProvider>
+                    <Tooltip delayDuration={200}>
+                      <TooltipTrigger asChild>
+                        <div className="h-full w-full" />
+                      </TooltipTrigger>
+                      <TooltipContent
+                        className="p-1 pl-2 text-[10px] lowercase"
+                        side="right"
+                      >
+                        <p>{todoGroup.name.toLowerCase()}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Reorder.Item>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="w-60">
+          <ContextMenuItem className="text-xs lowercase" disabled>
+            group settings
+          </ContextMenuItem>
+          <div className="space-y-1.5 px-1 pb-1">
+            <Input
+              className="h-7 text-xs lowercase"
+              onChange={(e) => setGroupDraftName(e.target.value)}
+              onKeyDown={(e) => handleGroupDraftKeyDown(e, todo.id)}
+              onPointerDown={(e) => e.stopPropagation()}
+              placeholder="new group name"
+              value={groupDraftName}
+            />
+            <div className="space-y-2 py-1">
+              <div className="flex flex-wrap items-center justify-center gap-3 px-2 py-1">
+                {TODO_GROUP_COLOR_NAMES.map((colorName) => {
+                  const isActive = groupDraftColor === colorName;
+                  return (
+                    <button
+                      aria-label={`select ${getColorDisplayName(colorName)} group color`}
+                      aria-pressed={isActive}
+                      className={cn(
+                        "size-6 rounded-full transition-all duration-300 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                        isActive && "scale-110"
+                      )}
+                      key={colorName}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setGroupDraftColor(colorName);
+                      }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      style={{
+                        backgroundColor: getGroupColorVar(colorName),
+                        boxShadow: isActive
+                          ? `0 0 0 2px var(--background), 0 0 0 4px ${getGroupColorVar(
+                              colorName
+                            )}`
+                          : undefined,
+                      }}
+                      type="button"
+                    >
+                      <span className="sr-only">
+                        {getColorDisplayName(colorName)}
+                      </span>
+                      {isActive && (
+                        <span className="pointer-events-none flex items-center justify-center">
+                          <IconCheck className="size-3 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.45)]" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <Button
+              className="h-8 w-full text-xs lowercase"
+              onClick={() => createGroupForTodo(todo.id)}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              create group
+            </Button>
+            <div className="mt-1 max-h-36 overflow-y-auto rounded-md border border-border/60 p-1">
+              <div className="flex items-center gap-1 rounded-sm p-0.5">
+                <button
+                  className="flex h-6 flex-1 items-center gap-2 rounded-sm px-2 text-left text-xs lowercase hover:bg-accent"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    assignTodoGroup(todo.id, null);
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="size-2.5 rounded-full bg-muted-foreground/35"
+                  />
+                  <span>no group</span>
+                  {!todo.groupId && <IconCheck className="ml-auto size-3.5" />}
+                </button>
+              </div>
+              {groupsForContextMenu.map((group) => {
+                const isSelected = todo.groupId === group.id;
+                return (
+                  <div
+                    className="flex items-center gap-1 rounded-sm p-0.5"
+                    key={group.id}
+                  >
+                    <button
+                      className="flex h-6 min-w-0 flex-1 items-center gap-2 rounded-sm px-2 text-left text-xs lowercase hover:bg-accent"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        assignTodoGroup(todo.id, group.id);
+                      }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      type="button"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="size-2.5 rounded-full"
+                        style={{
+                          backgroundColor: getGroupColorVar(group.color),
+                        }}
+                      />
+                      <span className="min-w-0 flex-1 truncate">
+                        {group.name.toLowerCase()}
+                      </span>
+                      <span className="ml-1 inline-flex size-3.5 shrink-0 items-center justify-center">
+                        {isSelected ? <IconCheck className="size-3.5" /> : null}
+                      </span>
+                    </button>
+                    <button
+                      className="inline-flex size-7 items-center justify-center rounded-sm hover:bg-destructive/10"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        deleteGroupAndClearTodos(group.id);
+                      }}
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      type="button"
+                    >
+                      <IconTrash className="size-3.5 text-destructive" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <ContextMenuSeparator className="h-px" />
+          <ContextMenuItem className="text-xs lowercase" disabled>
+            actions
+          </ContextMenuItem>
+          <ContextMenuItem onClick={() => toggleImportant(todo.id)}>
+            {todo.important ? (
+              <IconStarFilled className="mr-2 size-3.5" />
+            ) : (
+              <IconStar className="mr-2 size-3.5" />
+            )}
+            <span className="text-xs lowercase">
+              {todo.important ? "unmark important" : "mark important"}
+            </span>
+          </ContextMenuItem>
+          <ContextMenuItem onClick={() => toggleTodo(todo.id)}>
+            <IconCheck className="mr-2 size-3.5" />
+            <span className="text-xs lowercase">
+              {todo.completed ? "mark incomplete" : "mark complete"}
+            </span>
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    );
+  };
 
   return (
     <ContextMenu>
@@ -200,152 +745,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                   values={displayedTodos}
                 >
                   <AnimatePresence mode="popLayout">
-                    {displayedTodos.map((todo) => (
-                      <ContextMenu key={todo.id}>
-                        <ContextMenuTrigger asChild>
-                          <Reorder.Item
-                            animate={{
-                              filter: "blur(0px)",
-                              opacity: 1,
-                              y: 0,
-                              scale: 1,
-                            }}
-                            className="group flex items-center gap-1 rounded-md border border-border/50 px-1.5 py-1.5 transition-colors hover:bg-accent/30"
-                            exit={{
-                              filter: "blur(4px)",
-                              opacity: 0,
-                              y: 10,
-                              scale: 0.95,
-                            }}
-                            initial={{
-                              filter: "blur(4px)",
-                              opacity: 0,
-                              y: 10,
-                              scale: 0.95,
-                            }}
-                            transition={{
-                              duration: 0.3,
-                              ease: "easeOut",
-                            }}
-                            value={todo}
-                          >
-                            <div
-                              className={
-                                canReorder
-                                  ? "cursor-grab active:cursor-grabbing"
-                                  : "cursor-not-allowed opacity-50"
-                              }
-                            >
-                              <IconGripVertical className="size-3.5 text-muted-foreground" />
-                            </div>
-                            <Checkbox
-                              checked={todo.completed}
-                              className="size-3.5 rounded-sm"
-                              id={todo.id}
-                              onCheckedChange={() => toggleTodo(todo.id)}
-                            />
-                            <label
-                              className={`ml-1 w-full flex-1 cursor-pointer break-all text-xs ${
-                                todo.completed
-                                  ? "text-muted-foreground line-through"
-                                  : ""
-                              }`}
-                              htmlFor={todo.id}
-                            >
-                              {todo.text}
-                            </label>
-                            <AnimatePresence mode="wait">
-                              {todo.important && (
-                                <motion.div
-                                  animate={{
-                                    filter: "blur(0px)",
-                                    opacity: 1,
-                                    scale: 1,
-                                  }}
-                                  className="translate-x-6 transform transition-transform group-hover:translate-x-0"
-                                  exit={{
-                                    filter: "blur(4px)",
-                                    opacity: 0,
-                                    scale: 0.8,
-                                  }}
-                                  initial={{
-                                    filter: "blur(4px)",
-                                    opacity: 0,
-                                    scale: 0.8,
-                                  }}
-                                  key="star"
-                                  transition={{
-                                    duration: 0.2,
-                                    ease: "easeOut",
-                                  }}
-                                >
-                                  <IconStarFilled className="size-3.5 text-yellow-500" />
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                            <TooltipProvider>
-                              <Tooltip delayDuration={500}>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    className="relative -my-0.75 -mr-0.75 size-6 translate-x-6 transform overflow-clip opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
-                                    onMouseDown={() =>
-                                      handleDeleteMouseDown(todo.id)
-                                    }
-                                    onMouseLeave={handleDeleteMouseUp}
-                                    onMouseUp={handleDeleteMouseUp}
-                                    onTouchEnd={handleDeleteMouseUp}
-                                    onTouchStart={() =>
-                                      handleDeleteMouseDown(todo.id)
-                                    }
-                                    size="icon-sm"
-                                    variant="ghost"
-                                  >
-                                    <div
-                                      aria-hidden="true"
-                                      className={`absolute bottom-0 left-0 flex h-full w-full items-center justify-center bg-destructive text-destructive-foreground transition-[clip-path] ${
-                                        holdingDelete === todo.id
-                                          ? "duration-1500 ease-linear [clip-path:inset(0px_0px_0px_0px)]"
-                                          : "duration-200 ease-out [clip-path:inset(100%_0px_0px_0px)]"
-                                      }`}
-                                    >
-                                      <IconTrash className="size-3.5" />
-                                    </div>
-                                    <IconTrash className="size-3.5 text-destructive" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent className="text-xs" side="top">
-                                  <p className="lowercase">hold to delete</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </Reorder.Item>
-                        </ContextMenuTrigger>
-                        <ContextMenuContent className="w-48">
-                          <ContextMenuItem onClick={() => toggleTodo(todo.id)}>
-                            <IconCheck className="mr-2 size-3.5" />
-                            <span className="text-xs lowercase">
-                              {todo.completed
-                                ? "mark incomplete"
-                                : "mark complete"}
-                            </span>
-                          </ContextMenuItem>
-                          <ContextMenuItem
-                            onClick={() => toggleImportant(todo.id)}
-                          >
-                            {todo.important ? (
-                              <IconStarFilled className="mr-2 size-3.5" />
-                            ) : (
-                              <IconStar className="mr-2 size-3.5" />
-                            )}
-                            <span className="text-xs lowercase">
-                              {todo.important
-                                ? "unmark important"
-                                : "mark important"}
-                            </span>
-                          </ContextMenuItem>
-                        </ContextMenuContent>
-                      </ContextMenu>
-                    ))}
+                    {displayedTodos.map(renderTodoItem)}
                     {displayedTodos.length === 0 && (
                       <Reorder.Item
                         animate={{ opacity: 1 }}
