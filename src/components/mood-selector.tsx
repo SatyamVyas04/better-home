@@ -1,4 +1,3 @@
-// Mood selection component with animated hover effects and visual feedback
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
@@ -23,7 +22,7 @@ export function MoodSelector({
               aria-label={label}
               aria-pressed={selectedMood === key}
               className={cn(
-                "size-6 rounded-full transition-all duration-300 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                "size-6 rounded-full transition-transform duration-200 ease-out hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 selectedMood === key && "scale-110"
               )}
               key={key}

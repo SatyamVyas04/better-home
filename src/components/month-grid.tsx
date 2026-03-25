@@ -1,6 +1,5 @@
-// Calendar month grid component with animated date cells and mood visualization
 import { motion } from "motion/react";
-import { MOOD_COLORS } from "@/lib/calendar-constants";
+import { useMemo } from "react";
 import {
   CELL_FONT_SIZE,
   CELL_GAP,
@@ -31,10 +30,22 @@ export function MonthGrid({
   showNumbers,
   animationDelay = 0,
 }: MonthGridProps) {
-  const monthData = generateCalendarData(month.startDay, month.days);
+  const monthData = useMemo(
+    () => generateCalendarData(month.startDay, month.days),
+    [month.days, month.startDay]
+  );
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
+    []
+  );
+  const today = useMemo(() => new Date(), []);
   const maxWeeks = 6;
 
-  // Use larger sizes for quadrimester view, smaller for full year
   const cellSize = showAllYear ? CELL_SIZE : QUAD_CELL_SIZE;
   const cellGap = showAllYear ? CELL_GAP : QUAD_CELL_GAP;
   const dayLabelWidth = showAllYear ? DAY_LABEL_WIDTH : QUAD_DAY_LABEL_WIDTH;
@@ -59,7 +70,6 @@ export function MonthGrid({
         ease: "easeOut",
       }}
     >
-      {/** biome-ignore lint/a11y/noSvgWithoutTitle: Calendar month grid */}
       <svg
         aria-label={`${month.name} 2026 Mood Calendar`}
         className="h-full"
@@ -68,6 +78,7 @@ export function MonthGrid({
         width={svgWidth}
         xmlns="http://www.w3.org/2000/svg"
       >
+        <title>{`${month.name} 2026 Mood Calendar`}</title>
         <g>
           {DAY_LABELS.map((label, i) => (
             <text
@@ -90,21 +101,18 @@ export function MonthGrid({
           const y = cell.dayOfWeek * (cellSize + cellGap);
           const dateKey = getDateKey(2026, monthIndex + 1, cell.day);
           const entry = getEntryForDate(dateKey);
-          const displayDate = new Date(
-            2026,
-            monthIndex,
-            cell.day
-          ).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
-
-          const _today = new Date();
+          const fillColor = getFillColor(dateKey);
+          const displayDate = dateFormatter.format(
+            new Date(2026, monthIndex, cell.day)
+          );
           const isToday =
-            _today.getFullYear() === 2026 &&
-            _today.getMonth() === monthIndex &&
-            _today.getDate() === cell.day;
+            today.getFullYear() === 2026 &&
+            today.getMonth() === monthIndex &&
+            today.getDate() === cell.day;
+          let dayNumberColor = "var(--muted-foreground)";
+          if (fillColor !== "var(--muted)" && entry.mood) {
+            dayNumberColor = getContrastColor(entry.mood);
+          }
 
           return (
             <DatePopover
@@ -116,8 +124,8 @@ export function MonthGrid({
             >
               <g className="group cursor-pointer">
                 <rect
-                  className="transition-all duration-200 group-hover:opacity-80"
-                  fill={getFillColor(dateKey)}
+                  className="transition-opacity duration-200 group-hover:opacity-80"
+                  fill={fillColor}
                   height={cellSize}
                   rx="4"
                   width={cellSize}
@@ -147,15 +155,7 @@ export function MonthGrid({
                 {showNumbers && (
                   <text
                     dominantBaseline="central"
-                    fill={
-                      getFillColor(dateKey) === "var(--muted)"
-                        ? "var(--muted-foreground)"
-                        : getContrastColor(
-                            Object.entries(MOOD_COLORS).find(
-                              ([, v]) => v.color === getFillColor(dateKey)
-                            )?.[0] || ""
-                          )
-                    }
+                    fill={dayNumberColor}
                     fontFamily="DMMono, monospace"
                     fontSize={fontSize}
                     fontWeight="500"

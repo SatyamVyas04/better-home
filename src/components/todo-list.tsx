@@ -7,7 +7,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion, Reorder } from "motion/react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -87,21 +87,21 @@ export function TodoList({ fullSize = false }: TodoListProps) {
   const textareaRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
 
   useEffect(() => {
-    const hasLegacyTodoShape = todos.some(
-      (todo) => typeof todo.groupId === "undefined"
-    );
+    setTodos((prev) => {
+      const hasLegacyTodoShape = prev.some(
+        (todo) => typeof todo.groupId === "undefined"
+      );
 
-    if (!hasLegacyTodoShape) {
-      return;
-    }
+      if (!hasLegacyTodoShape) {
+        return prev;
+      }
 
-    setTodos((prev) =>
-      prev.map((todo) => ({
+      return prev.map((todo) => ({
         ...todo,
         groupId: todo.groupId ?? null,
-      }))
-    );
-  }, [todos, setTodos]);
+      }));
+    });
+  }, [setTodos]);
 
   const getGroupColorVar = (colorName: TodoGroupColorName): string =>
     `var(--todo-group-${colorName})`;
@@ -324,38 +324,37 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     }
   };
 
-  const shouldIgnoreRowToggle = (target: EventTarget | null): boolean => {
-    if (!(target instanceof HTMLElement)) {
-      return false;
-    }
-
-    return Boolean(
-      target.closest(
-        'button, input, textarea, [role="button"], [role="checkbox"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]'
-      )
-    );
-  };
-
   const displayedTodos = applyFiltersAndSorting(todos, filters, sortMode);
-  const todoGroupsById = new Map(todoGroups.map((group) => [group.id, group]));
-  const groupUsageCount = todos.reduce((acc, todo) => {
-    if (!todo.groupId) {
-      return acc;
-    }
+  const todoGroupsById = useMemo(
+    () => new Map(todoGroups.map((group) => [group.id, group])),
+    [todoGroups]
+  );
+  const groupUsageCount = useMemo(
+    () =>
+      todos.reduce((acc, todo) => {
+        if (!todo.groupId) {
+          return acc;
+        }
 
-    acc.set(todo.groupId, (acc.get(todo.groupId) ?? 0) + 1);
-    return acc;
-  }, new Map<string, number>());
-  const groupsForContextMenu = [...todoGroups].sort((a, b) => {
-    const usageA = groupUsageCount.get(a.id) ?? 0;
-    const usageB = groupUsageCount.get(b.id) ?? 0;
+        acc.set(todo.groupId, (acc.get(todo.groupId) ?? 0) + 1);
+        return acc;
+      }, new Map<string, number>()),
+    [todos]
+  );
+  const groupsForContextMenu = useMemo(
+    () =>
+      [...todoGroups].sort((a, b) => {
+        const usageA = groupUsageCount.get(a.id) ?? 0;
+        const usageB = groupUsageCount.get(b.id) ?? 0;
 
-    if (usageA !== usageB) {
-      return usageB - usageA;
-    }
+        if (usageA !== usageB) {
+          return usageB - usageA;
+        }
 
-    return a.name.localeCompare(b.name);
-  });
+        return a.name.localeCompare(b.name);
+      }),
+    [groupUsageCount, todoGroups]
+  );
   const completedCount = todos.filter((t) => t.completed).length;
   const totalCount = todos.length;
   const canReorder = sortMode === "manual";
@@ -391,17 +390,6 @@ export function TodoList({ fullSize = false }: TodoListProps) {
               opacity: 0,
               y: 10,
               scale: 0.95,
-            }}
-            onClick={(e) => {
-              if (editingTodoId === todo.id) {
-                return;
-              }
-
-              if (shouldIgnoreRowToggle(e.target)) {
-                return;
-              }
-
-              toggleTodo(todo.id);
             }}
             transition={{
               duration: 0.3,

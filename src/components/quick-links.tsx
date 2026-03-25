@@ -178,7 +178,7 @@ export function QuickLinks({
                   <TooltipTrigger asChild>
                     <div className="group relative w-fit">
                       <a
-                        className="flex size-8 items-center justify-center rounded-md border border-border/50 bg-background transition-all hover:border-border hover:bg-accent/30"
+                        className="flex size-8 items-center justify-center rounded-md border border-border/50 bg-background transition-colors hover:border-border hover:bg-accent/30"
                         href={link.url}
                         rel="noopener noreferrer"
                         target="_blank"

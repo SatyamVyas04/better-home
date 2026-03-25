@@ -49,7 +49,6 @@ export function generateCalendarData(
   return cells;
 }
 
-// Layout constants
 export const CELL_SIZE = 20;
 export const CELL_GAP = 4;
 export const MONTH_GAP = 28;
@@ -58,11 +57,9 @@ export const QUAD_CELL_SIZE = 36;
 export const QUAD_CELL_GAP = 6;
 export const QUAD_DAY_LABEL_WIDTH = 38;
 
-// Font size constants
 export const CELL_FONT_SIZE = 8;
 export const QUAD_CELL_FONT_SIZE = 14;
 export const LABEL_FONT_SIZE = 7;
 export const QUAD_LABEL_FONT_SIZE = 11;
 
-// SVG layout constants
 export const SVG_HEIGHT_PADDING = 20;

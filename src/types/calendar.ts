@@ -1,4 +1,3 @@
-// TypeScript type definitions for calendar components and data structures
 import type React from "react";
 import type { MoodType } from "@/lib/calendar-constants";
 

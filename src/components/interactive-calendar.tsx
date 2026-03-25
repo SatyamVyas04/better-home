@@ -4,7 +4,7 @@ import {
   IconMenu2,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,20 +30,24 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
     true
   );
 
-  const getFillColor = (dateKey: string): string => {
-    const entry = getEntryForDate(dateKey);
-    if (entry.mood) {
-      return MOOD_COLORS[entry.mood].color;
-    }
-    if (entry.workLog || entry.journal) {
-      return "var(--muted)"; // Color for entries without mood
-    }
-    return "var(--muted)";
-  };
+  const getFillColor = useCallback(
+    (dateKey: string): string => {
+      const entry = getEntryForDate(dateKey);
+      if (entry.mood) {
+        return MOOD_COLORS[entry.mood].color;
+      }
+      return "var(--muted)";
+    },
+    [getEntryForDate]
+  );
 
-  const currentMonths = showAllYear
-    ? MONTHS_2026.map((_, i) => i)
-    : QUADRIMESTERS[currentQuadrimester].months;
+  const currentMonths = useMemo(
+    () =>
+      showAllYear
+        ? MONTHS_2026.map((_, i) => i)
+        : QUADRIMESTERS[currentQuadrimester].months,
+    [currentQuadrimester, showAllYear]
+  );
 
   const handlePrevQuadrimester = () => {
     setCurrentQuadrimester((prev) => (prev > 0 ? prev - 1 : 2));

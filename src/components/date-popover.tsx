@@ -1,5 +1,3 @@
-// Date entry popover with mood, work log, and journal inputs
-
 import { IconTrash } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -35,10 +33,10 @@ export function DatePopover({
   const holdTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    setSelectedMood(entry.mood);
+    setSelectedMood(entry.mood ?? null);
     setWorkLog(entry.workLog || "");
     setJournal(entry.journal || "");
-  }, [entry.mood, entry.workLog, entry.journal]);
+  }, [entry]);
 
   const handleSave = () => {
     onSave(dateKey, { mood: selectedMood, workLog, journal });
