@@ -7,7 +7,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion, Reorder } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
@@ -83,6 +84,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     useState<TodoGroupColorName>("blue");
   const [holdingDelete, setHoldingDelete] = useState<string | null>(null);
   const holdTimeoutRef = useRef<number | null>(null);
+  const textareaRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
 
   useEffect(() => {
     const hasLegacyTodoShape = todos.some(
@@ -106,6 +108,27 @@ export function TodoList({ fullSize = false }: TodoListProps) {
 
   const getColorDisplayName = (colorName: TodoGroupColorName): string =>
     colorName.charAt(0).toUpperCase() + colorName.slice(1);
+
+  const syncTextareaHeight = (textarea: HTMLTextAreaElement) => {
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  };
+
+  const setTextareaRef = (todoId: string, node: HTMLTextAreaElement | null) => {
+    if (!node) {
+      textareaRefs.current.delete(todoId);
+      return;
+    }
+
+    textareaRefs.current.set(todoId, node);
+    syncTextareaHeight(node);
+  };
+
+  useLayoutEffect(() => {
+    for (const textarea of textareaRefs.current.values()) {
+      syncTextareaHeight(textarea);
+    }
+  });
 
   const assignTodoGroup = (todoId: string, groupId: string | null) => {
     setTodos((prev) =>
@@ -202,15 +225,6 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     }
   };
 
-  const startEditingTodo = (todo: Todo) => {
-    if (editingTodoId === todo.id) {
-      return;
-    }
-
-    setEditingTodoId(todo.id);
-    setEditTodoText(todo.text);
-  };
-
   const cancelEditingTodo = () => {
     setEditingTodoId(null);
     setEditTodoText("");
@@ -269,20 +283,31 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     }
   };
 
-  const handleEditKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+  const handleEditKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
       e.currentTarget.blur();
       return;
     }
 
     if (e.key === "Escape") {
+      e.preventDefault();
       cancelEditingTodo();
+      e.currentTarget.blur();
       return;
     }
 
     if (e.key === " ") {
       e.stopPropagation();
     }
+  };
+
+  const handleEditBlur = (
+    e: React.FocusEvent<HTMLTextAreaElement>,
+    todoId: string
+  ) => {
+    syncTextareaHeight(e.currentTarget);
+    saveEditingTodo(todoId);
   };
 
   const handleGroupDraftKeyDown = (
@@ -384,7 +409,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
             }}
             value={todo}
           >
-            <div className="group mr-px flex items-center gap-1 rounded-md border border-border/50 px-1.5 py-1.5 transition-[background-color] hover:bg-accent/30">
+            <div className="group mr-px flex items-center gap-1 rounded-md border border-border/50 px-1.5 py-1 transition-[background-color] hover:bg-accent/30">
               <div
                 className={
                   canReorder
@@ -400,30 +425,36 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                 id={todo.id}
                 onCheckedChange={() => toggleTodo(todo.id)}
               />
-              <div className="ml-0.5 min-w-0 flex-1 -translate-y-px">
-                {editingTodoId === todo.id ? (
-                  <Input
-                    className={`h-5 w-full border-0 bg-transparent! px-1 text-xs lowercase shadow-none transition-colors hover:bg-accent/40 focus:bg-accent/50 focus:ring-0 focus:ring-offset-0 ${
-                      todo.completed ? "text-muted-foreground line-through" : ""
-                    }`}
-                    onBlur={() => saveEditingTodo(todo.id)}
-                    onChange={(e) => setEditTodoText(e.target.value)}
-                    onKeyDown={handleEditKeyDown}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    value={editTodoText}
-                  />
-                ) : (
-                  <button
-                    className={`wrap-anywhere inline-block max-w-full whitespace-pre-wrap rounded px-1 py-0.5 text-left text-xs lowercase transition-colors hover:bg-accent/40 ${
-                      todo.completed ? "text-muted-foreground line-through" : ""
-                    }`}
-                    onClick={() => startEditingTodo(todo)}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    type="button"
-                  >
-                    {todo.text}
-                  </button>
-                )}
+              <div className="ml-0.5 flex w-full -translate-y-px items-center justify-center">
+                <Textarea
+                  className={`mt-0.75 min-h-5 w-full rounded-sm border-0 not-active:bg-transparent! px-1 py-1 text-xs lowercase leading-3.5 tracking-tight ${
+                    editingTodoId === todo.id
+                      ? "resize-y overflow-auto"
+                      : "resize-none overflow-hidden"
+                  } ${todo.completed ? "text-muted-foreground line-through" : ""}`}
+                  onBlur={(e) => handleEditBlur(e, todo.id)}
+                  onChange={(e) => {
+                    if (editingTodoId !== todo.id) {
+                      setEditingTodoId(todo.id);
+                    }
+
+                    setEditTodoText(e.target.value);
+                    syncTextareaHeight(e.currentTarget);
+                  }}
+                  onFocus={() => {
+                    if (editingTodoId === todo.id) {
+                      return;
+                    }
+
+                    setEditingTodoId(todo.id);
+                    setEditTodoText(todo.text);
+                  }}
+                  onKeyDown={handleEditKeyDown}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  ref={(node) => setTextareaRef(todo.id, node)}
+                  rows={1}
+                  value={editingTodoId === todo.id ? editTodoText : todo.text}
+                />
               </div>
               <div className="ml-auto flex items-center gap-1 pl-1">
                 <AnimatePresence mode="wait">
