@@ -302,7 +302,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
   };
 
   const shouldIgnoreRowToggle = (target: EventTarget | null): boolean => {
-    if (!(target instanceof HTMLElement)) {
+    if (!(target instanceof Element)) {
       return false;
     }
 
