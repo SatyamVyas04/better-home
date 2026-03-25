@@ -1,6 +1,7 @@
 import {
   IconCheck,
   IconGripVertical,
+  IconPencil,
   IconPlus,
   IconStar,
   IconStarFilled,
@@ -22,6 +23,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
@@ -306,7 +308,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
 
     return Boolean(
       target.closest(
-        'button, input, textarea, [role="button"], [role="checkbox"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]'
+        'button, input, textarea, label, [role="button"], [role="checkbox"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]'
       )
     );
   };
@@ -413,19 +415,41 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                     value={editTodoText}
                   />
                 ) : (
-                  <button
+                  <Label
                     className={`wrap-anywhere inline-block max-w-full whitespace-pre-wrap rounded px-1 py-0.5 text-left text-xs lowercase transition-colors hover:bg-accent/40 ${
                       todo.completed ? "text-muted-foreground line-through" : ""
                     }`}
-                    onClick={() => startEditingTodo(todo)}
+                    htmlFor={todo.id}
                     onPointerDown={(e) => e.stopPropagation()}
-                    type="button"
                   >
                     {todo.text}
-                  </button>
+                  </Label>
                 )}
               </div>
               <div className="ml-auto flex items-center gap-1 pl-1">
+                {editingTodoId !== todo.id && (
+                  <TooltipProvider>
+                    <Tooltip delayDuration={500}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          className="relative size-6 opacity-70 transition-opacity hover:opacity-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startEditingTodo(todo);
+                          }}
+                          size="icon-sm"
+                          variant="ghost"
+                        >
+                          <IconPencil className="size-3.5 text-muted-foreground" />
+                          <span className="sr-only">Edit task</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs" side="top">
+                        <p className="lowercase">edit task</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
                 <AnimatePresence mode="wait">
                   {todo.important && (
                     <motion.div
@@ -680,6 +704,13 @@ export function TodoList({ fullSize = false }: TodoListProps) {
             <span className="text-xs lowercase">
               {todo.important ? "unmark important" : "mark important"}
             </span>
+          </ContextMenuItem>
+          <ContextMenuItem
+            disabled={editingTodoId === todo.id}
+            onClick={() => startEditingTodo(todo)}
+          >
+            <IconPencil className="mr-2 size-3.5" />
+            <span className="text-xs lowercase">edit task</span>
           </ContextMenuItem>
           <ContextMenuItem onClick={() => toggleTodo(todo.id)}>
             <IconCheck className="mr-2 size-3.5" />
