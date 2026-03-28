@@ -123,7 +123,11 @@ export function DatePopover({
           )}
         </Tooltip>
       </TooltipProvider>
-      <PopoverContent className="w-72" side="right" sideOffset={12}>
+      <PopoverContent
+        className="w-72 bg-card/50 backdrop-blur-lg"
+        side="right"
+        sideOffset={12}
+      >
         <div className="space-y-4 text-center">
           <div className="space-y-0.5">
             <h4 className="font-medium text-foreground text-sm">
@@ -173,7 +177,7 @@ export function DatePopover({
 
           <div className="flex gap-2">
             <Button
-              className="relative flex-1 cursor-pointer overflow-clip bg-transparent text-xs active:scale-95"
+              className="relative flex-1 cursor-pointer overflow-clip bg-transparent py-4 text-xs active:scale-95"
               onMouseDown={handleMouseDown}
               onMouseLeave={handleMouseUp}
               onMouseUp={handleMouseUp}
@@ -199,7 +203,7 @@ export function DatePopover({
               </div>
             </Button>
             <Button
-              className="flex-1 cursor-pointer text-xs"
+              className="flex-1 cursor-pointer py-4 text-xs"
               onClick={handleSave}
               size="sm"
             >

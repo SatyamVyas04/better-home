@@ -415,7 +415,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
               />
               <div className="ml-0.5 flex w-full -translate-y-px items-center justify-center">
                 <Textarea
-                  className={`mt-0.75 min-h-5 w-full rounded-sm border-0 not-active:bg-transparent! px-1 py-1 text-xs lowercase leading-3.5 tracking-tight ${
+                  className={`mt-0.75 min-h-5 w-full rounded-sm border-0 not-active:bg-transparent! px-1 py-px text-xs lowercase leading-3.5 tracking-tight ${
                     editingTodoId === todo.id
                       ? "resize-y overflow-auto"
                       : "resize-none overflow-hidden"
@@ -556,7 +556,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
             </AnimatePresence>
           </Reorder.Item>
         </ContextMenuTrigger>
-        <ContextMenuContent className="w-60">
+        <ContextMenuContent className="w-60 bg-card/50 backdrop-blur-lg">
           <ContextMenuItem className="text-xs lowercase" disabled>
             group settings
           </ContextMenuItem>
@@ -797,7 +797,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
           </CardContent>
         </Card>
       </ContextMenuTrigger>
-      <ContextMenuContent className="w-48">
+      <ContextMenuContent className="w-48 bg-card/50 backdrop-blur-lg">
         <ContextMenuRadioGroup
           onValueChange={(value) => setSortMode(value as SortMode)}
           value={sortMode}
