@@ -3,6 +3,8 @@ const STORAGE_KEYS = [
   "better-home-todos",
   "better-home-todo-groups",
   "better-home-todo-sort",
+  "better-home-todo-group-by",
+  "better-home-todo-collapsed-sections",
   "better-home-todo-filters",
   "better-home-quick-links",
   "mood-calendar-2026-data",

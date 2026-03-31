@@ -1,5 +1,6 @@
 import {
   IconCheck,
+  IconChevronRight,
   IconGripVertical,
   IconPlus,
   IconStar,
@@ -32,8 +33,11 @@ import {
 } from "@/components/ui/tooltip";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
+  applyFilters,
   applyFiltersAndSorting,
+  createTodoSections,
   DELETE_HOLD_DURATION,
+  mergeReorderedSectionWithHidden,
   mergeReorderedWithHidden,
 } from "@/lib/todo-utils";
 import { cn } from "@/lib/utils";
@@ -77,6 +81,13 @@ export function TodoList({ fullSize = false }: TodoListProps) {
       importantOnly: false,
     }
   );
+  const [groupByEnabled, setGroupByEnabled] = useLocalStorage<boolean>(
+    "better-home-todo-group-by",
+    false
+  );
+  const [collapsedSections, setCollapsedSections] = useLocalStorage<
+    Record<string, boolean>
+  >("better-home-todo-collapsed-sections", {});
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
   const [editTodoText, setEditTodoText] = useState("");
   const [groupDraftName, setGroupDraftName] = useState("");
@@ -141,6 +152,27 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     setGroupDraftColor("blue");
   };
 
+  const blurActiveElement = () => {
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement) {
+      activeElement.blur();
+    }
+  };
+
+  const closeTodoContextMenu = () => {
+    resetGroupDraft();
+  };
+
+  const handleTodoContextMenuOpenChange = (isOpen: boolean) => {
+    if (isOpen) {
+      blurActiveElement();
+      cancelEditingTodo();
+      return;
+    }
+
+    closeTodoContextMenu();
+  };
+
   const deleteGroupAndClearTodos = (groupId: string) => {
     setTodoGroups((prev) => prev.filter((group) => group.id !== groupId));
     setTodos((prev) =>
@@ -153,7 +185,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
   const createGroupForTodo = (todoId: string) => {
     const normalizedName = groupDraftName.trim();
     if (!normalizedName) {
-      return;
+      return false;
     }
 
     const existingGroup = todoGroups.find(
@@ -162,8 +194,9 @@ export function TodoList({ fullSize = false }: TodoListProps) {
 
     if (existingGroup) {
       assignTodoGroup(todoId, existingGroup.id);
+      blurActiveElement();
       resetGroupDraft();
-      return;
+      return true;
     }
 
     const newGroup: TodoGroup = {
@@ -174,7 +207,9 @@ export function TodoList({ fullSize = false }: TodoListProps) {
 
     setTodoGroups((prev) => [newGroup, ...prev]);
     assignTodoGroup(todoId, newGroup.id);
+    blurActiveElement();
     resetGroupDraft();
+    return true;
   };
 
   const addTodo = () => {
@@ -277,6 +312,26 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     setTodos((prev) => mergeReorderedWithHidden(reorderedTodos, prev, filters));
   };
 
+  const handleGroupedReorder = (sectionId: string, reorderedTodos: Todo[]) => {
+    setSortMode("manual");
+    setTodos((prev) =>
+      mergeReorderedSectionWithHidden(
+        reorderedTodos,
+        prev,
+        filters,
+        todoGroupsById,
+        sectionId
+      )
+    );
+  };
+
+  const toggleSectionCollapsed = (sectionId: string) => {
+    setCollapsedSections((prev) => ({
+      ...prev,
+      [sectionId]: !(prev[sectionId] ?? false),
+    }));
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       addTodo();
@@ -314,9 +369,15 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     e: React.KeyboardEvent<HTMLInputElement>,
     todoId: string
   ) => {
+    // Prevent ContextMenu typeahead from reacting while typing in the input.
+    e.stopPropagation();
+
     if (e.key === "Enter") {
       e.preventDefault();
-      createGroupForTodo(todoId);
+      const didCreateGroup = createGroupForTodo(todoId);
+      if (didCreateGroup) {
+        e.currentTarget.blur();
+      }
     }
 
     if (e.key === "Escape") {
@@ -324,10 +385,21 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     }
   };
 
-  const displayedTodos = applyFiltersAndSorting(todos, filters, sortMode);
+  const filteredTodos = useMemo(
+    () => applyFilters(todos, filters),
+    [filters, todos]
+  );
+  const displayedTodos = useMemo(
+    () => applyFiltersAndSorting(todos, filters, sortMode),
+    [filters, sortMode, todos]
+  );
   const todoGroupsById = useMemo(
     () => new Map(todoGroups.map((group) => [group.id, group])),
     [todoGroups]
+  );
+  const groupedSections = useMemo(
+    () => createTodoSections(filteredTodos, sortMode, todoGroupsById),
+    [filteredTodos, sortMode, todoGroupsById]
   );
   const groupUsageCount = useMemo(
     () =>
@@ -358,6 +430,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
   const completedCount = todos.filter((t) => t.completed).length;
   const totalCount = todos.length;
   const canReorder = sortMode === "manual";
+  const hasActiveFilters = filters.hideCompleted || filters.importantOnly;
 
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This renderer combines drag, edit, delete, and nested menu interactions for a single todo row.
   const renderTodoItem = (todo: Todo) => {
@@ -369,7 +442,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
       : undefined;
 
     return (
-      <ContextMenu key={todo.id}>
+      <ContextMenu key={todo.id} onOpenChange={handleTodoContextMenuOpenChange}>
         <ContextMenuTrigger asChild>
           <Reorder.Item
             animate={{
@@ -556,7 +629,13 @@ export function TodoList({ fullSize = false }: TodoListProps) {
             </AnimatePresence>
           </Reorder.Item>
         </ContextMenuTrigger>
-        <ContextMenuContent className="w-60 bg-card/50 backdrop-blur-lg">
+        <ContextMenuContent
+          className="w-60 bg-card/50 backdrop-blur-lg"
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+          }}
+          onEscapeKeyDown={resetGroupDraft}
+        >
           <ContextMenuItem className="text-xs lowercase" disabled>
             group settings
           </ContextMenuItem>
@@ -610,23 +689,21 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                 })}
               </div>
             </div>
-            <Button
+            <ContextMenuItem
               className="h-8 w-full text-xs lowercase"
-              onClick={() => createGroupForTodo(todo.id)}
-              onPointerDown={(e) => e.stopPropagation()}
+              disabled={!groupDraftName.trim()}
+              onSelect={() => {
+                createGroupForTodo(todo.id);
+              }}
             >
+              <IconPlus className="size-3.5" />
               create group
-            </Button>
+            </ContextMenuItem>
             <div className="mt-1 max-h-36 overflow-y-auto rounded-md border border-border/60 p-1">
               <div className="flex items-center gap-1 rounded-sm p-0.5">
-                <button
-                  className="flex h-6 flex-1 items-center gap-2 rounded-sm px-2 text-left text-xs lowercase hover:bg-accent"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    assignTodoGroup(todo.id, null);
-                  }}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  type="button"
+                <ContextMenuItem
+                  className="h-6 flex-1 gap-2 px-2 text-xs lowercase"
+                  onSelect={() => assignTodoGroup(todo.id, null)}
                 >
                   <span
                     aria-hidden="true"
@@ -634,7 +711,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                   />
                   <span>no group</span>
                   {!todo.groupId && <IconCheck className="ml-auto size-3.5" />}
-                </button>
+                </ContextMenuItem>
               </div>
               {groupsForContextMenu.map((group) => {
                 const isSelected = todo.groupId === group.id;
@@ -643,14 +720,9 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                     className="flex items-center gap-1 rounded-sm p-0.5"
                     key={group.id}
                   >
-                    <button
-                      className="flex h-6 min-w-0 flex-1 items-center gap-2 rounded-sm px-2 text-left text-xs lowercase hover:bg-accent"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        assignTodoGroup(todo.id, group.id);
-                      }}
-                      onPointerDown={(e) => e.stopPropagation()}
-                      type="button"
+                    <ContextMenuItem
+                      className="h-6 min-w-0 flex-1 gap-2 px-2 text-xs lowercase"
+                      onSelect={() => assignTodoGroup(todo.id, group.id)}
                     >
                       <span
                         aria-hidden="true"
@@ -665,7 +737,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                       <span className="ml-1 inline-flex size-3.5 shrink-0 items-center justify-center">
                         {isSelected ? <IconCheck className="size-3.5" /> : null}
                       </span>
-                    </button>
+                    </ContextMenuItem>
                     <button
                       className="inline-flex size-7 items-center justify-center rounded-sm hover:bg-destructive/10"
                       onClick={(e) => {
@@ -756,42 +828,138 @@ export function TodoList({ fullSize = false }: TodoListProps) {
 
             <ScrollArea className="min-h-0 flex-1">
               <div className="flex min-h-full flex-col space-y-0.5 pr-0">
-                <Reorder.Group
-                  as="div"
-                  axis="y"
-                  className="flex flex-col space-y-1"
-                  onReorder={handleReorder}
-                  values={displayedTodos}
-                >
-                  <AnimatePresence mode="popLayout">
-                    {displayedTodos.map(renderTodoItem)}
-                    {displayedTodos.length === 0 && (
-                      <Reorder.Item
-                        animate={{ opacity: 1 }}
-                        className="flex flex-1 items-center justify-center py-8"
-                        exit={{ opacity: 0 }}
-                        initial={{ opacity: 0 }}
-                        key="empty-message"
-                        transition={{ duration: 0.3 }}
-                        value={{ id: "empty" } as Todo}
-                      >
+                {groupByEnabled ? (
+                  <>
+                    {groupedSections.length === 0 && (
+                      <div className="flex flex-1 items-center justify-center py-8">
                         <div className="flex flex-col items-center gap-1">
                           <p className="text-muted-foreground text-xs lowercase">
-                            {filters.hideCompleted || filters.importantOnly
+                            {hasActiveFilters
                               ? "no matching tasks"
                               : "no tasks yet"}
                           </p>
-                          {filters.hideCompleted ||
-                          filters.importantOnly ? null : (
+                          {hasActiveFilters ? null : (
                             <p className="text-[10px] text-muted-foreground/50">
                               right-click on tasks or card to explore
                             </p>
                           )}
                         </div>
-                      </Reorder.Item>
+                      </div>
                     )}
-                  </AnimatePresence>
-                </Reorder.Group>
+                    {groupedSections.map((section) => {
+                      const isCollapsed =
+                        collapsedSections[section.id] ?? false;
+
+                      return (
+                        <div
+                          className="group/count overflow-hidden rounded-md border border-border/50"
+                          key={section.id}
+                        >
+                          <button
+                            className="flex w-full items-center justify-between gap-2 bg-muted/20 px-2 py-1.5 text-left hover:bg-muted/35"
+                            onClick={() => toggleSectionCollapsed(section.id)}
+                            type="button"
+                          >
+                            <div className="flex min-w-0 items-center gap-1.5">
+                              <IconChevronRight
+                                className={cn(
+                                  "size-3.5 text-muted-foreground transition-transform",
+                                  !isCollapsed && "rotate-90"
+                                )}
+                              />
+                              {section.color && (
+                                <span
+                                  aria-hidden="true"
+                                  className="mt-px size-2 rounded-full"
+                                  style={{
+                                    backgroundColor: getGroupColorVar(
+                                      section.color
+                                    ),
+                                  }}
+                                />
+                              )}
+                              <span
+                                className="min-w-0 truncate text-xs lowercase"
+                                style={{
+                                  color: section.color
+                                    ? getGroupColorVar(section.color)
+                                    : undefined,
+                                }}
+                              >
+                                {section.label.toLowerCase()}
+                              </span>
+                            </div>
+                            <span className="translate-x-6 text-[10px] text-muted-foreground opacity-0 transition-all group-hover/count:translate-x-0 group-hover/count:opacity-100">
+                              {section.todos.filter((t) => t.completed).length}/
+                              {section.todos.length}
+                            </span>
+                          </button>
+                          <AnimatePresence initial={false}>
+                            {!isCollapsed && (
+                              <motion.div
+                                animate={{ height: "auto", opacity: 1 }}
+                                className="overflow-hidden"
+                                exit={{ height: 0, opacity: 0 }}
+                                initial={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2, ease: "easeOut" }}
+                              >
+                                <Reorder.Group
+                                  as="div"
+                                  axis="y"
+                                  className="flex flex-col space-y-px p-px"
+                                  onReorder={(reordered) =>
+                                    handleGroupedReorder(section.id, reordered)
+                                  }
+                                  values={section.todos}
+                                >
+                                  <AnimatePresence mode="popLayout">
+                                    {section.todos.map(renderTodoItem)}
+                                  </AnimatePresence>
+                                </Reorder.Group>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    })}
+                  </>
+                ) : (
+                  <Reorder.Group
+                    as="div"
+                    axis="y"
+                    className="flex flex-col space-y-px"
+                    onReorder={handleReorder}
+                    values={displayedTodos}
+                  >
+                    <AnimatePresence mode="popLayout">
+                      {displayedTodos.map(renderTodoItem)}
+                      {displayedTodos.length === 0 && (
+                        <Reorder.Item
+                          animate={{ opacity: 1 }}
+                          className="flex flex-1 items-center justify-center py-8"
+                          exit={{ opacity: 0 }}
+                          initial={{ opacity: 0 }}
+                          key="empty-message"
+                          transition={{ duration: 0.3 }}
+                          value={{ id: "empty" } as Todo}
+                        >
+                          <div className="flex flex-col items-center gap-1">
+                            <p className="text-muted-foreground text-xs lowercase">
+                              {hasActiveFilters
+                                ? "no matching tasks"
+                                : "no tasks yet"}
+                            </p>
+                            {hasActiveFilters ? null : (
+                              <p className="text-[10px] text-muted-foreground/50">
+                                right-click on tasks or card to explore
+                              </p>
+                            )}
+                          </div>
+                        </Reorder.Item>
+                      )}
+                    </AnimatePresence>
+                  </Reorder.Group>
+                )}
               </div>
             </ScrollArea>
           </CardContent>
@@ -815,6 +983,17 @@ export function TodoList({ fullSize = false }: TodoListProps) {
             manual order
           </ContextMenuRadioItem>
         </ContextMenuRadioGroup>
+        <ContextMenuSeparator />
+        <ContextMenuItem className="text-xs lowercase" disabled>
+          grouping
+        </ContextMenuItem>
+        <ContextMenuCheckboxItem
+          checked={groupByEnabled}
+          className="text-xs lowercase"
+          onCheckedChange={(checked) => setGroupByEnabled(checked)}
+        >
+          group by group
+        </ContextMenuCheckboxItem>
         <ContextMenuSeparator />
         <ContextMenuItem className="text-xs lowercase" disabled>
           filters
