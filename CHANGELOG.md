@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://github.com/SatyamVyas04/better-home/compare/v1.3.0...v1.4.0) (2026-03-31)
+
+### Features
+
+* add todo groups and inline editing ([ba2a6c5](https://github.com/SatyamVyas04/better-home/commit/ba2a6c5a9e57e511ec4bbcae18776b857e63ce17))
+* added skills for react best practises and design animations ([53b2865](https://github.com/SatyamVyas04/better-home/commit/53b2865bdfbb622133d7c8b407704c8d2333b92c))
+* enhance todo editing experience with dynamic textarea resizing ([a7edfc3](https://github.com/SatyamVyas04/better-home/commit/a7edfc346328a040fe8677eb7b2984851cddfa47))
+* implement grouping functionality for todos with collapsible sections ([efc71e5](https://github.com/SatyamVyas04/better-home/commit/efc71e5bdafe22b364c1f21ea51ca1275f850494))
+* optimize component performance with useMemo and useCallback ([9413349](https://github.com/SatyamVyas04/better-home/commit/9413349b5981acc4ffe282cad5616081cd862f20))
+* update todo group colors to use lighter shades in oklch color format ([4ca5db4](https://github.com/SatyamVyas04/better-home/commit/4ca5db4f223eef0f2dd76efb1730e0c6525998d5))
+
+### Bug Fixes
+
+* update path resolution to use import.meta.dirname for compatibility ([82e81b9](https://github.com/SatyamVyas04/better-home/commit/82e81b9571ca4a705545318ed8730cf1dc9685e7))
+
 ## [1.3.0](https://github.com/SatyamVyas04/better-home/compare/v1.2.2...v1.3.0) (2026-02-01)
 
 ### Features
