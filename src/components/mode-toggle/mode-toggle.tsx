@@ -1,5 +1,5 @@
 import { IconMoon, IconSun } from "@tabler/icons-react";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/components/theme-provider/theme-provider";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

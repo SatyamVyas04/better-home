@@ -1,15 +1,13 @@
 import { IconBrandGithub, IconBrandX, IconHeart } from "@tabler/icons-react";
 import { useEffect } from "react";
-import { InteractiveCalendar } from "@/components/interactive-calendar";
-import { QuickLinks } from "@/components/quick-links";
-import { ThemeProvider } from "@/components/theme-provider";
-import { TodoList } from "@/components/todo-list";
+import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { renderWidget } from "@/components/widgets/widget-registry";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
   DEFAULT_WIDGET_SETTINGS,
@@ -108,58 +106,52 @@ function App() {
       </div>
     ),
     tasks: (
-      <div className="flex min-h-0 flex-1">
-        <TodoList fullSize />
-      </div>
+      <div className="flex min-h-0 flex-1">{renderWidget("tasks", "full")}</div>
     ),
     links: (
       <div className="flex min-h-0 flex-1">
-        <QuickLinks expanded fullSize />
+        {renderWidget("quick-links", "full")}
       </div>
     ),
     calendar: (
-      <div className="flex min-h-0 flex-1">
-        <InteractiveCalendar />
-      </div>
+      <div className="flex min-h-0 flex-1">{renderWidget("calendar")}</div>
     ),
     "tasks-links": (
       <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
         <div className="flex min-h-0 flex-1">
-          <TodoList fullSize />
+          {renderWidget("tasks", "full")}
         </div>
         <div className="flex min-h-0 flex-1">
-          <QuickLinks expanded fullSize />
+          {renderWidget("quick-links", "full")}
         </div>
       </div>
     ),
     "tasks-calendar": (
       <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-        <div className="flex min-h-0 shrink-0">
-          <TodoList />
-        </div>
+        <div className="flex min-h-0 shrink-0">{renderWidget("tasks")}</div>
         <div className="flex min-h-0 min-w-0 flex-1">
-          <InteractiveCalendar />
+          {renderWidget("calendar")}
         </div>
       </div>
     ),
     "links-calendar": (
       <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
         <div className="flex min-h-0 shrink-0">
-          <QuickLinks expanded />
+          {renderWidget("quick-links", "expanded")}
         </div>
         <div className="flex min-h-0 min-w-0 flex-1">
-          <InteractiveCalendar />
+          {renderWidget("calendar")}
         </div>
       </div>
     ),
     all: (
       <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
         <div className="flex min-h-0 shrink-0 flex-col gap-3">
-          <TodoList />
-          <QuickLinks />
+          {renderWidget("tasks")}
+          {renderWidget("quick-links")}
         </div>
         <div className="flex min-h-0 min-w-0 flex-1">
-          <InteractiveCalendar />
+          {renderWidget("calendar")}
         </div>
       </div>
     ),

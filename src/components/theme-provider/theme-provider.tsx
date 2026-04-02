@@ -60,7 +60,6 @@ export function ThemeProvider({
 
     root.classList.add(theme);
 
-    // Notify the main content window about theme change
     chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
       const tabId = tabs[0]?.id;
       if (tabId) {

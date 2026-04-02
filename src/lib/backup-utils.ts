@@ -73,7 +73,7 @@ export function parseBackupFile(
       const backup = JSON.parse(e.target?.result as string) as BackupData;
       onSuccess(backup);
     } catch {
-      // Silently fail on invalid JSON
+      return;
     }
   };
 

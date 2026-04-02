@@ -1,4 +1,3 @@
-// Placeholder component for calendar widget (deprecated)
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function CalendarPlaceholder() {

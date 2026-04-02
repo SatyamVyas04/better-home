@@ -2,19 +2,17 @@ import {
   IconBrandGithub,
   IconBrandLinkedin,
   IconBrandX,
-  IconCalendarHeart,
-  IconChecklist,
   IconDownload,
   IconHeart,
-  IconLink,
   IconMessageReport,
   IconUpload,
 } from "@tabler/icons-react";
-import { ModeToggle } from "@/components/mode-toggle";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ModeToggle } from "@/components/mode-toggle/mode-toggle";
+import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { WIDGET_MANIFEST } from "@/components/widgets/widget-registry";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
   createBackup,
@@ -88,56 +86,33 @@ function PopupApp() {
             Widgets
           </p>
           <div className="space-y-0.5">
-            <div className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-accent/30">
-              <div className="flex items-center gap-2">
-                <IconChecklist className="size-3.5 text-muted-foreground" />
-                <Label className="cursor-pointer text-xs" htmlFor="show-tasks">
-                  tasks
-                </Label>
-              </div>
-              <Switch
-                checked={settings.showTasks}
-                className="scale-90"
-                id="show-tasks"
-                onCheckedChange={() => toggleSetting("showTasks")}
-              />
-            </div>
+            {WIDGET_MANIFEST.map((widget) => {
+              const Icon = widget.icon;
+              const switchId = `widget-${widget.id}`;
 
-            <div className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-accent/30">
-              <div className="flex items-center gap-2">
-                <IconLink className="size-3.5 text-muted-foreground" />
-                <Label
-                  className="cursor-pointer text-xs"
-                  htmlFor="show-quick-links"
+              return (
+                <div
+                  className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-accent/30"
+                  key={widget.id}
                 >
-                  quick links
-                </Label>
-              </div>
-              <Switch
-                checked={settings.showQuickLinks}
-                className="scale-90"
-                id="show-quick-links"
-                onCheckedChange={() => toggleSetting("showQuickLinks")}
-              />
-            </div>
-
-            <div className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-accent/30">
-              <div className="flex items-center gap-2">
-                <IconCalendarHeart className="size-3.5 text-muted-foreground" />
-                <Label
-                  className="cursor-pointer text-xs"
-                  htmlFor="show-calendar"
-                >
-                  mood calendar
-                </Label>
-              </div>
-              <Switch
-                checked={settings.showCalendar}
-                className="scale-90"
-                id="show-calendar"
-                onCheckedChange={() => toggleSetting("showCalendar")}
-              />
-            </div>
+                  <div className="flex items-center gap-2">
+                    <Icon className="size-3.5 text-muted-foreground" />
+                    <Label
+                      className="cursor-pointer text-xs"
+                      htmlFor={switchId}
+                    >
+                      {widget.label}
+                    </Label>
+                  </div>
+                  <Switch
+                    checked={settings[widget.settingKey]}
+                    className="scale-90"
+                    id={switchId}
+                    onCheckedChange={() => toggleSetting(widget.settingKey)}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
 
