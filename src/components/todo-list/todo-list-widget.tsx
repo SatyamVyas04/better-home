@@ -12,8 +12,8 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/todo-scroll-area";
 import { cn } from "@/lib/utils";
 import type { SortMode, Todo } from "@/types/todo";
 import { TodoItemRow } from "./todo-item-row";
@@ -148,7 +148,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
               </Button>
             </div>
 
-            <ScrollArea className="min-h-0 flex-1">
+            <ScrollArea className="min-h-0 flex-1" maskHeight={40}>
               <div className="flex min-h-full flex-col space-y-0.5 pr-0">
                 {groupByEnabled ? (
                   <>
