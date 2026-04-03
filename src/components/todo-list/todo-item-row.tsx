@@ -133,7 +133,7 @@ export function TodoItemRow({
           }}
           value={todo}
         >
-          <div className="group mr-px flex items-center gap-1 rounded-md border border-border/50 px-1.5 py-1 transition-[background-color] hover:bg-accent/30">
+          <div className="group mr-px flex items-center gap-1 rounded-md border border-border/50 px-1.5 py-1 transition-[background-color,border-color] focus-within:bg-accent/30 hover:bg-accent/30">
             <div
               className={
                 canReorder

@@ -93,7 +93,7 @@ export function QuickLinks({
               {links.map((link) => (
                 <motion.a
                   animate={{ filter: "blur(0px)", opacity: 1, x: 0, scale: 1 }}
-                  className="group flex items-center gap-2 rounded-md border border-border/50 px-1.5 py-1 transition-colors hover:bg-accent/30"
+                  className="group flex items-center gap-2 rounded-md border border-border/50 px-1.5 py-1 transition-colors hover:bg-accent/30 focus-visible:bg-accent/30 focus-visible:ring-2 focus-visible:ring-ring/30"
                   exit={{
                     filter: "blur(4px)",
                     opacity: 0,
@@ -178,7 +178,7 @@ export function QuickLinks({
                   <TooltipTrigger asChild>
                     <div className="group relative w-fit">
                       <a
-                        className="flex size-8 items-center justify-center rounded-md border border-border/50 bg-background transition-colors hover:border-border hover:bg-accent/30"
+                        className="flex size-8 items-center justify-center rounded-md border border-border/50 transition-colors hover:bg-accent/30 focus-visible:bg-accent/30 focus-visible:ring-2 focus-visible:ring-ring/30"
                         href={link.url}
                         rel="noopener noreferrer"
                         target="_blank"

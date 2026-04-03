@@ -177,11 +177,11 @@ export function TodoList({ fullSize = false }: TodoListProps) {
 
                       return (
                         <div
-                          className="group/count overflow-hidden rounded-md border border-border/50"
+                          className="group/count overflow-hidden rounded-[7px] border border-border/50"
                           key={section.id}
                         >
                           <button
-                            className="flex w-full items-center justify-between gap-2 bg-muted/20 px-2 py-1.5 text-left hover:bg-muted/35"
+                            className="flex w-full items-center justify-between gap-2 bg-muted/20 px-2 py-1.5 text-left transition-[background-color] hover:bg-muted/35"
                             onClick={() => toggleSectionCollapsed(section.id)}
                             type="button"
                           >
