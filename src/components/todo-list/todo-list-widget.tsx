@@ -130,7 +130,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
           <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 px-3">
             <div className="flex gap-1">
               <Textarea
-                className="max-h-18 min-h-6 flex-1 text-xs lowercase"
+                className="max-h-18 min-h-6 flex-1 py-1.25 text-xs lowercase"
                 onChange={(event) => setNewTodo(event.target.value)}
                 onKeyDown={handleNewTodoKeyDown}
                 placeholder="add a task..."

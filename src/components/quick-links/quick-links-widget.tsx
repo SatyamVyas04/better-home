@@ -324,37 +324,39 @@ export function QuickLinks({
   return (
     <TooltipProvider delayDuration={200}>
       <ContextMenu>
-        <Card className={getCardClasses()}>
-          <CardHeader className="px-3 pb-1">
-            <CardTitle className="font-medium text-xs lowercase">
-              quick links
-            </CardTitle>
-          </CardHeader>
-          <CardContent
-            className={`flex flex-col gap-1.5 px-3 ${expanded || fullSize ? "min-h-0 flex-1" : ""}`}
-          >
-            <div className="flex gap-1">
-              <Input
-                className="h-8 flex-1 text-xs"
-                onChange={(e) => setNewUrl(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="add a link..."
-                value={newUrl}
-              />
-              <Button
-                className="h-8 w-8"
-                disabled={!newUrl.trim()}
-                onClick={addLink}
-                size="icon"
-              >
-                <IconPlus className="size-4" />
-                <span className="sr-only">Add link</span>
-              </Button>
-            </div>
+        <ContextMenuTrigger asChild>
+          <Card className={getCardClasses()}>
+            <CardHeader className="px-3 pb-1">
+              <CardTitle className="font-medium text-xs lowercase">
+                quick links
+              </CardTitle>
+            </CardHeader>
+            <CardContent
+              className={`flex flex-col gap-1.5 px-3 ${expanded || fullSize ? "min-h-0 flex-1" : ""}`}
+            >
+              <div className="flex gap-1">
+                <Input
+                  className="h-8 flex-1 text-xs"
+                  onChange={(e) => setNewUrl(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="add a link..."
+                  value={newUrl}
+                />
+                <Button
+                  className="h-8 w-8"
+                  disabled={!newUrl.trim()}
+                  onClick={addLink}
+                  size="icon"
+                >
+                  <IconPlus className="size-4" />
+                  <span className="sr-only">Add link</span>
+                </Button>
+              </div>
 
-            <ContextMenuTrigger asChild>{renderLinks()}</ContextMenuTrigger>
-          </CardContent>
-        </Card>
+              {renderLinks()}
+            </CardContent>
+          </Card>
+        </ContextMenuTrigger>
         <ContextMenuContent className="w-56 bg-card/50 backdrop-blur-lg">
           <ContextMenuRadioGroup
             onValueChange={(value) => setSortMode(value as QuickLinksSortMode)}
