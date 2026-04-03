@@ -125,9 +125,6 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                   </span>
                 )}
               </CardTitle>
-              <p className="text-[10px] text-muted-foreground/60">
-                right-click for options
-              </p>
             </div>
           </CardHeader>
           <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 px-3">
@@ -157,18 +154,11 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                   <>
                     {groupedSections.length === 0 && (
                       <div className="flex flex-1 items-center justify-center py-8">
-                        <div className="flex flex-col items-center gap-1">
-                          <p className="text-muted-foreground text-xs lowercase">
-                            {hasActiveFilters
-                              ? "no matching tasks"
-                              : "no tasks yet"}
-                          </p>
-                          {hasActiveFilters ? null : (
-                            <p className="text-[10px] text-muted-foreground/50">
-                              right-click on tasks or card to explore
-                            </p>
-                          )}
-                        </div>
+                        <p className="text-muted-foreground text-xs lowercase">
+                          {hasActiveFilters
+                            ? "no matching tasks"
+                            : "no tasks yet"}
+                        </p>
                       </div>
                     )}
                     {groupedSections.map((section) => {
@@ -268,18 +258,11 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                           transition={{ duration: 0.3 }}
                           value={{ id: "empty" } as Todo}
                         >
-                          <div className="flex flex-col items-center gap-1">
-                            <p className="text-muted-foreground text-xs lowercase">
-                              {hasActiveFilters
-                                ? "no matching tasks"
-                                : "no tasks yet"}
-                            </p>
-                            {hasActiveFilters ? null : (
-                              <p className="text-[10px] text-muted-foreground/50">
-                                right-click on tasks or card to explore
-                              </p>
-                            )}
-                          </div>
+                          <p className="text-muted-foreground text-xs lowercase">
+                            {hasActiveFilters
+                              ? "no matching tasks"
+                              : "no tasks yet"}
+                          </p>
                         </Reorder.Item>
                       )}
                     </AnimatePresence>

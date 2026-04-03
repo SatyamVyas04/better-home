@@ -1,13 +1,25 @@
 import {
+  IconArrowDown,
+  IconArrowUp,
   IconExternalLink,
+  IconHistory,
   IconPlus,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -36,6 +48,8 @@ interface QuickLink {
   favicon: string;
 }
 
+type QuickLinksSortMode = "recent" | "alphabetical-asc" | "alphabetical-desc";
+
 export function QuickLinks({
   expanded = false,
   fullSize = false,
@@ -52,6 +66,45 @@ export function QuickLinks({
     ]
   );
   const [newUrl, setNewUrl] = useState("");
+  const [sortMode, setSortMode] = useLocalStorage<QuickLinksSortMode>(
+    "better-home-quick-links-sort",
+    "recent"
+  );
+
+  const displayedLinks = useMemo(() => {
+    const sortedLinks = [...links];
+
+    if (sortMode === "alphabetical-asc") {
+      sortedLinks.sort((a, b) =>
+        a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
+      );
+    } else if (sortMode === "alphabetical-desc") {
+      sortedLinks.sort((a, b) =>
+        b.title.localeCompare(a.title, undefined, { sensitivity: "base" })
+      );
+    } else {
+      sortedLinks.reverse();
+    }
+
+    return sortedLinks;
+  }, [links, sortMode]);
+
+  const hasDuplicates = useMemo(() => {
+    const seenUrls = new Set<string>();
+
+    for (const link of links) {
+      const normalizedLinkUrl =
+        normalizeUrl(link.url) ?? link.url.toLowerCase();
+
+      if (seenUrls.has(normalizedLinkUrl)) {
+        return true;
+      }
+
+      seenUrls.add(normalizedLinkUrl);
+    }
+
+    return false;
+  }, [links]);
 
   const addLink = () => {
     const normalizedUrl = normalizeUrl(newUrl);
@@ -78,6 +131,28 @@ export function QuickLinks({
     setLinks((prev) => prev.filter((link) => link.id !== id));
   };
 
+  const deleteDuplicateLinks = () => {
+    setLinks((prev) => {
+      const seenUrls = new Set<string>();
+      const dedupedLinks: QuickLink[] = [];
+
+      for (let index = prev.length - 1; index >= 0; index -= 1) {
+        const link = prev[index];
+        const normalizedLinkUrl =
+          normalizeUrl(link.url) ?? link.url.toLowerCase();
+
+        if (seenUrls.has(normalizedLinkUrl)) {
+          continue;
+        }
+
+        seenUrls.add(normalizedLinkUrl);
+        dedupedLinks.unshift(link);
+      }
+
+      return dedupedLinks;
+    });
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       addLink();
@@ -90,7 +165,7 @@ export function QuickLinks({
         <ScrollArea className="min-h-0 flex-1">
           <div className="flex min-h-full flex-col space-y-0.5 pr-0">
             <AnimatePresence mode="popLayout">
-              {links.map((link) => (
+              {displayedLinks.map((link) => (
                 <motion.a
                   animate={{ filter: "blur(0px)", opacity: 1, x: 0, scale: 1 }}
                   className="group flex items-center gap-2 rounded-md border border-border/50 px-1.5 py-1 transition-colors hover:bg-accent/30 focus-visible:bg-accent/30 focus-visible:ring-2 focus-visible:ring-ring/30"
@@ -141,7 +216,7 @@ export function QuickLinks({
                   </Button>
                 </motion.a>
               ))}
-              {links.length === 0 && (
+              {displayedLinks.length === 0 && (
                 <motion.div
                   animate={{ opacity: 1 }}
                   className="flex flex-1 items-center justify-center py-8"
@@ -165,7 +240,7 @@ export function QuickLinks({
       <div className="min-h-0 flex-1">
         <div className="grid grid-cols-7 gap-1.5 sm:grid-cols-11 md:grid-cols-15 lg:grid-cols-7">
           <AnimatePresence mode="popLayout">
-            {links.map((link) => (
+            {displayedLinks.map((link) => (
               <motion.div
                 animate={{ filter: "blur(0px)", opacity: 1, scale: 1 }}
                 exit={{ filter: "blur(4px)", opacity: 0, scale: 0.9 }}
@@ -216,7 +291,7 @@ export function QuickLinks({
                 </Tooltip>
               </motion.div>
             ))}
-            {links.length === 0 && (
+            {displayedLinks.length === 0 && (
               <motion.div
                 animate={{ opacity: 1 }}
                 className="col-span-full flex h-8 items-center justify-center"
@@ -248,37 +323,78 @@ export function QuickLinks({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <Card className={getCardClasses()}>
-        <CardHeader className="px-3 pb-1">
-          <CardTitle className="font-medium text-xs lowercase">
-            quick links
-          </CardTitle>
-        </CardHeader>
-        <CardContent
-          className={`flex flex-col gap-1.5 px-3 ${expanded || fullSize ? "min-h-0 flex-1" : ""}`}
-        >
-          <div className="flex gap-1">
-            <Input
-              className="h-8 flex-1 text-xs"
-              onChange={(e) => setNewUrl(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="add a link..."
-              value={newUrl}
-            />
-            <Button
-              className="h-8 w-8"
-              disabled={!newUrl.trim()}
-              onClick={addLink}
-              size="icon"
-            >
-              <IconPlus className="size-4" />
-              <span className="sr-only">Add link</span>
-            </Button>
-          </div>
+      <ContextMenu>
+        <Card className={getCardClasses()}>
+          <CardHeader className="px-3 pb-1">
+            <CardTitle className="font-medium text-xs lowercase">
+              quick links
+            </CardTitle>
+          </CardHeader>
+          <CardContent
+            className={`flex flex-col gap-1.5 px-3 ${expanded || fullSize ? "min-h-0 flex-1" : ""}`}
+          >
+            <div className="flex gap-1">
+              <Input
+                className="h-8 flex-1 text-xs"
+                onChange={(e) => setNewUrl(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="add a link..."
+                value={newUrl}
+              />
+              <Button
+                className="h-8 w-8"
+                disabled={!newUrl.trim()}
+                onClick={addLink}
+                size="icon"
+              >
+                <IconPlus className="size-4" />
+                <span className="sr-only">Add link</span>
+              </Button>
+            </div>
 
-          {renderLinks()}
-        </CardContent>
-      </Card>
+            <ContextMenuTrigger asChild>{renderLinks()}</ContextMenuTrigger>
+          </CardContent>
+        </Card>
+        <ContextMenuContent className="w-56 bg-card/50 backdrop-blur-lg">
+          <ContextMenuRadioGroup
+            onValueChange={(value) => setSortMode(value as QuickLinksSortMode)}
+            value={sortMode}
+          >
+            <ContextMenuItem className="text-xs lowercase" disabled>
+              sorting
+            </ContextMenuItem>
+            <ContextMenuRadioItem className="text-xs lowercase" value="recent">
+              <IconHistory className="size-3.5" />
+              default (recency)
+            </ContextMenuRadioItem>
+            <ContextMenuRadioItem
+              className="text-xs lowercase"
+              value="alphabetical-asc"
+            >
+              <IconArrowDown className="size-3.5" />
+              alphabetical (a-z)
+            </ContextMenuRadioItem>
+            <ContextMenuRadioItem
+              className="text-xs lowercase"
+              value="alphabetical-desc"
+            >
+              <IconArrowUp className="size-3.5" />
+              alphabetical (z-a)
+            </ContextMenuRadioItem>
+          </ContextMenuRadioGroup>
+          <ContextMenuSeparator />
+          <ContextMenuItem className="text-xs lowercase" disabled>
+            filters
+          </ContextMenuItem>
+          <ContextMenuItem
+            className="text-xs lowercase"
+            disabled={!hasDuplicates}
+            onSelect={deleteDuplicateLinks}
+          >
+            delete duplicates
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
     </TooltipProvider>
   );
 }
