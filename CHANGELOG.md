@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/SatyamVyas04/better-home/compare/v1.4.0...v1.5.0) (2026-04-03)
+
+### Features
+
+* add context menu for sorting and managing duplicates in quick links ([9eeb782](https://github.com/SatyamVyas04/better-home/commit/9eeb782ae0a21b768d608abf5912b9084e634743))
+* add lina.sameer.sh-inspired ScrollArea with touch support and configurable mask height ([b178bb8](https://github.com/SatyamVyas04/better-home/commit/b178bb86bc2e91f4c51b4b74b901448c96543e09))
+
+### Bug Fixes
+
+* enhance focus styles and transitions for todo and quick-links widgets ([ca1edcc](https://github.com/SatyamVyas04/better-home/commit/ca1edccc09475d6557ef6aff0e6c87ba1526b359))
+* update padding in textarea for better usability in todo list ([76dfa48](https://github.com/SatyamVyas04/better-home/commit/76dfa48e6de734e44909bfce3dcfb096465f8b23))
+
 ## [1.4.0](https://github.com/SatyamVyas04/better-home/compare/v1.3.0...v1.4.0) (2026-03-31)
 
 ### Features
