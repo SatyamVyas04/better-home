@@ -213,7 +213,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                                 {section.label.toLowerCase()}
                               </span>
                             </div>
-                            <span className="translate-x-6 text-[10px] text-muted-foreground opacity-0 transition-all group-hover/count:translate-x-0 group-hover/count:opacity-100">
+                            <span className="translate-x-6 text-[10px] text-muted-foreground opacity-0 transition-all group-focus-within/count:translate-x-0 group-focus-within/count:opacity-100 group-hover/count:translate-x-0 group-hover/count:opacity-100 group-active/count:translate-x-0 group-active/count:opacity-100">
                               {section.todos.filter((t) => t.completed).length}/
                               {section.todos.length}
                             </span>

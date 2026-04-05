@@ -1,5 +1,5 @@
 const PREVIEW_FETCH_TIMEOUT_MS = 5000;
-const PREVIEW_SUCCESS_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const PREVIEW_SUCCESS_TTL_MS = 24 * 60 * 60 * 1000;
 const PREVIEW_DEGRADED_RETRY_BASE_MS = 2 * 60 * 1000;
 const PREVIEW_DEGRADED_RETRY_MAX_MS = 60 * 60 * 1000;
 const PREVIEW_DEGRADED_RETENTION_MS = 2 * 24 * 60 * 60 * 1000;
@@ -16,6 +16,26 @@ const GITHUB_NUMBER_REGEX = /^\d+$/;
 const GIT_SUFFIX_REGEX = /\.git$/i;
 const ICON_SIZE_REGEX = /^(\d+)x(\d+)$/i;
 const WHITESPACE_REGEX = /\s+/;
+const JSON_LD_TYPE_FRAGMENT = "ld+json";
+const PREVIEW_DESCRIPTION_MAX_LENGTH = 360;
+const PREVIEW_DESCRIPTION_MIN_PARAGRAPH_LENGTH = 48;
+const JSON_LD_MAX_TRAVERSAL_DEPTH = 5;
+const JSON_LD_MAX_CANDIDATES = 14;
+const PREVIEW_IMAGE_MIN_DIMENSION = 64;
+const DISALLOWED_PREVIEW_IMAGE_TOKEN_REGEX =
+  /(?:^|[./_-])(favicon|apple-touch-icon|mask-icon|sprite|avatar|profile)(?:$|[./_-])/i;
+const PREVIEW_IMAGE_DATA_URL_MAX_LENGTH = 90_000;
+const PREVIEW_IMAGE_DATA_URL_PRIMARY_MAX_WIDTH = 560;
+const PREVIEW_IMAGE_DATA_URL_SECONDARY_MAX_WIDTH = 420;
+const PREVIEW_IMAGE_DATA_URL_PRIMARY_QUALITY = 0.76;
+const PREVIEW_IMAGE_DATA_URL_SECONDARY_QUALITY = 0.62;
+const PREVIEW_IMAGE_SOURCE_MAX_BYTES = 2.5 * 1024 * 1024;
+const PREVIEW_IMAGE_DATA_URL_RUNTIME_MAX_ITEMS = 120;
+
+const previewImageWarmRequestMap = new Map<string, Promise<boolean>>();
+const warmedPreviewImageUrls = new Set<string>();
+const previewImageDataUrlRequestMap = new Map<string, Promise<string>>();
+const previewImageDataUrlMap = new Map<string, string>();
 
 export type LinkPreviewPlatform = "youtube" | "x" | "github" | "generic";
 export type LinkPreviewQuality = "success" | "degraded";
@@ -34,6 +54,7 @@ export interface LinkPreviewCacheEntry {
   title: string;
   description: string;
   imageUrl: string;
+  imageDataUrl?: string;
   iconUrl: string;
   siteName: string;
   platform: LinkPreviewPlatform;
@@ -314,26 +335,267 @@ const getLongestTextValue = (candidates: string[]): string => {
   return longestValue;
 };
 
-const getDescriptionFromDocument = (document: Document): string => {
-  const metadataDescriptions = getMetaContentValues(document, [
-    'meta[property="og:description"]',
-    'meta[name="description"]',
-    'meta[name="twitter:description"]',
-    'meta[property="twitter:description"]',
-    'meta[itemprop="description"]',
-    'meta[name="dc.description"]',
-    'meta[name="dcterms.description"]',
-  ]);
-  const bodyDescriptions = [
-    getNonEmptyString(document.querySelector("article p")?.textContent),
-    getNonEmptyString(document.querySelector("main p")?.textContent),
-    getNonEmptyString(document.querySelector("p")?.textContent),
+const getNumericAttributeValue = (
+  element: Element,
+  attributeName: string
+): number => {
+  const rawAttribute = getNonEmptyString(element.getAttribute(attributeName));
+  if (!rawAttribute) {
+    return 0;
+  }
+
+  const parsedValue = Number.parseInt(rawAttribute, 10);
+  if (Number.isNaN(parsedValue)) {
+    return 0;
+  }
+
+  return Math.max(0, parsedValue);
+};
+
+const isSupportedPreviewImageUrl = (imageUrl: string): boolean => {
+  if (!imageUrl) {
+    return false;
+  }
+
+  const normalizedImageUrl = imageUrl.toLowerCase();
+  if (
+    normalizedImageUrl.startsWith("data:") ||
+    normalizedImageUrl.startsWith("blob:")
+  ) {
+    return false;
+  }
+
+  return !DISALLOWED_PREVIEW_IMAGE_TOKEN_REGEX.test(normalizedImageUrl);
+};
+
+const resolvePreviewImageUrl = (
+  candidate: string,
+  targetUrl: string
+): string => {
+  const resolvedImageUrl = resolveUrl(candidate, targetUrl);
+  return isSupportedPreviewImageUrl(resolvedImageUrl) ? resolvedImageUrl : "";
+};
+
+const hasReachedJsonLdCandidateLimit = (candidates: string[]): boolean => {
+  return candidates.length >= JSON_LD_MAX_CANDIDATES;
+};
+
+const appendJsonLdTextCandidate = (
+  value: unknown,
+  candidates: string[]
+): void => {
+  if (typeof value !== "string" || hasReachedJsonLdCandidateLimit(candidates)) {
+    return;
+  }
+
+  const normalizedCandidate = getNonEmptyString(value).replace(/\s+/g, " ");
+  if (!normalizedCandidate) {
+    return;
+  }
+
+  candidates.push(normalizedCandidate);
+};
+
+const collectNestedJsonLdCandidates = (
+  values: unknown[],
+  candidates: string[],
+  depth: number
+): void => {
+  for (const value of values) {
+    if (hasReachedJsonLdCandidateLimit(candidates)) {
+      return;
+    }
+
+    collectJsonLdTextCandidates(value, candidates, depth + 1);
+  }
+};
+
+const collectJsonLdTextCandidates = (
+  payload: unknown,
+  candidates: string[],
+  depth = 0
+): void => {
+  if (
+    depth > JSON_LD_MAX_TRAVERSAL_DEPTH ||
+    hasReachedJsonLdCandidateLimit(candidates)
+  ) {
+    return;
+  }
+
+  if (Array.isArray(payload)) {
+    collectNestedJsonLdCandidates(payload, candidates, depth);
+    return;
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return;
+  }
+
+  const node = payload as Record<string, unknown>;
+  const directTextCandidates = [
+    node.description,
+    node.headline,
+    node.abstract,
+    node.alternativeHeadline,
   ];
 
-  return clipText(
-    getLongestTextValue([...metadataDescriptions, ...bodyDescriptions]),
-    360
+  for (const directTextCandidate of directTextCandidates) {
+    appendJsonLdTextCandidate(directTextCandidate, candidates);
+  }
+
+  collectNestedJsonLdCandidates(Object.values(node), candidates, depth);
+};
+
+const getJsonLdDescriptionValues = (document: Document): string[] => {
+  const candidates: string[] = [];
+  const scriptElements = document.querySelectorAll("script[type]");
+
+  for (const scriptElement of scriptElements) {
+    const typeValue = getNonEmptyString(
+      scriptElement.getAttribute("type")
+    ).toLowerCase();
+    if (!typeValue.includes(JSON_LD_TYPE_FRAGMENT)) {
+      continue;
+    }
+
+    const scriptContent = getNonEmptyString(scriptElement.textContent);
+    if (!scriptContent) {
+      continue;
+    }
+
+    try {
+      const payload = JSON.parse(scriptContent) as unknown;
+      collectJsonLdTextCandidates(payload, candidates);
+    } catch {
+      // Ignore malformed JSON-LD blocks and keep parsing other scripts.
+    }
+  }
+
+  return candidates;
+};
+
+const getTitleFromDocument = (document: Document): string => {
+  const metadataTitle = getMetaContent(document, [
+    'meta[property="og:title"]',
+    'meta[name="twitter:title"]',
+    'meta[property="twitter:title"]',
+    'meta[itemprop="headline"]',
+    'meta[name="title"]',
+    'meta[name="dc.title"]',
+  ]);
+
+  if (metadataTitle) {
+    return metadataTitle;
+  }
+
+  return (
+    getNonEmptyString(document.querySelector("article h1")?.textContent) ||
+    getNonEmptyString(document.querySelector("main h1")?.textContent) ||
+    getNonEmptyString(document.querySelector("h1")?.textContent) ||
+    getNonEmptyString(document.title)
   );
+};
+
+const getSiteNameFromDocument = (document: Document): string => {
+  const rawSiteName = getMetaContent(document, [
+    'meta[property="og:site_name"]',
+    'meta[name="application-name"]',
+    'meta[name="apple-mobile-web-app-title"]',
+    'meta[name="twitter:site"]',
+    'meta[property="twitter:site"]',
+  ]);
+
+  return rawSiteName.startsWith("@") ? rawSiteName.slice(1) : rawSiteName;
+};
+
+const getBodyDescriptionFromDocument = (document: Document): string => {
+  const selectors = ["article p", "main p", "p"];
+  let fallbackDescription = "";
+
+  for (const selector of selectors) {
+    const paragraphElements = document.querySelectorAll(selector);
+
+    for (const paragraphElement of paragraphElements) {
+      const normalizedText = getNonEmptyString(
+        paragraphElement.textContent
+      ).replace(/\s+/g, " ");
+      if (!normalizedText) {
+        continue;
+      }
+
+      if (!fallbackDescription) {
+        fallbackDescription = normalizedText;
+      }
+
+      if (normalizedText.length >= PREVIEW_DESCRIPTION_MIN_PARAGRAPH_LENGTH) {
+        return normalizedText;
+      }
+    }
+  }
+
+  return fallbackDescription;
+};
+
+const getDescriptionFromDocument = (document: Document): string => {
+  const metadataDescription = getLongestTextValue(
+    getMetaContentValues(document, [
+      'meta[property="og:description"]',
+      'meta[name="description"]',
+      'meta[name="twitter:description"]',
+      'meta[property="twitter:description"]',
+      'meta[itemprop="description"]',
+      'meta[name="dc.description"]',
+      'meta[name="dcterms.description"]',
+    ])
+  );
+
+  if (metadataDescription) {
+    return clipText(metadataDescription, PREVIEW_DESCRIPTION_MAX_LENGTH);
+  }
+
+  const jsonLdDescription = getLongestTextValue(
+    getJsonLdDescriptionValues(document)
+  );
+  if (jsonLdDescription) {
+    return clipText(jsonLdDescription, PREVIEW_DESCRIPTION_MAX_LENGTH);
+  }
+
+  return clipText(
+    getBodyDescriptionFromDocument(document),
+    PREVIEW_DESCRIPTION_MAX_LENGTH
+  );
+};
+
+const getFirstContentImageUrl = (
+  document: Document,
+  targetUrl: string
+): string => {
+  const imageElements = document.querySelectorAll(
+    "article img[src], main img[src], img[src]"
+  );
+
+  for (const imageElement of imageElements) {
+    const imageSource = getNonEmptyString(imageElement.getAttribute("src"));
+    const resolvedImageUrl = resolvePreviewImageUrl(imageSource, targetUrl);
+    if (!resolvedImageUrl) {
+      continue;
+    }
+
+    const imageWidth = getNumericAttributeValue(imageElement, "width");
+    const imageHeight = getNumericAttributeValue(imageElement, "height");
+    if (
+      imageWidth > 0 &&
+      imageHeight > 0 &&
+      imageWidth < PREVIEW_IMAGE_MIN_DIMENSION &&
+      imageHeight < PREVIEW_IMAGE_MIN_DIMENSION
+    ) {
+      continue;
+    }
+
+    return resolvedImageUrl;
+  }
+
+  return "";
 };
 
 const resolveUrl = (candidate: string, originUrl: string): string => {
@@ -604,6 +866,19 @@ interface ParsedPreviewPayload {
   title: string;
 }
 
+const hasRichParsedPreviewMetadata = (
+  parsedPreview: ParsedPreviewPayload,
+  manifestIconUrl: string
+): boolean => {
+  return Boolean(
+    parsedPreview.title ||
+      parsedPreview.description ||
+      parsedPreview.imageUrl ||
+      parsedPreview.iconUrl ||
+      manifestIconUrl
+  );
+};
+
 interface IconCandidate {
   score: number;
   url: string;
@@ -627,21 +902,21 @@ const parseHtmlMetadata = (
   const parser = new DOMParser();
   const document = parser.parseFromString(html, "text/html");
 
-  const title =
-    getMetaContent(document, [
-      'meta[property="og:title"]',
-      'meta[name="twitter:title"]',
-    ]) || getNonEmptyString(document.title);
+  const title = getTitleFromDocument(document);
 
   const description = getDescriptionFromDocument(document);
 
   const platform = getPreviewPlatform(targetUrl);
-  const siteName = getMetaContent(document, ['meta[property="og:site_name"]']);
+  const siteName = getSiteNameFromDocument(document);
 
-  let imageUrl = resolveUrl(
+  let imageUrl = resolvePreviewImageUrl(
     getMetaContent(document, [
       'meta[property="og:image"]',
+      'meta[property="og:image:url"]',
+      'meta[property="og:image:secure_url"]',
       'meta[name="twitter:image"]',
+      'meta[name="twitter:image:src"]',
+      'meta[property="twitter:image"]',
     ]),
     targetUrl
   );
@@ -650,15 +925,12 @@ const parseHtmlMetadata = (
     const linkedImageSource = getNonEmptyString(
       document.querySelector('link[rel="image_src"]')?.getAttribute("href")
     );
-    imageUrl = resolveUrl(linkedImageSource, targetUrl);
+    imageUrl = resolvePreviewImageUrl(linkedImageSource, targetUrl);
   }
 
   if (!imageUrl) {
     // Fallback to the first content image when OG metadata is missing.
-    const firstImageSource = getNonEmptyString(
-      document.querySelector("img")?.getAttribute("src")
-    );
-    imageUrl = resolveUrl(firstImageSource, targetUrl);
+    imageUrl = getFirstContentImageUrl(document, targetUrl);
   }
 
   if (platform === "youtube") {
@@ -709,6 +981,7 @@ const getDegradedRetryDelayMs = (failureCount: number): number => {
 
 interface BuildCacheEntryOptions {
   description: string;
+  imageDataUrl?: string;
   iconUrl: string;
   imageUrl: string;
   now: number;
@@ -722,6 +995,7 @@ interface BuildCacheEntryOptions {
 
 const buildCacheEntry = ({
   description,
+  imageDataUrl,
   iconUrl,
   imageUrl,
   now,
@@ -732,6 +1006,8 @@ const buildCacheEntry = ({
   source,
   title,
 }: BuildCacheEntryOptions): LinkPreviewCacheEntry => {
+  const normalizedImageUrl = getNonEmptyString(imageUrl);
+  const normalizedImageDataUrl = getNonEmptyString(imageDataUrl);
   const previousFailureCount =
     previousEntry?.quality === "degraded" ? previousEntry.failureCount : 0;
   const nextFailureCount = quality === "success" ? 0 : previousFailureCount + 1;
@@ -744,7 +1020,12 @@ const buildCacheEntry = ({
     title: getNonEmptyString(title),
     description: getNonEmptyString(description),
     iconUrl: getNonEmptyString(iconUrl),
-    imageUrl: getNonEmptyString(imageUrl),
+    imageUrl: normalizedImageUrl,
+    imageDataUrl:
+      normalizedImageDataUrl ||
+      (previousEntry?.imageUrl === normalizedImageUrl
+        ? getNonEmptyString(previousEntry.imageDataUrl)
+        : ""),
     siteName: getNonEmptyString(siteName),
     platform,
     fetchedAt: now,
@@ -1254,11 +1535,14 @@ const normalizeCacheEntry = (value: unknown): LinkPreviewCacheEntry | null => {
 
   const iconUrl =
     typeof candidate.iconUrl === "string" ? candidate.iconUrl : "";
+  const imageDataUrl =
+    typeof candidate.imageDataUrl === "string" ? candidate.imageDataUrl : "";
 
   const inferredQuality: LinkPreviewQuality =
     candidate.title.trim() ||
     candidate.description.trim() ||
     candidate.imageUrl.trim() ||
+    imageDataUrl.trim() ||
     iconUrl.trim()
       ? "success"
       : "degraded";
@@ -1294,6 +1578,7 @@ const normalizeCacheEntry = (value: unknown): LinkPreviewCacheEntry | null => {
     description: candidate.description,
     iconUrl,
     imageUrl: candidate.imageUrl,
+    imageDataUrl,
     siteName: candidate.siteName,
     platform: isPreviewPlatform(candidate.platform)
       ? candidate.platform
@@ -1322,6 +1607,301 @@ export const shouldRefetchPreview = (
   return now >= normalizedEntry.nextRetryAt;
 };
 
+const setPreviewImageDataUrlCacheValue = (
+  imageUrl: string,
+  imageDataUrl: string
+): void => {
+  if (previewImageDataUrlMap.has(imageUrl)) {
+    previewImageDataUrlMap.delete(imageUrl);
+  }
+
+  previewImageDataUrlMap.set(imageUrl, imageDataUrl);
+
+  while (
+    previewImageDataUrlMap.size > PREVIEW_IMAGE_DATA_URL_RUNTIME_MAX_ITEMS
+  ) {
+    const oldestImageUrl = previewImageDataUrlMap.keys().next().value;
+    if (!oldestImageUrl) {
+      return;
+    }
+
+    previewImageDataUrlMap.delete(oldestImageUrl);
+  }
+};
+
+const readBlobAsDataUrl = (blob: Blob): Promise<string> => {
+  return new Promise((resolve) => {
+    const fileReader = new FileReader();
+
+    fileReader.onload = () => {
+      if (typeof fileReader.result === "string") {
+        resolve(fileReader.result);
+        return;
+      }
+
+      resolve("");
+    };
+
+    fileReader.onerror = () => {
+      resolve("");
+    };
+
+    fileReader.readAsDataURL(blob);
+  });
+};
+
+const loadImageElement = (sourceUrl: string): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    const imageElement = new Image();
+    imageElement.decoding = "async";
+    imageElement.loading = "eager";
+    imageElement.fetchPriority = "high";
+
+    imageElement.onload = () => {
+      resolve(imageElement);
+    };
+
+    imageElement.onerror = () => {
+      reject(new Error("failed to decode image blob"));
+    };
+
+    imageElement.src = sourceUrl;
+  });
+};
+
+const renderImageDataUrl = (
+  imageElement: HTMLImageElement,
+  format: "image/webp" | "image/jpeg",
+  quality: number,
+  maxWidth: number
+): string => {
+  const sourceWidth = imageElement.naturalWidth || imageElement.width;
+  const sourceHeight = imageElement.naturalHeight || imageElement.height;
+  if (!(sourceWidth > 0 && sourceHeight > 0)) {
+    return "";
+  }
+
+  const scale = Math.min(1, maxWidth / sourceWidth);
+  const targetWidth = Math.max(1, Math.round(sourceWidth * scale));
+  const targetHeight = Math.max(1, Math.round(sourceHeight * scale));
+
+  const canvasElement = document.createElement("canvas");
+  canvasElement.width = targetWidth;
+  canvasElement.height = targetHeight;
+
+  const context2D = canvasElement.getContext("2d");
+  if (!context2D) {
+    return "";
+  }
+
+  context2D.imageSmoothingEnabled = true;
+  context2D.imageSmoothingQuality = "high";
+  context2D.drawImage(imageElement, 0, 0, targetWidth, targetHeight);
+
+  try {
+    return canvasElement.toDataURL(format, quality);
+  } catch {
+    return "";
+  }
+};
+
+const convertImageBlobToDataUrl = async (imageBlob: Blob): Promise<string> => {
+  if (
+    !(imageBlob.size > 0 && imageBlob.size <= PREVIEW_IMAGE_SOURCE_MAX_BYTES)
+  ) {
+    return "";
+  }
+
+  const objectUrl = URL.createObjectURL(imageBlob);
+
+  try {
+    const imageElement = await loadImageElement(objectUrl);
+    const primaryDataUrl = renderImageDataUrl(
+      imageElement,
+      "image/webp",
+      PREVIEW_IMAGE_DATA_URL_PRIMARY_QUALITY,
+      PREVIEW_IMAGE_DATA_URL_PRIMARY_MAX_WIDTH
+    );
+
+    if (
+      primaryDataUrl &&
+      primaryDataUrl.length <= PREVIEW_IMAGE_DATA_URL_MAX_LENGTH
+    ) {
+      return primaryDataUrl;
+    }
+
+    const secondaryDataUrl = renderImageDataUrl(
+      imageElement,
+      "image/jpeg",
+      PREVIEW_IMAGE_DATA_URL_SECONDARY_QUALITY,
+      PREVIEW_IMAGE_DATA_URL_SECONDARY_MAX_WIDTH
+    );
+
+    if (
+      secondaryDataUrl &&
+      secondaryDataUrl.length <= PREVIEW_IMAGE_DATA_URL_MAX_LENGTH
+    ) {
+      return secondaryDataUrl;
+    }
+  } catch {
+    // Fall back to original blob encoding if resize/decode fails.
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+
+  const rawDataUrl = await readBlobAsDataUrl(imageBlob);
+  if (!rawDataUrl) {
+    return "";
+  }
+
+  return rawDataUrl.length <= PREVIEW_IMAGE_DATA_URL_MAX_LENGTH
+    ? rawDataUrl
+    : "";
+};
+
+const fetchImageBlobForDataUrl = async (
+  imageUrl: string
+): Promise<Blob | null> => {
+  try {
+    const response = await fetch(imageUrl, {
+      credentials: "omit",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const contentType = getNonEmptyString(
+      response.headers.get("content-type")
+    ).toLowerCase();
+    if (!contentType?.startsWith("image/")) {
+      return null;
+    }
+
+    const imageBlob = await response.blob();
+    if (imageBlob.size === 0) {
+      return null;
+    }
+
+    return imageBlob;
+  } catch {
+    return null;
+  }
+};
+
+export const cacheLinkPreviewImageDataUrl = (
+  imageUrl: string
+): Promise<string> => {
+  const normalizedImageUrl = getNonEmptyString(imageUrl);
+  if (!normalizedImageUrl) {
+    return Promise.resolve("");
+  }
+
+  if (normalizedImageUrl.startsWith("data:")) {
+    return Promise.resolve(normalizedImageUrl);
+  }
+
+  const cachedImageDataUrl = previewImageDataUrlMap.get(normalizedImageUrl);
+  if (cachedImageDataUrl) {
+    return Promise.resolve(cachedImageDataUrl);
+  }
+
+  const activeDataUrlRequest =
+    previewImageDataUrlRequestMap.get(normalizedImageUrl);
+  if (activeDataUrlRequest) {
+    return activeDataUrlRequest;
+  }
+
+  const dataUrlRequest = fetchImageBlobForDataUrl(normalizedImageUrl)
+    .then((imageBlob) => {
+      if (!imageBlob) {
+        return "";
+      }
+
+      return convertImageBlobToDataUrl(imageBlob);
+    })
+    .then((imageDataUrl) => {
+      if (imageDataUrl) {
+        setPreviewImageDataUrlCacheValue(normalizedImageUrl, imageDataUrl);
+      }
+
+      return imageDataUrl;
+    })
+    .finally(() => {
+      previewImageDataUrlRequestMap.delete(normalizedImageUrl);
+    });
+
+  previewImageDataUrlRequestMap.set(normalizedImageUrl, dataUrlRequest);
+  return dataUrlRequest;
+};
+
+const loadImageForWarmCache = (imageUrl: string): Promise<boolean> => {
+  if (typeof Image === "undefined") {
+    return Promise.resolve(false);
+  }
+
+  return new Promise((resolve) => {
+    const previewImage = new Image();
+    previewImage.decoding = "async";
+    previewImage.loading = "eager";
+    previewImage.fetchPriority = "high";
+
+    const finish = (isLoaded: boolean) => {
+      previewImage.onload = null;
+      previewImage.onerror = null;
+      resolve(isLoaded);
+    };
+
+    previewImage.onload = () => {
+      finish(true);
+    };
+
+    previewImage.onerror = () => {
+      finish(false);
+    };
+
+    previewImage.src = imageUrl;
+  });
+};
+
+export const warmLinkPreviewImage = (imageUrl: string): Promise<boolean> => {
+  const normalizedImageUrl = getNonEmptyString(imageUrl);
+  if (!normalizedImageUrl) {
+    return Promise.resolve(false);
+  }
+
+  if (warmedPreviewImageUrls.has(normalizedImageUrl)) {
+    return Promise.resolve(true);
+  }
+
+  const activeWarmRequest = previewImageWarmRequestMap.get(normalizedImageUrl);
+  if (activeWarmRequest) {
+    return activeWarmRequest;
+  }
+
+  const warmRequest = loadImageForWarmCache(normalizedImageUrl)
+    .then((isLoaded) => {
+      if (isLoaded) {
+        warmedPreviewImageUrls.add(normalizedImageUrl);
+      }
+
+      return isLoaded;
+    })
+    .finally(() => {
+      previewImageWarmRequestMap.delete(normalizedImageUrl);
+    });
+
+  previewImageWarmRequestMap.set(normalizedImageUrl, warmRequest);
+  return warmRequest;
+};
+
+export const resetLinkPreviewImageRuntimeCache = (): void => {
+  previewImageWarmRequestMap.clear();
+  warmedPreviewImageUrls.clear();
+  previewImageDataUrlRequestMap.clear();
+  previewImageDataUrlMap.clear();
+};
+
 export async function fetchLinkPreviewMetadata(
   targetUrl: string,
   previousEntry?: LinkPreviewCacheEntry | null
@@ -1329,6 +1909,11 @@ export async function fetchLinkPreviewMetadata(
   const normalizedPreviousEntry = normalizeCacheEntry(previousEntry);
   const now = Date.now();
   const platform = getPreviewPlatform(targetUrl);
+  const youtubeVideoId =
+    platform === "youtube" ? getYouTubeVideoId(targetUrl) : "";
+  const degradedFallbackSource: LinkPreviewSource = youtubeVideoId
+    ? "youtube-thumbnail"
+    : getPlatformFallbackSource(platform);
 
   const controller = new AbortController();
   const timeoutId = window.setTimeout(
@@ -1337,7 +1922,7 @@ export async function fetchLinkPreviewMetadata(
   );
 
   try {
-    if (platform === "youtube") {
+    if (platform === "youtube" && youtubeVideoId) {
       const youtubePreview = await fetchYouTubePreview(
         targetUrl,
         controller.signal,
@@ -1348,14 +1933,6 @@ export async function fetchLinkPreviewMetadata(
       if (youtubePreview) {
         return youtubePreview;
       }
-
-      return buildDegradedEntry(
-        targetUrl,
-        platform,
-        now,
-        normalizedPreviousEntry,
-        "youtube-thumbnail"
-      );
     }
 
     if (platform === "x") {
@@ -1406,7 +1983,7 @@ export async function fetchLinkPreviewMetadata(
         platform,
         now,
         normalizedPreviousEntry,
-        getPlatformFallbackSource(platform)
+        degradedFallbackSource
       );
     }
 
@@ -1417,7 +1994,7 @@ export async function fetchLinkPreviewMetadata(
         platform,
         now,
         normalizedPreviousEntry,
-        getPlatformFallbackSource(platform)
+        degradedFallbackSource
       );
     }
 
@@ -1429,7 +2006,7 @@ export async function fetchLinkPreviewMetadata(
         platform,
         now,
         normalizedPreviousEntry,
-        getPlatformFallbackSource(platform)
+        degradedFallbackSource
       );
     }
 
@@ -1443,12 +2020,9 @@ export async function fetchLinkPreviewMetadata(
       getDefaultIconUrl(targetUrl) ||
       "";
 
-    const hasRichMetadata = Boolean(
-      parsedPreview.title ||
-        parsedPreview.description ||
-        parsedPreview.imageUrl ||
-        parsedPreview.iconUrl ||
-        manifestIconUrl
+    const hasRichMetadata = hasRichParsedPreviewMetadata(
+      parsedPreview,
+      manifestIconUrl
     );
 
     return buildCacheEntry({
@@ -1469,7 +2043,7 @@ export async function fetchLinkPreviewMetadata(
       platform,
       now,
       normalizedPreviousEntry,
-      getPlatformFallbackSource(platform)
+      degradedFallbackSource
     );
   } finally {
     window.clearTimeout(timeoutId);
