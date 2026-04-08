@@ -1,25 +1,22 @@
 import {
+  IconAlertCircle,
   IconBrandGithub,
   IconBrandLinkedin,
   IconBrandX,
-  IconDownload,
   IconHeart,
   IconMessageReport,
-  IconUpload,
+  IconRefresh,
 } from "@tabler/icons-react";
 import { ModeToggle } from "@/components/mode-toggle/mode-toggle";
 import { ThemeProvider } from "@/components/theme-provider/theme-provider";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { WIDGET_MANIFEST } from "@/components/widgets/widget-registry";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import {
-  createBackup,
-  downloadBackup,
-  parseBackupFile,
-  restoreBackup,
-} from "@/lib/backup-utils";
+import { useStorageMigration } from "@/hooks/use-storage-migration";
+import { APP_VERSION } from "@/lib/extension-storage";
 import {
   DEFAULT_WIDGET_SETTINGS,
   type WidgetSettings,
@@ -30,36 +27,42 @@ function PopupApp() {
     "better-home-widget-settings",
     DEFAULT_WIDGET_SETTINGS
   );
+  const { status: migrationStatus, retryMigration } = useStorageMigration();
 
   const toggleSetting = (key: keyof WidgetSettings) => {
-    setSettings((prev) => ({
-      ...prev,
-      [key]: !prev[key],
+    setSettings((previousSettings) => ({
+      ...previousSettings,
+      [key]: !previousSettings[key],
     }));
-  };
-
-  const handleDownloadBackup = () => {
-    const backup = createBackup();
-    downloadBackup(backup);
-  };
-
-  const handleUploadBackup = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    parseBackupFile(file, (backup) => {
-      restoreBackup(backup);
-      window.location.reload();
-    });
-
-    event.target.value = "";
   };
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="w-72 bg-card p-4">
+      <div className="w-80 bg-card p-4">
+        {migrationStatus.state === "error" && (
+          <div className="mb-3 flex items-center justify-between gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 text-[10px] text-destructive">
+            <div className="flex min-w-0 items-center gap-1">
+              <IconAlertCircle className="size-3 shrink-0" />
+              <span className="truncate">
+                {migrationStatus.message}
+                {migrationStatus.details ? ` · ${migrationStatus.details}` : ""}
+              </span>
+            </div>
+            <Button
+              className="h-5 shrink-0 px-1 text-[10px] text-destructive hover:bg-destructive/15"
+              onClick={() => {
+                retryMigration().catch(() => null);
+              }}
+              size="xs"
+              type="button"
+              variant="ghost"
+            >
+              <IconRefresh className="size-2.5" />
+              retry
+            </Button>
+          </div>
+        )}
+
         <header className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <img
@@ -70,9 +73,14 @@ function PopupApp() {
               width={40}
             />
             <div>
-              <h1 className="font-semibold text-sm">better-home</h1>
-              <p className="mr-4 text-pretty text-[12px] text-muted-foreground">
-                your minimal new tab experience
+              <div className="flex items-center gap-1.5">
+                <h1 className="font-semibold text-sm">better-home</h1>
+                <span className="rounded border border-border/60 px-1.5 py-0 text-[10px] text-muted-foreground">
+                  v{APP_VERSION}
+                </span>
+              </div>
+              <p className="mr-4 text-[12px] text-muted-foreground">
+                a minimal, delightful new-tab replacement
               </p>
             </div>
           </div>
@@ -108,7 +116,9 @@ function PopupApp() {
                     checked={settings[widget.settingKey]}
                     className="scale-90"
                     id={switchId}
-                    onCheckedChange={() => toggleSetting(widget.settingKey)}
+                    onCheckedChange={() => {
+                      toggleSetting(widget.settingKey);
+                    }}
                   />
                 </div>
               );
@@ -118,60 +128,34 @@ function PopupApp() {
 
         <Separator className="my-3" />
 
-        <div className="space-y-2">
-          <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
-            Data
-          </p>
-          <div className="flex gap-2">
-            <button
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border/50 py-3 text-[11px] transition-colors hover:bg-accent/30"
-              onClick={handleDownloadBackup}
-              type="button"
-            >
-              <IconDownload className="size-3.5" />
-              backup
-            </button>
-            <label className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border/50 py-2 text-[11px] transition-colors hover:bg-accent/30">
-              <IconUpload className="size-3.5" />
-              restore
-              <input
-                accept=".json"
-                className="hidden"
-                onChange={handleUploadBackup}
-                type="file"
-              />
-            </label>
-          </div>
-        </div>
-
-        <Separator className="my-3" />
-
         <div className="flex gap-2">
-          <a
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border/50 py-2 text-[11px] transition-colors hover:bg-accent/30"
-            href="https://github.com/SatyamVyas04/better-home/issues"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <IconMessageReport className="size-3.5" />
-            feedback
-          </a>
-          <a
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-md bg-pink-500/10 py-2 text-[11px] text-pink-500 transition-colors hover:bg-pink-500/20"
-            href="https://github.com/sponsors/SatyamVyas04"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <IconHeart className="size-3.5" />
-            sponsor
-          </a>
+          <Button asChild className="flex-1" size="default" variant="outline">
+            <a
+              href="https://github.com/SatyamVyas04/better-home/issues"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <IconMessageReport className="size-3.5" />
+              feedback
+            </a>
+          </Button>
+          <Button asChild className="flex-1" size="default" variant="outline">
+            <a
+              href="https://github.com/sponsors/SatyamVyas04"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <IconHeart className="size-3.5" />
+              sponsor
+            </a>
+          </Button>
         </div>
 
         <Separator className="my-3" />
 
         <div className="flex items-center justify-between">
           <p className="text-[10px] text-muted-foreground">
-            made with ♥ by satyam
+            made with <span className="text-rose-500">♥</span> by satyam
           </p>
           <div className="flex items-center gap-2">
             <a

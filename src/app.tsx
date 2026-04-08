@@ -1,14 +1,24 @@
-import { IconBrandGithub, IconBrandX, IconHeart } from "@tabler/icons-react";
+import {
+  IconAlertCircle,
+  IconBrandGithub,
+  IconBrandX,
+  IconHeart,
+  IconRefresh,
+} from "@tabler/icons-react";
 import { useEffect } from "react";
 import { ThemeProvider } from "@/components/theme-provider/theme-provider";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { BackupWidget } from "@/components/widgets/backup-widget/backup-widget";
 import { renderWidget } from "@/components/widgets/widget-registry";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useStorageMigration } from "@/hooks/use-storage-migration";
+import { writeAppStorageRaw } from "@/lib/extension-storage";
 import {
   DEFAULT_WIDGET_SETTINGS,
   type WidgetSettings,
@@ -73,6 +83,7 @@ function App() {
     "better-home-widget-settings",
     DEFAULT_WIDGET_SETTINGS
   );
+  const { status: migrationStatus, retryMigration } = useStorageMigration();
 
   useEffect(() => {
     const handleThemeMessage = (
@@ -84,7 +95,7 @@ function App() {
         const root = window.document.documentElement;
         root.classList.remove("light", "dark");
         root.classList.add(message.theme);
-        localStorage.setItem("vite-ui-theme", message.theme);
+        writeAppStorageRaw("vite-ui-theme", message.theme).catch(() => null);
       }
     };
 
@@ -160,93 +171,139 @@ function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <div className="flex h-screen flex-col overflow-hidden bg-background">
+        {migrationStatus.state === "error" && (
+          <div className="mx-3 mt-3 flex items-center justify-between gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-1.5 text-[11px] text-destructive">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <IconAlertCircle className="size-3.5 shrink-0" />
+              <span className="truncate">
+                {migrationStatus.message}
+                {migrationStatus.details ? ` · ${migrationStatus.details}` : ""}
+              </span>
+            </div>
+            <Button
+              className="h-5 shrink-0 px-1.5 text-[10px] text-destructive hover:bg-destructive/15"
+              onClick={() => {
+                retryMigration().catch(() => null);
+              }}
+              size="xs"
+              type="button"
+              variant="ghost"
+            >
+              <IconRefresh className="size-3" />
+              retry
+            </Button>
+          </div>
+        )}
+
         <main className="flex min-h-0 flex-1 flex-col p-3">
           {layouts[layoutKey]}
         </main>
 
-        <footer className="border-border border-t bg-card py-2 shadow-black/10 shadow-sm ring-1 ring-black/10 transition-[box-shadow,ring-color] duration-200 hover:shadow-md hover:ring-black/20 dark:shadow-white/10 dark:ring-white/10 dark:hover:ring-white/20">
+        <footer className="border-border border-t bg-card py-1">
           <TooltipProvider delayDuration={200}>
-            <div className="flex items-center justify-between px-3 text-muted-foreground text-xs">
-              <div className="flex items-center gap-2">
-                <img
-                  alt="better-home logo"
-                  className="size-4"
-                  height={16}
-                  src="/better-home-logo-16.png"
-                  width={16}
-                />
-                <span className="font-medium text-foreground">better-home</span>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <a
-                      className="transition-colors hover:text-foreground"
-                      href="https://github.com/SatyamVyas04/better-home"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <IconBrandGithub className="size-3.5" />
-                    </a>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="text-[10px] lowercase">view source</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="hidden sm:inline">by</span>
+            <div className="flex w-full items-center overflow-hidden px-3 text-muted-foreground text-xs">
+              <div className="flex shrink-0 items-center gap-2 pr-3">
                 <a
-                  className="hidden font-medium transition-colors hover:text-foreground sm:inline"
-                  href="https://github.com/SatyamVyas04"
+                  className="flex shrink-0 items-center gap-2 transition-colors hover:text-foreground"
+                  href="https://github.com/SatyamVyas04/better-home"
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  Satyam Vyas
+                  <img
+                    alt="better-home logo"
+                    className="size-4 shrink-0"
+                    height={16}
+                    src="/better-home-logo-48.png"
+                    width={16}
+                  />
+                  <span className="font-medium text-foreground">
+                    better-home
+                  </span>
                 </a>
+              </div>
+
+              <span className="h-4 w-px shrink-0 bg-border/70" />
+
+              <div className="min-w-0 flex-1 px-3">
+                <p className="truncate text-[11px] text-muted-foreground">
+                  quotes, coming soon
+                </p>
+              </div>
+
+              <div className="shrink-0 px-1">
+                <BackupWidget />
+              </div>
+
+              <span className="h-4 w-px shrink-0 bg-border/70" />
+
+              <div className="ml-1 flex shrink-0 items-center gap-px">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <a
-                      className="transition-colors hover:text-foreground"
-                      href="https://github.com/SatyamVyas04"
-                      rel="noopener noreferrer"
-                      target="_blank"
+                    <Button
+                      asChild
+                      size="icon-sm"
+                      type="button"
+                      variant="ghost"
                     >
-                      <IconBrandGithub className="size-3.5" />
-                    </a>
+                      <a
+                        aria-label="source"
+                        href="https://github.com/SatyamVyas04/better-home"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        <IconBrandGithub className="size-3.5" />
+                      </a>
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="text-[10px] lowercase">github profile</p>
+                    <p className="text-[10px]">source</p>
                   </TooltipContent>
                 </Tooltip>
+
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <a
-                      className="transition-colors hover:text-foreground"
-                      href="https://x.com/SatyamVyas04"
-                      rel="noopener noreferrer"
-                      target="_blank"
+                    <Button
+                      asChild
+                      size="icon-sm"
+                      type="button"
+                      variant="ghost"
                     >
-                      <IconBrandX className="size-3.5" />
-                    </a>
+                      <a
+                        aria-label="x"
+                        href="https://x.com/SatyamVyas04"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        <IconBrandX className="size-3.5" />
+                      </a>
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="text-[10px] lowercase">follow on x</p>
+                    <p className="text-[10px]">x</p>
                   </TooltipContent>
                 </Tooltip>
+
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <a
-                      className="flex items-center gap-1 rounded-md text-pink-500 transition-colors hover:text-pink-400"
-                      href="https://github.com/sponsors/SatyamVyas04"
-                      rel="noopener noreferrer"
-                      target="_blank"
+                    <Button
+                      asChild
+                      className="text-pink-500 transition-colors hover:text-pink-400"
+                      size="icon-sm"
+                      type="button"
+                      variant="ghost"
                     >
-                      <IconHeart className="size-3.5" />
-                    </a>
+                      <a
+                        aria-label="support"
+                        href="https://github.com/sponsors/SatyamVyas04"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        <IconHeart className="size-3.5" />
+                      </a>
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <p className="text-[10px] lowercase">
-                      support this project
-                    </p>
+                    <p className="text-[10px]">support us</p>
                   </TooltipContent>
                 </Tooltip>
               </div>

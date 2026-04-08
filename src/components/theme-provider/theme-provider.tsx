@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { readAppStorageRaw, writeAppStorageRaw } from "@/lib/extension-storage";
 
 declare const chrome: {
   tabs?: {
@@ -39,9 +40,26 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
+
+  useEffect(() => {
+    readAppStorageRaw(storageKey)
+      .then((storedTheme) => {
+        if (
+          storedTheme === "light" ||
+          storedTheme === "dark" ||
+          storedTheme === "system"
+        ) {
+          setTheme(storedTheme);
+          return;
+        }
+
+        setTheme(defaultTheme);
+      })
+      .catch(() => {
+        setTheme(defaultTheme);
+      });
+  }, [defaultTheme, storageKey]);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -74,7 +92,7 @@ export function ThemeProvider({
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
+      writeAppStorageRaw(storageKey, theme).catch(() => null);
       setTheme(theme);
     },
   };
