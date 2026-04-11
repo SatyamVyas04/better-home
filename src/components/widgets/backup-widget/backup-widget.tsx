@@ -125,11 +125,11 @@ function getFooterLoaderName(
   isBackupLocationReady: boolean
 ): BrailleSpinnerName {
   if (!isBackupLocationReady || state === "error") {
-    return "fillsweep";
+    return "columns";
   }
 
   if (state === "saving") {
-    return "cascade";
+    return "checkerboard";
   }
 
   return "pulse";
@@ -427,14 +427,14 @@ export function BackupWidget() {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          className="flex h-6 w-auto min-w-0 items-center justify-start gap-2 px-2"
+          className="flex h-6 w-auto min-w-0 items-center justify-start gap-1 px-1"
           size="sm"
           type="button"
           variant="ghost"
         >
           <span
             aria-hidden="true"
-            className={`inline-flex w-10 shrink-0 items-center justify-center text-center font-mono text-[14px] tabular-nums leading-none ${backupStatusTone}`}
+            className={`inline-flex w-8 shrink-0 items-center justify-start text-center font-mono text-[14px] tabular-nums leading-none ${backupStatusTone}`}
           >
             {backupStatusGlyph}
           </span>
