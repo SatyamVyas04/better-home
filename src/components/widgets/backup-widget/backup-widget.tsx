@@ -22,6 +22,7 @@ import {
   type BackupStatus,
   backupNow,
   ensureDailyAutoBackup,
+  loadBackupFromFilePicker,
   parseBackupFile,
   readBackupLocationStatus,
   readBackupTimelineState,
@@ -345,7 +346,22 @@ export function BackupWidget() {
   };
 
   const handleRestoreFileClick = () => {
-    restoreFileInputRef.current?.click();
+    if (!("showOpenFilePicker" in window)) {
+      restoreFileInputRef.current?.click();
+      return;
+    }
+
+    loadBackupFromFilePicker()
+      .then((backupPayload) => {
+        if (!backupPayload) {
+          return;
+        }
+
+        return restoreBackup(backupPayload).then(() => {
+          window.location.reload();
+        });
+      })
+      .catch(() => null);
   };
 
   const handleUploadBackup = (event: React.ChangeEvent<HTMLInputElement>) => {

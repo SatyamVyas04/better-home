@@ -135,6 +135,11 @@ interface BackupFilePickerWindow extends Window {
     types?: Array<{ description: string; accept: Record<string, string[]> }>;
     excludeAcceptAllOption?: boolean;
   }) => Promise<FileSystemFileHandle>;
+  showOpenFilePicker?: (options?: {
+    multiple?: boolean;
+    types?: Array<{ description: string; accept: Record<string, string[]> }>;
+    excludeAcceptAllOption?: boolean;
+  }) => Promise<FileSystemFileHandle[]>;
 }
 
 interface PermissionCapableFileHandle extends FileSystemFileHandle {
@@ -1242,33 +1247,23 @@ export async function selectBackupLocation(): Promise<boolean> {
 
     await savePrimaryBackupFileHandle(fileHandle);
 
-    const permissionState = await ensureReadWritePermission(fileHandle, true);
-    const needsReauthorization = permissionState !== "granted";
-    const existingConfig = await readBackupFileConfig();
+    // Write immediately so write permission is requested during setup.
+    const backupPayload = await createBackup();
+    const fileWritten = await writeBackupFileDocument(
+      fileHandle,
+      backupPayload,
+      {
+        appendHistory: false,
+        historyReason: "manual",
+        requestPermission: true,
+      }
+    );
 
-    await writeBackupFileConfig({
-      configured: true,
-      updatedAt: new Date().toISOString(),
-      fileName: fileHandle.name,
-      permissionState,
-      lastError: needsReauthorization
-        ? "Backup file permission is not granted"
-        : undefined,
-      lastSuccessfulWriteAt: existingConfig.lastSuccessfulWriteAt,
-      lastFailedWriteAt: existingConfig.lastFailedWriteAt,
-      consecutiveFailures: needsReauthorization
-        ? existingConfig.consecutiveFailures + 1
-        : 0,
-      lastWriteErrorMessage: needsReauthorization
-        ? `Permission is ${permissionState}`
-        : undefined,
-    });
-
-    if (needsReauthorization) {
-      updateBackupStatus("error", "file-picker", "reauthorize backup location");
-    } else {
-      updateBackupStatus("saved", "file-picker", "backup location ready");
+    if (!fileWritten) {
+      return false;
     }
+
+    updateBackupStatus("saved", "file-picker", "backup location ready");
 
     return true;
   } catch {
@@ -1417,6 +1412,86 @@ function extractBackupPayload(
   return { payload: normalizedPayload };
 }
 
+function parseBackupPayloadFromRawContent(
+  rawContent: string
+): { payload: BackupData } | { error: string } {
+  const parsedContent = parseJSON<unknown>(rawContent);
+  return extractBackupPayload(parsedContent);
+}
+
+export async function loadBackupFromFilePicker(): Promise<BackupData | null> {
+  const runtimeWindow = window as BackupFilePickerWindow;
+
+  if (!runtimeWindow.showOpenFilePicker) {
+    return null;
+  }
+
+  try {
+    const [fileHandle] = await runtimeWindow.showOpenFilePicker({
+      multiple: false,
+      types: [
+        {
+          description: "JSON backup",
+          accept: {
+            "application/json": [".json"],
+          },
+        },
+      ],
+      excludeAcceptAllOption: false,
+    });
+
+    if (!fileHandle) {
+      return null;
+    }
+
+    const file = await fileHandle.getFile();
+    const rawContent = await file.text();
+    const backupPayloadResult = parseBackupPayloadFromRawContent(rawContent);
+
+    if ("error" in backupPayloadResult) {
+      updateBackupStatus("error", "restore", backupPayloadResult.error);
+      return null;
+    }
+
+    await savePrimaryBackupFileHandle(fileHandle);
+
+    const permissionState = await ensureReadWritePermission(fileHandle, true);
+    const needsReauthorization = permissionState !== "granted";
+    const existingConfig = await readBackupFileConfig();
+    const updateTime = new Date().toISOString();
+
+    await writeBackupFileConfig({
+      configured: true,
+      updatedAt: updateTime,
+      fileName: fileHandle.name,
+      permissionState,
+      lastError: needsReauthorization
+        ? "Backup file permission is not granted"
+        : undefined,
+      lastSuccessfulWriteAt: existingConfig.lastSuccessfulWriteAt,
+      lastFailedWriteAt: needsReauthorization
+        ? updateTime
+        : existingConfig.lastFailedWriteAt,
+      consecutiveFailures: needsReauthorization
+        ? existingConfig.consecutiveFailures + 1
+        : 0,
+      lastWriteErrorMessage: needsReauthorization
+        ? `Permission is ${permissionState}`
+        : undefined,
+    });
+
+    if (needsReauthorization) {
+      updateBackupStatus("error", "file-picker", "reauthorize backup location");
+    } else {
+      updateBackupStatus("saved", "file-picker", "backup location ready");
+    }
+
+    return backupPayloadResult.payload;
+  } catch {
+    return null;
+  }
+}
+
 export function parseBackupFile(
   file: File,
   onSuccess: (backup: BackupData) => void
@@ -1430,8 +1505,7 @@ export function parseBackupFile(
       return;
     }
 
-    const parsedContent = parseJSON<unknown>(rawContent);
-    const backupPayloadResult = extractBackupPayload(parsedContent);
+    const backupPayloadResult = parseBackupPayloadFromRawContent(rawContent);
 
     if ("error" in backupPayloadResult) {
       updateBackupStatus("error", "restore", backupPayloadResult.error);
