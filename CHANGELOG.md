@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.6.0](https://github.com/SatyamVyas04/better-home/compare/v1.5.0...v1.6.0) (2026-04-11)
+
+### Features
+
+* implement storage migration functionality and update popup UI ([f003e64](https://github.com/SatyamVyas04/better-home/commit/f003e6420f404d3c6dafc736cca8c6a583bf5e9d))
+
+### Bug Fixes
+
+* update loader names and adjust button styling for BackupWidget ([c99cccd](https://github.com/SatyamVyas04/better-home/commit/c99cccded93f87c01492659caa581dc4c2f1e1bd))
+
 ## [1.5.0](https://github.com/SatyamVyas04/better-home/compare/v1.4.0...v1.5.0) (2026-04-03)
 
 ### Features
