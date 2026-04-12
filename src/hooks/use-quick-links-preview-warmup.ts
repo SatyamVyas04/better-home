@@ -27,6 +27,16 @@ export function useQuickLinksPreviewWarmup({
 }: UseQuickLinksPreviewWarmupOptions): UseQuickLinksPreviewWarmupResult {
   const hasStartedMountWarmupRef = useRef(false);
   const hasStartedInteractionWarmupRef = useRef(false);
+  const interactionWarmupCancelledRef = useRef(false);
+  const interactionWarmupTimeoutIdsRef = useRef<number[]>([]);
+
+  const cancelInteractionWarmup = useCallback(() => {
+    interactionWarmupCancelledRef.current = true;
+    for (const id of interactionWarmupTimeoutIdsRef.current) {
+      window.clearTimeout(id);
+    }
+    interactionWarmupTimeoutIdsRef.current = [];
+  }, []);
 
   const startInteractionPreviewWarmup = useCallback(() => {
     if (hasStartedInteractionWarmupRef.current) {
@@ -34,6 +44,8 @@ export function useQuickLinksPreviewWarmup({
     }
 
     hasStartedInteractionWarmupRef.current = true;
+    interactionWarmupCancelledRef.current = false;
+    interactionWarmupTimeoutIdsRef.current = [];
 
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       return;
@@ -70,20 +82,29 @@ export function useQuickLinksPreviewWarmup({
         index < urls.length;
         index += PREVIEW_INTERACTION_WARMUP_BATCH_SIZE
       ) {
+        if (interactionWarmupCancelledRef.current) {
+          return;
+        }
+
         const batchUrls = urls.slice(
           index,
           index + PREVIEW_INTERACTION_WARMUP_BATCH_SIZE
         );
 
         for (const batchUrl of batchUrls) {
+          if (interactionWarmupCancelledRef.current) {
+            return;
+          }
+
           ensureLinkPreview(batchUrl);
         }
 
         await new Promise<void>((resolve) => {
-          window.setTimeout(
+          const timeoutId = window.setTimeout(
             () => resolve(),
             PREVIEW_INTERACTION_WARMUP_BATCH_DELAY_MS
           );
+          interactionWarmupTimeoutIdsRef.current.push(timeoutId);
         });
       }
     };
@@ -91,15 +112,19 @@ export function useQuickLinksPreviewWarmup({
     const warmProgressively = async () => {
       await warmUrlsInBatches(initialWarmupUrls);
 
-      if (backgroundWarmupUrls.length === 0) {
+      if (
+        backgroundWarmupUrls.length === 0 ||
+        interactionWarmupCancelledRef.current
+      ) {
         return;
       }
 
       await new Promise<void>((resolve) => {
-        window.setTimeout(
+        const timeoutId = window.setTimeout(
           () => resolve(),
           PREVIEW_INTERACTION_WARMUP_SECOND_STAGE_DELAY_MS
         );
+        interactionWarmupTimeoutIdsRef.current.push(timeoutId);
       });
 
       await warmUrlsInBatches(backgroundWarmupUrls);
@@ -107,6 +132,12 @@ export function useQuickLinksPreviewWarmup({
 
     warmProgressively().catch(() => null);
   }, [ensureLinkPreview, getComparableUrl, links]);
+
+  useEffect(() => {
+    return () => {
+      cancelInteractionWarmup();
+    };
+  }, [cancelInteractionWarmup]);
 
   useEffect(() => {
     if (hasStartedMountWarmupRef.current) {
@@ -186,7 +217,8 @@ export function useQuickLinksPreviewWarmup({
   const resetPreviewWarmupState = useCallback(() => {
     hasStartedMountWarmupRef.current = false;
     hasStartedInteractionWarmupRef.current = false;
-  }, []);
+    cancelInteractionWarmup();
+  }, [cancelInteractionWarmup]);
 
   return {
     resetPreviewWarmupState,

@@ -1,4 +1,5 @@
 import {
+  PREVIEW_FETCH_TIMEOUT_MS,
   PREVIEW_IMAGE_DATA_URL_MAX_LENGTH,
   PREVIEW_IMAGE_DATA_URL_PRIMARY_MAX_WIDTH,
   PREVIEW_IMAGE_DATA_URL_PRIMARY_QUALITY,
@@ -169,9 +170,16 @@ const convertImageBlobToDataUrl = async (imageBlob: Blob): Promise<string> => {
 const fetchImageBlobForDataUrl = async (
   imageUrl: string
 ): Promise<Blob | null> => {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(
+    () => controller.abort(),
+    PREVIEW_FETCH_TIMEOUT_MS
+  );
+
   try {
     const response = await fetch(imageUrl, {
       credentials: "omit",
+      signal: controller.signal,
     });
 
     if (!response.ok) {
@@ -185,6 +193,17 @@ const fetchImageBlobForDataUrl = async (
       return null;
     }
 
+    const contentLength = response.headers.get("content-length");
+    if (contentLength !== null) {
+      const byteCount = Number.parseInt(contentLength, 10);
+      if (
+        Number.isFinite(byteCount) &&
+        byteCount > PREVIEW_IMAGE_SOURCE_MAX_BYTES
+      ) {
+        return null;
+      }
+    }
+
     const imageBlob = await response.blob();
     if (imageBlob.size === 0) {
       return null;
@@ -193,6 +212,8 @@ const fetchImageBlobForDataUrl = async (
     return imageBlob;
   } catch {
     return null;
+  } finally {
+    window.clearTimeout(timeoutId);
   }
 };
 

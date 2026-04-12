@@ -32,6 +32,9 @@ declare const chrome: {
   bookmarks?: {
     getTree: (callback: (nodes: ChromeBookmarkNode[]) => void) => void;
   };
+  runtime?: {
+    lastError?: { message?: string };
+  };
 };
 
 export function useQuickLinksImportController({
@@ -103,6 +106,16 @@ export function useQuickLinksImportController({
       const bookmarkTree = await new Promise<ChromeBookmarkNode[]>(
         (resolve, reject) => {
           chrome.bookmarks?.getTree((nodes) => {
+            if (chrome.runtime?.lastError) {
+              reject(
+                new Error(
+                  chrome.runtime.lastError.message ??
+                    "unable to read bookmark tree"
+                )
+              );
+              return;
+            }
+
             if (!nodes) {
               reject(new Error("unable to read bookmark tree"));
               return;
