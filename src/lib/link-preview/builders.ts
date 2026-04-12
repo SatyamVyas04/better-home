@@ -132,7 +132,7 @@ const getPlatformFallbackTitle = (
     return "youtube";
   }
 
-  return "";
+  return getHostLabel(targetUrl);
 };
 
 const getPlatformFallbackDescription = (
@@ -170,18 +170,25 @@ export const buildDegradedEntry = (
   const fallbackSiteName = getHostLabel(targetUrl);
   const fallbackImageUrl =
     platform === "youtube" ? getYouTubeThumbnailUrl(targetUrl) : "";
+  const fallbackDescription = getPlatformFallbackDescription(
+    targetUrl,
+    platform
+  );
+  const fallbackTitle = getPlatformFallbackTitle(targetUrl, platform);
+  const defaultIconUrl = getDefaultIconUrl(targetUrl);
 
   return buildCacheEntry({
-    description: getPlatformFallbackDescription(targetUrl, platform),
-    iconUrl: getDefaultIconUrl(targetUrl),
-    imageUrl: fallbackImageUrl,
+    description:
+      fallbackDescription || getNonEmptyString(previousEntry?.description),
+    iconUrl: defaultIconUrl || getNonEmptyString(previousEntry?.iconUrl),
+    imageUrl: fallbackImageUrl || getNonEmptyString(previousEntry?.imageUrl),
     now,
     platform,
     previousEntry,
     quality: "degraded",
-    siteName: fallbackSiteName,
+    siteName: fallbackSiteName || getNonEmptyString(previousEntry?.siteName),
     source,
-    title: getPlatformFallbackTitle(targetUrl, platform),
+    title: fallbackTitle || getNonEmptyString(previousEntry?.title),
   });
 };
 

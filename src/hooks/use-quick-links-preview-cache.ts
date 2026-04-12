@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
   cacheLinkPreviewImageDataUrl,
@@ -10,6 +10,13 @@ import {
   shouldRefetchPreview,
   warmLinkPreviewImage,
 } from "@/lib/link-preview";
+import {
+  clearQuickLinksPreviewImageDataUrls,
+  pruneQuickLinksPreviewImageDataUrls,
+  type QuickLinksPreviewImageDataMap,
+  readQuickLinksPreviewImageDataMap,
+  writeQuickLinksPreviewImageDataUrl,
+} from "@/lib/quick-links-preview-image-storage";
 import { getFaviconUrl } from "@/lib/url-utils";
 import type { QuickLink } from "@/types/quick-links";
 
@@ -35,14 +42,57 @@ interface UseQuickLinksPreviewCacheResult {
   ) => void;
 }
 
+function stripPreviewImageData(
+  entry: LinkPreviewCacheEntry
+): LinkPreviewCacheEntry {
+  if (!entry.imageDataUrl) {
+    return entry;
+  }
+
+  return {
+    ...entry,
+    imageDataUrl: "",
+  };
+}
+
+function mergePreviewCacheWithLocalImageData(
+  cache: Record<string, LinkPreviewCacheEntry>,
+  previewImageDataMap: QuickLinksPreviewImageDataMap
+): Record<string, LinkPreviewCacheEntry> {
+  const mergedCache: Record<string, LinkPreviewCacheEntry> = {};
+
+  for (const [comparableUrl, entry] of Object.entries(cache)) {
+    const localImageData = previewImageDataMap[comparableUrl];
+    const canUseLocalImageData =
+      Boolean(localImageData) &&
+      (localImageData.imageUrl === entry.imageUrl || !localImageData.imageUrl);
+
+    if (canUseLocalImageData) {
+      mergedCache[comparableUrl] = {
+        ...entry,
+        imageDataUrl: localImageData.imageDataUrl,
+      };
+      continue;
+    }
+
+    mergedCache[comparableUrl] = entry;
+  }
+
+  return mergedCache;
+}
+
 export function useQuickLinksPreviewCache({
   links,
   setLinks,
   getComparableUrl,
 }: UseQuickLinksPreviewCacheOptions): UseQuickLinksPreviewCacheResult {
-  const [previewCache, setPreviewCache] = useLocalStorage<
+  const [persistedPreviewCache, setPersistedPreviewCache] = useLocalStorage<
     Record<string, LinkPreviewCacheEntry>
   >("better-home-quick-links-previews", {});
+  const [previewImageDataMap, setPreviewImageDataMap] =
+    useState<QuickLinksPreviewImageDataMap>(() =>
+      readQuickLinksPreviewImageDataMap()
+    );
   const [loadingPreviewUrls, setLoadingPreviewUrls] = useState<string[]>([]);
   const [failedPreviewImageUrls, setFailedPreviewImageUrls] = useState<
     Record<string, true>
@@ -55,6 +105,48 @@ export function useQuickLinksPreviewCache({
     comparableUrl: string;
     preview: LinkPreviewCacheEntry;
   } | null>(null);
+
+  const previewCache = useMemo(() => {
+    return mergePreviewCacheWithLocalImageData(
+      persistedPreviewCache,
+      previewImageDataMap
+    );
+  }, [persistedPreviewCache, previewImageDataMap]);
+
+  const savePreviewImageData = useCallback(
+    (comparableUrl: string, imageUrl: string, imageDataUrl: string) => {
+      const normalizedImageDataUrl = imageDataUrl.trim();
+      if (!(comparableUrl && imageUrl && normalizedImageDataUrl)) {
+        return;
+      }
+
+      writeQuickLinksPreviewImageDataUrl(
+        comparableUrl,
+        imageUrl,
+        normalizedImageDataUrl
+      );
+
+      setPreviewImageDataMap((prev) => {
+        const currentEntry = prev[comparableUrl];
+
+        if (
+          currentEntry?.imageUrl === imageUrl &&
+          currentEntry.imageDataUrl === normalizedImageDataUrl
+        ) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          [comparableUrl]: {
+            imageUrl,
+            imageDataUrl: normalizedImageDataUrl,
+          },
+        };
+      });
+    },
+    []
+  );
 
   const getResolvedFavicon = useCallback(
     (url: string): string => {
@@ -106,27 +198,7 @@ export function useQuickLinksPreviewCache({
             return warmLinkPreviewImage(imageUrl).then(() => undefined);
           }
 
-          setPreviewCache((prev) => {
-            const currentEntry = prev[comparableUrl];
-            if (!currentEntry) {
-              return prev;
-            }
-
-            if (
-              currentEntry.imageUrl !== imageUrl ||
-              currentEntry.imageDataUrl === imageDataUrl
-            ) {
-              return prev;
-            }
-
-            return pruneLinkPreviewCache({
-              ...prev,
-              [comparableUrl]: {
-                ...currentEntry,
-                imageDataUrl,
-              },
-            });
-          });
+          savePreviewImageData(comparableUrl, imageUrl, imageDataUrl);
 
           return undefined;
         })
@@ -141,7 +213,7 @@ export function useQuickLinksPreviewCache({
 
       previewImagePrimeRequestMapRef.current.set(requestKey, request);
     },
-    [setPreviewCache]
+    [savePreviewImageData]
   );
 
   const cachePreviewEntry = useCallback(
@@ -150,14 +222,24 @@ export function useQuickLinksPreviewCache({
         primePreviewImageAsset(comparableUrl, preview.imageUrl);
       }
 
-      setPreviewCache((prev) => {
+      if (preview.imageUrl && preview.imageDataUrl) {
+        savePreviewImageData(
+          comparableUrl,
+          preview.imageUrl,
+          preview.imageDataUrl
+        );
+      }
+
+      const sanitizedPreview = stripPreviewImageData(preview);
+
+      setPersistedPreviewCache((prev) => {
         return pruneLinkPreviewCache({
           ...prev,
-          [comparableUrl]: preview,
+          [comparableUrl]: sanitizedPreview,
         });
       });
     },
-    [primePreviewImageAsset, setPreviewCache]
+    [primePreviewImageAsset, savePreviewImageData, setPersistedPreviewCache]
   );
 
   const stageResolvedTitlePreview = useCallback(
@@ -177,8 +259,83 @@ export function useQuickLinksPreviewCache({
   }, []);
 
   useEffect(() => {
-    setPreviewCache((prev) => pruneLinkPreviewCache(prev));
-  }, [setPreviewCache]);
+    setPersistedPreviewCache((prev) => pruneLinkPreviewCache(prev));
+  }, [setPersistedPreviewCache]);
+
+  useEffect(() => {
+    const extractedImageDataEntries: QuickLinksPreviewImageDataMap = {};
+    let hasLegacyImageData = false;
+
+    for (const [comparableUrl, entry] of Object.entries(
+      persistedPreviewCache
+    )) {
+      const imageDataUrl = entry.imageDataUrl?.trim();
+
+      if (!(entry.imageUrl && imageDataUrl)) {
+        continue;
+      }
+
+      hasLegacyImageData = true;
+      extractedImageDataEntries[comparableUrl] = {
+        imageUrl: entry.imageUrl,
+        imageDataUrl,
+      };
+    }
+
+    if (!hasLegacyImageData) {
+      return;
+    }
+
+    for (const [comparableUrl, imageDataEntry] of Object.entries(
+      extractedImageDataEntries
+    )) {
+      writeQuickLinksPreviewImageDataUrl(
+        comparableUrl,
+        imageDataEntry.imageUrl,
+        imageDataEntry.imageDataUrl
+      );
+    }
+
+    setPreviewImageDataMap((prev) => {
+      let hasChanges = false;
+      const nextMap = { ...prev };
+
+      for (const [comparableUrl, imageDataEntry] of Object.entries(
+        extractedImageDataEntries
+      )) {
+        const existingEntry = nextMap[comparableUrl];
+
+        if (
+          existingEntry?.imageUrl === imageDataEntry.imageUrl &&
+          existingEntry.imageDataUrl === imageDataEntry.imageDataUrl
+        ) {
+          continue;
+        }
+
+        hasChanges = true;
+        nextMap[comparableUrl] = imageDataEntry;
+      }
+
+      return hasChanges ? nextMap : prev;
+    });
+
+    setPersistedPreviewCache((prev) => {
+      let hasChanges = false;
+      const nextCache: Record<string, LinkPreviewCacheEntry> = {};
+
+      for (const [comparableUrl, entry] of Object.entries(prev)) {
+        const sanitizedEntry = stripPreviewImageData(entry);
+
+        if (sanitizedEntry !== entry) {
+          hasChanges = true;
+        }
+
+        nextCache[comparableUrl] = sanitizedEntry;
+      }
+
+      return hasChanges ? nextCache : prev;
+    });
+  }, [persistedPreviewCache, setPersistedPreviewCache]);
 
   useEffect(() => {
     return () => {
@@ -191,7 +348,7 @@ export function useQuickLinksPreviewCache({
       links.map((link) => getComparableUrl(link.url))
     );
 
-    setPreviewCache((prev) => {
+    setPersistedPreviewCache((prev) => {
       let hasRemovedEntries = false;
       const nextCache: Record<string, LinkPreviewCacheEntry> = {};
 
@@ -206,7 +363,30 @@ export function useQuickLinksPreviewCache({
 
       return hasRemovedEntries ? nextCache : prev;
     });
-  }, [getComparableUrl, links, setPreviewCache]);
+
+    const hasRemovedImageDataEntries = Object.keys(previewImageDataMap).some(
+      (comparableUrl) => !activeComparableUrls.has(comparableUrl)
+    );
+
+    if (!hasRemovedImageDataEntries) {
+      return;
+    }
+
+    pruneQuickLinksPreviewImageDataUrls(activeComparableUrls);
+    setPreviewImageDataMap((prev) => {
+      const nextMap: QuickLinksPreviewImageDataMap = {};
+
+      for (const [comparableUrl, imageDataEntry] of Object.entries(prev)) {
+        if (!activeComparableUrls.has(comparableUrl)) {
+          continue;
+        }
+
+        nextMap[comparableUrl] = imageDataEntry;
+      }
+
+      return nextMap;
+    });
+  }, [getComparableUrl, links, previewImageDataMap, setPersistedPreviewCache]);
 
   const ensureLinkPreview = useCallback(
     (url: string) => {
@@ -301,8 +481,10 @@ export function useQuickLinksPreviewCache({
     setLoadingPreviewUrls([]);
     setFailedPreviewImageUrls({});
     resetLinkPreviewImageRuntimeCache();
-    setPreviewCache({});
-  }, [setPreviewCache]);
+    clearQuickLinksPreviewImageDataUrls();
+    setPreviewImageDataMap({});
+    setPersistedPreviewCache({});
+  }, [setPersistedPreviewCache]);
 
   return {
     clearStagedTitlePreview,

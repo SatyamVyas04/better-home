@@ -42,6 +42,52 @@ import {
 import { USER_STORAGE_KEYS } from "@/lib/storage-keys";
 
 let autosaveTimer: number | null = null;
+const QUICK_LINKS_PREVIEWS_STORAGE_KEY = "better-home-quick-links-previews";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function stripPreviewImageDataForBackup(value: unknown): unknown {
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  let hasChanges = false;
+  const nextValue: Record<string, unknown> = {};
+
+  for (const [comparableUrl, entry] of Object.entries(value)) {
+    if (!isRecord(entry)) {
+      nextValue[comparableUrl] = entry;
+      continue;
+    }
+
+    if (typeof entry.imageDataUrl !== "string") {
+      nextValue[comparableUrl] = entry;
+      continue;
+    }
+
+    const { imageDataUrl: _unusedImageDataUrl, ...sanitizedEntry } = entry;
+    nextValue[comparableUrl] = sanitizedEntry;
+    hasChanges = true;
+  }
+
+  return hasChanges ? nextValue : value;
+}
+
+function sanitizeBackupPayload(backup: BackupData): BackupData {
+  const previewValue = backup[QUICK_LINKS_PREVIEWS_STORAGE_KEY];
+  const sanitizedPreviewValue = stripPreviewImageDataForBackup(previewValue);
+
+  if (sanitizedPreviewValue === previewValue) {
+    return backup;
+  }
+
+  return {
+    ...backup,
+    [QUICK_LINKS_PREVIEWS_STORAGE_KEY]: sanitizedPreviewValue,
+  };
+}
 
 function updateBackupStatus(
   state: BackupStatus["state"],
@@ -74,14 +120,21 @@ export async function createBackup(): Promise<BackupData> {
       continue;
     }
 
+    let parsedValue: unknown;
+
     try {
-      backup[key] = JSON.parse(rawValue);
+      parsedValue = JSON.parse(rawValue);
     } catch {
-      backup[key] = rawValue;
+      parsedValue = rawValue;
     }
+
+    backup[key] =
+      key === QUICK_LINKS_PREVIEWS_STORAGE_KEY
+        ? stripPreviewImageDataForBackup(parsedValue)
+        : parsedValue;
   }
 
-  return backup;
+  return sanitizeBackupPayload(backup);
 }
 
 async function ensureAutosaveHistoryBackup(
@@ -435,6 +488,7 @@ export async function backupNow(): Promise<boolean> {
 export async function saveBackupWithFilePicker(
   backup: BackupData
 ): Promise<boolean> {
+  const sanitizedBackup = sanitizeBackupPayload(backup);
   const selected = await selectBackupLocation();
 
   if (!selected) {
@@ -442,7 +496,7 @@ export async function saveBackupWithFilePicker(
   }
 
   const fileWritten = await writeBackupToConfiguredFile(
-    backup,
+    sanitizedBackup,
     {
       appendHistory: true,
       historyReason: "manual",
@@ -455,13 +509,14 @@ export async function saveBackupWithFilePicker(
     return false;
   }
 
-  await appendBackupHistoryEntry(backup, "manual");
+  await appendBackupHistoryEntry(sanitizedBackup, "manual");
   updateBackupStatus("saved", "file-picker");
   return true;
 }
 
 export function downloadBackup(backup: BackupData): void {
-  const dataString = JSON.stringify(backup, null, 2);
+  const sanitizedBackup = sanitizeBackupPayload(backup);
+  const dataString = JSON.stringify(sanitizedBackup, null, 2);
   const dataBlob = new Blob([dataString], { type: "application/json" });
   const objectURL = URL.createObjectURL(dataBlob);
 

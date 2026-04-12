@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import {
+  PREVIEW_EXISTING_LINKS_HYDRATION_MARKER_KEY,
+  PREVIEW_EXISTING_LINKS_HYDRATION_START_DELAY_MS,
   PREVIEW_INTERACTION_WARMUP_BATCH_DELAY_MS,
   PREVIEW_INTERACTION_WARMUP_BATCH_SIZE,
   PREVIEW_INTERACTION_WARMUP_INITIAL_LINKS,
@@ -7,6 +9,7 @@ import {
   PREVIEW_MOUNT_WARMUP_MAX_LINKS,
   PREVIEW_MOUNT_WARMUP_START_DELAY_MS,
 } from "@/constants/quick-links";
+import { APP_VERSION } from "@/lib/extension-storage";
 import type { QuickLink } from "@/types/quick-links";
 
 interface UseQuickLinksPreviewWarmupOptions {
@@ -20,12 +23,98 @@ interface UseQuickLinksPreviewWarmupResult {
   startInteractionPreviewWarmup: () => void;
 }
 
+function readPreviewHydrationMarker(): string {
+  try {
+    return (
+      window.localStorage.getItem(
+        PREVIEW_EXISTING_LINKS_HYDRATION_MARKER_KEY
+      ) || ""
+    );
+  } catch {
+    return "";
+  }
+}
+
+function writePreviewHydrationMarker(value: string): void {
+  try {
+    window.localStorage.setItem(
+      PREVIEW_EXISTING_LINKS_HYDRATION_MARKER_KEY,
+      value
+    );
+  } catch {
+    return;
+  }
+}
+
+function buildDedupedWarmupUrls(
+  links: QuickLink[],
+  getComparableUrl: (url: string) => string
+): string[] {
+  const seenComparableUrls = new Set<string>();
+  const warmupUrls: string[] = [];
+
+  for (const link of links) {
+    const comparableUrl = getComparableUrl(link.url);
+    if (seenComparableUrls.has(comparableUrl)) {
+      continue;
+    }
+
+    seenComparableUrls.add(comparableUrl);
+    warmupUrls.push(link.url);
+  }
+
+  return warmupUrls;
+}
+
+async function warmUrlsInSimpleBatches({
+  ensureLinkPreview,
+  isCancelled,
+  urls,
+}: {
+  ensureLinkPreview: (url: string) => void;
+  isCancelled: () => boolean;
+  urls: string[];
+}): Promise<boolean> {
+  for (
+    let index = 0;
+    index < urls.length;
+    index += PREVIEW_INTERACTION_WARMUP_BATCH_SIZE
+  ) {
+    if (isCancelled()) {
+      return false;
+    }
+
+    const batchUrls = urls.slice(
+      index,
+      index + PREVIEW_INTERACTION_WARMUP_BATCH_SIZE
+    );
+
+    for (const batchUrl of batchUrls) {
+      if (isCancelled()) {
+        return false;
+      }
+
+      ensureLinkPreview(batchUrl);
+    }
+
+    await new Promise<void>((resolve) => {
+      window.setTimeout(
+        () => resolve(),
+        PREVIEW_INTERACTION_WARMUP_BATCH_DELAY_MS
+      );
+    });
+  }
+
+  return !isCancelled();
+}
+
 export function useQuickLinksPreviewWarmup({
   ensureLinkPreview,
   getComparableUrl,
   links,
 }: UseQuickLinksPreviewWarmupOptions): UseQuickLinksPreviewWarmupResult {
   const hasStartedMountWarmupRef = useRef(false);
+  const hasStartedExistingLinksHydrationRef = useRef(false);
   const hasStartedInteractionWarmupRef = useRef(false);
   const interactionWarmupCancelledRef = useRef(false);
   const interactionWarmupTimeoutIdsRef = useRef<number[]>([]);
@@ -173,44 +262,61 @@ export function useQuickLinksPreviewWarmup({
 
     let isCancelled = false;
     const warmupTimeoutId = window.setTimeout(() => {
-      const warmPreviews = async () => {
-        for (
-          let index = 0;
-          index < warmupUrls.length;
-          index += PREVIEW_INTERACTION_WARMUP_BATCH_SIZE
-        ) {
-          if (isCancelled) {
-            return;
-          }
-
-          const batchUrls = warmupUrls.slice(
-            index,
-            index + PREVIEW_INTERACTION_WARMUP_BATCH_SIZE
-          );
-
-          for (const warmupUrl of batchUrls) {
-            if (isCancelled) {
-              return;
-            }
-
-            ensureLinkPreview(warmupUrl);
-          }
-
-          await new Promise<void>((resolve) => {
-            window.setTimeout(
-              () => resolve(),
-              PREVIEW_INTERACTION_WARMUP_BATCH_DELAY_MS
-            );
-          });
-        }
-      };
-
-      warmPreviews().catch(() => null);
+      warmUrlsInSimpleBatches({
+        ensureLinkPreview,
+        isCancelled: () => isCancelled,
+        urls: warmupUrls,
+      }).catch(() => null);
     }, PREVIEW_MOUNT_WARMUP_START_DELAY_MS);
 
     return () => {
       isCancelled = true;
       window.clearTimeout(warmupTimeoutId);
+    };
+  }, [ensureLinkPreview, getComparableUrl, links]);
+
+  useEffect(() => {
+    if (hasStartedExistingLinksHydrationRef.current) {
+      return;
+    }
+
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      return;
+    }
+
+    if (readPreviewHydrationMarker() === APP_VERSION) {
+      hasStartedExistingLinksHydrationRef.current = true;
+      return;
+    }
+
+    hasStartedExistingLinksHydrationRef.current = true;
+
+    const warmupUrls = buildDedupedWarmupUrls(links, getComparableUrl);
+    if (warmupUrls.length === 0) {
+      writePreviewHydrationMarker(APP_VERSION);
+      return;
+    }
+
+    let isCancelled = false;
+    const hydrationTimeoutId = window.setTimeout(() => {
+      const hydrateExistingLinks = async () => {
+        const completed = await warmUrlsInSimpleBatches({
+          ensureLinkPreview,
+          isCancelled: () => isCancelled,
+          urls: warmupUrls,
+        });
+
+        if (completed) {
+          writePreviewHydrationMarker(APP_VERSION);
+        }
+      };
+
+      hydrateExistingLinks().catch(() => null);
+    }, PREVIEW_EXISTING_LINKS_HYDRATION_START_DELAY_MS);
+
+    return () => {
+      isCancelled = true;
+      window.clearTimeout(hydrationTimeoutId);
     };
   }, [ensureLinkPreview, getComparableUrl, links]);
 
