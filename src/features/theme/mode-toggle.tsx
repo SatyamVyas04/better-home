@@ -1,5 +1,4 @@
 import { IconMoon, IconSun } from "@tabler/icons-react";
-import { useTheme } from "@/components/theme-provider/theme-provider";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTheme } from "@/features/theme/theme-provider";
 
 export function ModeToggle() {
   const { setTheme } = useTheme();

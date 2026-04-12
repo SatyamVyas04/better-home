@@ -188,7 +188,7 @@ export function TodoItemRow({
                       opacity: 1,
                       scale: 1,
                     }}
-                    className="translate-x-6 transform transition-transform group-hover:translate-x-0"
+                    className="translate-x-6 transform transition-transform group-focus-within:translate-x-0 group-hover:translate-x-0 group-active:translate-x-0"
                     exit={{
                       filter: "blur(4px)",
                       opacity: 0,
@@ -213,7 +213,7 @@ export function TodoItemRow({
                 <Tooltip delayDuration={500}>
                   <TooltipTrigger asChild>
                     <Button
-                      className="relative -my-0.75 size-6 translate-x-6 transform overflow-clip opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+                      className="relative -my-0.75 size-6 translate-x-6 transform overflow-clip opacity-0 transition-all group-focus-within:translate-x-0 group-focus-within:opacity-100 group-hover:translate-x-0 group-hover:opacity-100 group-active:translate-x-0 group-active:opacity-100"
                       onMouseDown={() => onDeleteMouseDown(todo.id)}
                       onMouseLeave={onDeleteMouseUp}
                       onMouseUp={onDeleteMouseUp}

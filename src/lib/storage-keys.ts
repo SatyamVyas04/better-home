@@ -7,6 +7,7 @@ export const USER_STORAGE_KEYS = [
   "better-home-todo-collapsed-sections",
   "better-home-todo-filters",
   "better-home-quick-links",
+  "better-home-quick-links-previews",
   "better-home-quick-links-sort",
   "mood-calendar-2026-data",
   "mood-calendar-show-numbers",

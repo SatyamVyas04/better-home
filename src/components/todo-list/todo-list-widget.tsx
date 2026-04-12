@@ -1,4 +1,13 @@
-import { IconChevronRight, IconPlus } from "@tabler/icons-react";
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconChevronRight,
+  IconEyeOff,
+  IconHandMove,
+  IconPlus,
+  IconStar,
+  IconUsersGroup,
+} from "@tabler/icons-react";
 import { AnimatePresence, motion, Reorder } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -204,7 +213,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                                 {section.label.toLowerCase()}
                               </span>
                             </div>
-                            <span className="translate-x-6 text-[10px] text-muted-foreground opacity-0 transition-all group-hover/count:translate-x-0 group-hover/count:opacity-100">
+                            <span className="translate-x-6 text-[10px] text-muted-foreground opacity-0 transition-all group-focus-within/count:translate-x-0 group-focus-within/count:opacity-100 group-hover/count:translate-x-0 group-hover/count:opacity-100 group-active/count:translate-x-0 group-active/count:opacity-100">
                               {section.todos.filter((t) => t.completed).length}/
                               {section.todos.length}
                             </span>
@@ -282,12 +291,15 @@ export function TodoList({ fullSize = false }: TodoListProps) {
             sorting
           </ContextMenuItem>
           <ContextMenuRadioItem className="text-xs lowercase" value="oldest">
+            <IconArrowDown className="size-3.5" />
             oldest first
           </ContextMenuRadioItem>
           <ContextMenuRadioItem className="text-xs lowercase" value="newest">
+            <IconArrowUp className="size-3.5" />
             newest first
           </ContextMenuRadioItem>
           <ContextMenuRadioItem className="text-xs lowercase" value="manual">
+            <IconHandMove className="size-3.5" />
             manual order
           </ContextMenuRadioItem>
         </ContextMenuRadioGroup>
@@ -300,6 +312,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
           className="text-xs lowercase"
           onCheckedChange={(checked) => setGroupByEnabled(checked)}
         >
+          <IconUsersGroup className="size-3.5" />
           group by group
         </ContextMenuCheckboxItem>
         <ContextMenuSeparator />
@@ -313,6 +326,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
             setFilters((prev) => ({ ...prev, hideCompleted: Boolean(checked) }))
           }
         >
+          <IconEyeOff className="size-3.5" />
           hide completed
         </ContextMenuCheckboxItem>
         <ContextMenuCheckboxItem
@@ -322,7 +336,8 @@ export function TodoList({ fullSize = false }: TodoListProps) {
             setFilters((prev) => ({ ...prev, importantOnly: Boolean(checked) }))
           }
         >
-          show important only
+          <IconStar className="size-3.5" />
+          important only
         </ContextMenuCheckboxItem>
       </ContextMenuContent>
     </ContextMenu>

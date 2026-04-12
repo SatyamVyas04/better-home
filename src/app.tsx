@@ -6,7 +6,6 @@ import {
   IconRefresh,
 } from "@tabler/icons-react";
 import { useEffect } from "react";
-import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -14,8 +13,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { BackupWidget } from "@/components/widgets/backup-widget/backup-widget";
-import { renderWidget } from "@/components/widgets/widget-registry";
+import { renderWidget } from "@/components/widget-registry";
+import { BackupWidget } from "@/features/backup/backup-widget";
+import { ThemeProvider } from "@/features/theme/theme-provider";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useStorageMigration } from "@/hooks/use-storage-migration";
 import { writeAppStorageRaw } from "@/lib/extension-storage";

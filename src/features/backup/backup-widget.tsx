@@ -4,7 +4,6 @@ import {
   IconUpload,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import spinners, { type BrailleSpinnerName } from "unicode-animations";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useUnicodeSpinnerFrame } from "@/hooks/use-unicode-spinner-frame";
 import {
   type AutoBackupSnapshot,
   type BackupLocationStatus,
@@ -31,212 +31,22 @@ import {
   restoreMostRecentRestoreCheckpoint,
   selectBackupLocation,
 } from "@/lib/backup-utils";
-
-const DEFAULT_BACKUP_STATUS: BackupStatus = {
-  state: "idle",
-  updatedAt: "",
-  source: "auto",
-};
-
-const DEFAULT_BACKUP_LOCATION_STATUS: BackupLocationStatus = {
-  configured: false,
-  permissionState: "unconfigured",
-  needsReauthorization: false,
-  consecutiveFailures: 0,
-};
-
-type BackupTabKey = "options" | "history";
-
-function formatBackupAge(updatedAt: string): string {
-  if (!updatedAt) {
-    return "never";
-  }
-
-  const parsedTime = Date.parse(updatedAt);
-  if (Number.isNaN(parsedTime)) {
-    return "unknown";
-  }
-
-  const diffMs = Date.now() - parsedTime;
-  if (diffMs < 60_000) {
-    return "now";
-  }
-
-  const diffMinutes = Math.floor(diffMs / 60_000);
-  if (diffMinutes < 60) {
-    return `${diffMinutes}m`;
-  }
-
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) {
-    return `${diffHours}h`;
-  }
-
-  const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays}d`;
-}
-
-function getFooterBackupLabel(
-  status: BackupStatus,
-  isBackupLocationReady: boolean
-): string {
-  if (!isBackupLocationReady) {
-    return "BLOCKED";
-  }
-
-  if (status.state === "saving") {
-    return "SYNCING";
-  }
-
-  if (status.state === "error") {
-    return "BLOCKED";
-  }
-
-  if (
-    status.state === "saved" ||
-    status.state === "auto-saved" ||
-    status.state === "restored"
-  ) {
-    return "SUCCESS";
-  }
-
-  return "STANDBY";
-}
-
-function formatHistoryAge(updatedAt: string): string {
-  const backupAge = formatBackupAge(updatedAt);
-
-  if (backupAge === "now") {
-    return "just now";
-  }
-
-  if (backupAge === "unknown") {
-    return "recent";
-  }
-
-  if (backupAge === "never") {
-    return "unknown";
-  }
-
-  return `${backupAge} ago`;
-}
-
-function getFooterLoaderName(
-  state: BackupStatus["state"],
-  isBackupLocationReady: boolean
-): BrailleSpinnerName {
-  if (!isBackupLocationReady || state === "error") {
-    return "columns";
-  }
-
-  if (state === "saving") {
-    return "checkerboard";
-  }
-
-  return "pulse";
-}
-
-function getBackupStatusTone(
-  state: BackupStatus["state"],
-  isBackupLocationReady: boolean
-): string {
-  if (!isBackupLocationReady || state === "error") {
-    return "text-destructive";
-  }
-
-  if (state === "saving") {
-    return "text-amber-500";
-  }
-
-  if (state === "saved" || state === "auto-saved" || state === "restored") {
-    return "text-emerald-500";
-  }
-
-  return "text-muted-foreground";
-}
-
-function resolveFooterBackupState(
-  status: BackupStatus,
-  isBackupLocationReady: boolean
-): BackupStatus["state"] {
-  if (!isBackupLocationReady) {
-    return "error";
-  }
-
-  return status.state;
-}
-
-function useUnicodeSpinnerFrame(name: BrailleSpinnerName, speed = 1): string {
-  const spinner = spinners[name];
-  const [frameIndex, setFrameIndex] = useState(0);
-
-  useEffect(() => {
-    setFrameIndex(0);
-
-    const frameInterval = Math.max(16, Math.round(spinner.interval / speed));
-    const timer = window.setInterval(() => {
-      setFrameIndex((previousFrame) => {
-        return (previousFrame + 1) % spinner.frames.length;
-      });
-    }, frameInterval);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [speed, spinner]);
-
-  return spinner.frames[frameIndex] ?? spinner.frames[0] ?? "";
-}
-
-function useVisibleBackupStatus(
-  status: BackupStatus,
-  minimumSavingMs = 700
-): BackupStatus {
-  const [visibleStatus, setVisibleStatus] = useState(status);
-  const savingStartedAtRef = useRef<number | null>(null);
-  const pendingTransitionTimerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (pendingTransitionTimerRef.current !== null) {
-      window.clearTimeout(pendingTransitionTimerRef.current);
-      pendingTransitionTimerRef.current = null;
-    }
-
-    setVisibleStatus((previousStatus) => {
-      if (status.state === "saving") {
-        savingStartedAtRef.current = Date.now();
-        return status;
-      }
-
-      if (
-        previousStatus.state === "saving" &&
-        savingStartedAtRef.current !== null
-      ) {
-        const elapsedMs = Date.now() - savingStartedAtRef.current;
-
-        if (elapsedMs < minimumSavingMs) {
-          const remainingMs = minimumSavingMs - elapsedMs;
-          pendingTransitionTimerRef.current = window.setTimeout(() => {
-            setVisibleStatus(status);
-            pendingTransitionTimerRef.current = null;
-          }, remainingMs);
-          return previousStatus;
-        }
-      }
-
-      return status;
-    });
-
-    return () => {
-      if (pendingTransitionTimerRef.current !== null) {
-        window.clearTimeout(pendingTransitionTimerRef.current);
-        pendingTransitionTimerRef.current = null;
-      }
-    };
-  }, [minimumSavingMs, status]);
-
-  return visibleStatus;
-}
+import {
+  BACKUP_HISTORY_VISIBLE_LIMIT,
+  BACKUP_TIMELINE_QUERY_LIMIT,
+  BACKUP_VISIBLE_STATUS_MIN_SAVING_MS,
+  type BackupTabKey,
+  DEFAULT_BACKUP_LOCATION_STATUS,
+  DEFAULT_BACKUP_STATUS,
+} from "./backup-widget.constants";
+import {
+  formatHistoryAge,
+  getBackupStatusTone,
+  getFooterBackupLabel,
+  getFooterLoaderName,
+  resolveFooterBackupState,
+} from "./backup-widget.utils";
+import { useVisibleBackupStatus } from "./use-backup-widget-status";
 
 export function BackupWidget() {
   const [backupStatus] = useLocalStorage<BackupStatus>(
@@ -262,14 +72,20 @@ export function BackupWidget() {
   const [isBackingUp, setIsBackingUp] = useState(false);
   const restoreFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const visibleBackupStatus = useVisibleBackupStatus(backupStatus, 700);
+  const visibleBackupStatus = useVisibleBackupStatus(
+    backupStatus,
+    BACKUP_VISIBLE_STATUS_MIN_SAVING_MS
+  );
 
   const refreshBackupSurface = useCallback(() => {
-    Promise.all([readBackupTimelineState(12), readBackupLocationStatus()])
+    Promise.all([
+      readBackupTimelineState(BACKUP_TIMELINE_QUERY_LIMIT),
+      readBackupLocationStatus(),
+    ])
       .then(([timelineState, locationStatus]) => {
         const visibleSnapshots = timelineState.snapshots
           .filter((snapshot) => snapshot.reason !== "restore-checkpoint")
-          .slice(0, 6);
+          .slice(0, BACKUP_HISTORY_VISIBLE_LIMIT);
 
         setAutoBackups(visibleSnapshots);
         setLatestSnapshot(timelineState.latestSnapshot ?? null);

@@ -1,14 +1,8 @@
-import {
-  IconArrowDown,
-  IconArrowUp,
-  IconExternalLink,
-  IconHistory,
-  IconPlus,
-  IconTrash,
-  IconX,
-} from "@tabler/icons-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useMemo, useState } from "react";
+import { IconArrowDown, IconArrowUp, IconHistory } from "@tabler/icons-react";
+import { ImportBookmarksContent } from "@/components/quick-links/import-bookmarks-content";
+import { QuickLinksAddFlow } from "@/components/quick-links/quick-links-add-flow";
+import { QuickLinksList } from "@/components/quick-links/quick-links-list";
+import { QuickLinksPreviewCard } from "@/components/quick-links/quick-links-preview-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -20,35 +14,36 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import {
-  extractTitle,
-  getFaviconUrl,
-  isValidUrl,
-  normalizeUrl,
-} from "@/lib/url-utils";
+import { useQuickLinksAddFlow } from "@/hooks/use-quick-links-add-flow";
+import { useQuickLinksImportController } from "@/hooks/use-quick-links-import-controller";
+import { useQuickLinksPreviewController } from "@/hooks/use-quick-links-preview-controller";
+import type {
+  QuickLink,
+  QuickLinksProps,
+  QuickLinksSortMode,
+} from "@/types/quick-links";
 
-interface QuickLinksProps {
-  expanded?: boolean;
-  fullSize?: boolean;
-}
+const getQuickLinksCardClasses = (expanded: boolean, fullSize: boolean) => {
+  if (fullSize) {
+    return "flex min-h-0 w-full flex-1 flex-col gap-0 border-border/50 py-2";
+  }
 
-interface QuickLink {
-  id: string;
-  title: string;
-  url: string;
-  favicon: string;
-}
+  if (expanded) {
+    return "flex min-h-0 w-full flex-1 flex-col gap-0 border-border/50 py-2 lg:w-71";
+  }
 
-type QuickLinksSortMode = "recent" | "alphabetical-asc" | "alphabetical-desc";
+  return "flex h-fit max-h-40 w-full flex-col gap-0 border-border/50 py-2 lg:max-h-none lg:w-71";
+};
 
 export function QuickLinks({
   expanded = false,
@@ -65,338 +60,212 @@ export function QuickLinks({
       },
     ]
   );
-  const [newUrl, setNewUrl] = useState("");
-  const [sortMode, setSortMode] = useLocalStorage<QuickLinksSortMode>(
-    "better-home-quick-links-sort",
-    "recent"
-  );
 
-  const displayedLinks = useMemo(() => {
-    const sortedLinks = [...links];
-
-    if (sortMode === "alphabetical-asc") {
-      sortedLinks.sort((a, b) =>
-        a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
-      );
-    } else if (sortMode === "alphabetical-desc") {
-      sortedLinks.sort((a, b) =>
-        b.title.localeCompare(a.title, undefined, { sensitivity: "base" })
-      );
-    } else {
-      sortedLinks.reverse();
-    }
-
-    return sortedLinks;
-  }, [links, sortMode]);
-
-  const hasDuplicates = useMemo(() => {
-    const seenUrls = new Set<string>();
-
-    for (const link of links) {
-      const normalizedLinkUrl =
-        normalizeUrl(link.url) ?? link.url.toLowerCase();
-
-      if (seenUrls.has(normalizedLinkUrl)) {
-        return true;
-      }
-
-      seenUrls.add(normalizedLinkUrl);
-    }
-
-    return false;
-  }, [links]);
-
-  const addLink = () => {
-    const normalizedUrl = normalizeUrl(newUrl);
-    if (!normalizedUrl) {
-      return;
-    }
-
-    if (!isValidUrl(normalizedUrl)) {
-      return;
-    }
-
-    const link: QuickLink = {
-      id: crypto.randomUUID(),
-      title: extractTitle(normalizedUrl),
-      url: normalizedUrl,
-      favicon: getFaviconUrl(normalizedUrl),
-    };
-
-    setLinks((prev) => [...prev, link]);
-    setNewUrl("");
-  };
-
-  const deleteLink = (id: string) => {
-    setLinks((prev) => prev.filter((link) => link.id !== id));
-  };
-
-  const deleteDuplicateLinks = () => {
-    setLinks((prev) => {
-      const seenUrls = new Set<string>();
-      const dedupedLinks: QuickLink[] = [];
-
-      for (let index = prev.length - 1; index >= 0; index -= 1) {
-        const link = prev[index];
-        const normalizedLinkUrl =
-          normalizeUrl(link.url) ?? link.url.toLowerCase();
-
-        if (seenUrls.has(normalizedLinkUrl)) {
-          continue;
-        }
-
-        seenUrls.add(normalizedLinkUrl);
-        dedupedLinks.unshift(link);
-      }
-
-      return dedupedLinks;
-    });
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      addLink();
-    }
-  };
-
-  const renderLinks = () => {
-    if (expanded) {
-      return (
-        <ScrollArea className="min-h-0 flex-1">
-          <div className="flex min-h-full flex-col space-y-0.5 pr-0">
-            <AnimatePresence mode="popLayout">
-              {displayedLinks.map((link) => (
-                <motion.a
-                  animate={{ filter: "blur(0px)", opacity: 1, x: 0, scale: 1 }}
-                  className="group flex items-center gap-2 rounded-md border border-border/50 px-1.5 py-1 transition-colors hover:bg-accent/30 focus-visible:bg-accent/30 focus-visible:ring-2 focus-visible:ring-ring/30"
-                  exit={{
-                    filter: "blur(4px)",
-                    opacity: 0,
-                    x: 10,
-                    scale: 0.95,
-                  }}
-                  href={link.url}
-                  initial={{
-                    filter: "blur(4px)",
-                    opacity: 0,
-                    x: 10,
-                    scale: 0.95,
-                  }}
-                  key={link.id}
-                  layout
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                >
-                  {link.favicon ? (
-                    <img
-                      alt={link.title}
-                      className="size-4 shrink-0"
-                      height={16}
-                      loading="lazy"
-                      src={link.favicon}
-                      width={16}
-                    />
-                  ) : (
-                    <IconExternalLink className="size-4 shrink-0 text-muted-foreground" />
-                  )}
-                  <span className="flex-1 truncate text-xs">{link.title}</span>
-                  <Button
-                    className="size-6 opacity-0 transition-opacity group-hover:opacity-100"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      deleteLink(link.id);
-                    }}
-                    size="icon-sm"
-                    variant="ghost"
-                  >
-                    <IconTrash className="size-3.5 text-destructive" />
-                    <span className="sr-only">Delete {link.title}</span>
-                  </Button>
-                </motion.a>
-              ))}
-              {displayedLinks.length === 0 && (
-                <motion.div
-                  animate={{ opacity: 1 }}
-                  className="flex flex-1 items-center justify-center py-8"
-                  exit={{ opacity: 0 }}
-                  initial={{ opacity: 0 }}
-                  key="empty-message-list"
-                  transition={{ duration: 0.3 }}
-                >
-                  <p className="text-muted-foreground text-xs lowercase">
-                    no links saved
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </ScrollArea>
-      );
-    }
-
-    return (
-      <div className="min-h-0 flex-1">
-        <div className="grid grid-cols-7 gap-1.5 sm:grid-cols-11 md:grid-cols-15 lg:grid-cols-7">
-          <AnimatePresence mode="popLayout">
-            {displayedLinks.map((link) => (
-              <motion.div
-                animate={{ filter: "blur(0px)", opacity: 1, scale: 1 }}
-                exit={{ filter: "blur(4px)", opacity: 0, scale: 0.9 }}
-                initial={{ filter: "blur(4px)", opacity: 0, scale: 0.5 }}
-                key={link.id}
-                layout
-                transition={{ duration: 0.3, ease: "easeOut" }}
-              >
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="group relative w-fit">
-                      <a
-                        className="flex size-8 items-center justify-center rounded-md border border-border/50 transition-colors hover:bg-accent/30 focus-visible:bg-accent/30 focus-visible:ring-2 focus-visible:ring-ring/30"
-                        href={link.url}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        {link.favicon ? (
-                          <img
-                            alt={link.title}
-                            className="size-4"
-                            height={16}
-                            loading="lazy"
-                            src={link.favicon}
-                            width={16}
-                          />
-                        ) : (
-                          <IconExternalLink className="size-4 text-muted-foreground" />
-                        )}
-                      </a>
-                      <button
-                        className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-white opacity-0 transition-opacity hover:bg-destructive/90 group-hover:opacity-100"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          deleteLink(link.id);
-                        }}
-                        type="button"
-                      >
-                        <IconX className="size-2" />
-                        <span className="sr-only">Delete {link.title}</span>
-                      </button>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="text-[10px] lowercase">{link.title}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </motion.div>
-            ))}
-            {displayedLinks.length === 0 && (
-              <motion.div
-                animate={{ opacity: 1 }}
-                className="col-span-full flex h-8 items-center justify-center"
-                exit={{ opacity: 0 }}
-                initial={{ opacity: 0 }}
-                key="empty-message-grid"
-                transition={{ duration: 0.3 }}
-              >
-                <p className="text-muted-foreground text-xs lowercase">
-                  no links saved
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    );
-  };
-
-  const getCardClasses = () => {
-    if (fullSize) {
-      return "flex min-h-0 w-full flex-1 flex-col gap-0 border-border/50 py-2";
-    }
-    if (expanded) {
-      return "flex min-h-0 w-full flex-1 flex-col gap-0 border-border/50 py-2 lg:w-71";
-    }
-    return "flex h-fit max-h-40 w-full flex-col gap-0 border-border/50 py-2 lg:max-h-none lg:w-71";
-  };
+  const previewController = useQuickLinksPreviewController({
+    links,
+    setLinks,
+  });
+  const importController = useQuickLinksImportController({
+    ensureLinkPreview: previewController.ensureLinkPreview,
+    getComparableUrl: previewController.getComparableUrl,
+    getResolvedFavicon: previewController.getResolvedFavicon,
+    setLinks,
+  });
+  const addFlowController = useQuickLinksAddFlow({
+    clearStagedTitlePreview: previewController.clearStagedTitlePreview,
+    ensureLinkPreview: previewController.ensureLinkPreview,
+    getResolvedFavicon: previewController.getResolvedFavicon,
+    setLinks,
+    stageResolvedTitlePreview: previewController.stageResolvedTitlePreview,
+  });
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <ContextMenu>
-        <ContextMenuTrigger asChild>
-          <Card className={getCardClasses()}>
-            <CardHeader className="px-3 pb-1">
-              <CardTitle className="font-medium text-xs lowercase">
-                quick links
-              </CardTitle>
-            </CardHeader>
-            <CardContent
-              className={`flex flex-col gap-1.5 px-3 ${expanded || fullSize ? "min-h-0 flex-1" : ""}`}
-            >
-              <div className="flex gap-1">
-                <Input
-                  className="h-8 flex-1 text-xs"
-                  onChange={(e) => setNewUrl(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="add a link..."
-                  value={newUrl}
+    <>
+      <Dialog
+        onOpenChange={importController.setIsImportDialogOpen}
+        open={importController.isImportDialogOpen}
+      >
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <Card className={getQuickLinksCardClasses(expanded, fullSize)}>
+              <CardHeader className="px-3 pb-1">
+                <CardTitle className="font-medium text-xs lowercase">
+                  quick links
+                </CardTitle>
+              </CardHeader>
+              <CardContent
+                className={`flex flex-col gap-1.5 px-3 pt-1 ${expanded || fullSize ? "min-h-0 flex-1" : ""}`}
+              >
+                <QuickLinksList
+                  displayedLinks={previewController.displayedLinks}
+                  expanded={expanded}
+                  onCloseFloatingPreview={
+                    previewController.closeFloatingPreview
+                  }
+                  onDeleteLink={previewController.deleteLink}
+                  onMoveFloatingPreview={previewController.moveFloatingPreview}
+                  onOpenFloatingPreview={previewController.openFloatingPreview}
+                  onScheduleFloatingPreviewClose={
+                    previewController.scheduleFloatingPreviewClose
+                  }
                 />
-                <Button
-                  className="h-8 w-8"
-                  disabled={!newUrl.trim()}
-                  onClick={addLink}
-                  size="icon"
-                >
-                  <IconPlus className="size-4" />
-                  <span className="sr-only">Add link</span>
-                </Button>
-              </div>
 
-              {renderLinks()}
-            </CardContent>
-          </Card>
-        </ContextMenuTrigger>
-        <ContextMenuContent className="w-56 bg-card/50 backdrop-blur-lg">
-          <ContextMenuRadioGroup
-            onValueChange={(value) => setSortMode(value as QuickLinksSortMode)}
-            value={sortMode}
-          >
+                <QuickLinksAddFlow controller={addFlowController} />
+              </CardContent>
+            </Card>
+          </ContextMenuTrigger>
+
+          <ContextMenuContent className="w-56 bg-card/50 backdrop-blur-lg">
+            <ContextMenuRadioGroup
+              onValueChange={(value) =>
+                previewController.setSortMode(value as QuickLinksSortMode)
+              }
+              value={previewController.sortMode}
+            >
+              <ContextMenuItem className="text-xs lowercase" disabled>
+                sorting
+              </ContextMenuItem>
+              <ContextMenuRadioItem
+                className="text-xs lowercase"
+                value="alphabetical-asc"
+              >
+                <IconArrowDown className="size-3.5" />
+                alphabetical (a-z)
+              </ContextMenuRadioItem>
+              <ContextMenuRadioItem
+                className="text-xs lowercase"
+                value="alphabetical-desc"
+              >
+                <IconArrowUp className="size-3.5" />
+                alphabetical (z-a)
+              </ContextMenuRadioItem>
+              <ContextMenuRadioItem
+                className="text-xs lowercase"
+                value="recent"
+              >
+                <IconHistory className="size-3.5" />
+                default (recency)
+              </ContextMenuRadioItem>
+            </ContextMenuRadioGroup>
+
+            <ContextMenuSeparator />
             <ContextMenuItem className="text-xs lowercase" disabled>
-              sorting
+              actions
             </ContextMenuItem>
-            <ContextMenuRadioItem className="text-xs lowercase" value="recent">
-              <IconHistory className="size-3.5" />
-              default (recency)
-            </ContextMenuRadioItem>
-            <ContextMenuRadioItem
+            <ContextMenuItem
               className="text-xs lowercase"
-              value="alphabetical-asc"
+              onSelect={importController.openImportDialog}
             >
-              <IconArrowDown className="size-3.5" />
-              alphabetical (a-z)
-            </ContextMenuRadioItem>
-            <ContextMenuRadioItem
+              import bookmarks
+            </ContextMenuItem>
+            <ContextMenuItem
               className="text-xs lowercase"
-              value="alphabetical-desc"
+              disabled={!previewController.hasDuplicates}
+              onSelect={previewController.deleteDuplicateLinks}
             >
-              <IconArrowUp className="size-3.5" />
-              alphabetical (z-a)
-            </ContextMenuRadioItem>
-          </ContextMenuRadioGroup>
-          <ContextMenuSeparator />
-          <ContextMenuItem className="text-xs lowercase" disabled>
-            filters
-          </ContextMenuItem>
-          <ContextMenuItem
-            className="text-xs lowercase"
-            disabled={!hasDuplicates}
-            onSelect={deleteDuplicateLinks}
-          >
-            delete duplicates
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
-    </TooltipProvider>
+              delete duplicates
+            </ContextMenuItem>
+            <ContextMenuItem
+              className="text-xs lowercase"
+              disabled={!previewController.hasPreviewCacheEntries}
+              onSelect={previewController.clearQuickLinksPreviewCache}
+            >
+              clear preview cache
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>import bookmarks</DialogTitle>
+            <DialogDescription>
+              choose bookmarks to add into quick links
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-muted-foreground text-xs lowercase">
+              {importController.bookmarkOptions.length} available
+            </p>
+            <div className="flex gap-1">
+              <Button
+                disabled={
+                  importController.bookmarkOptions.length === 0 ||
+                  importController.isImportLoading
+                }
+                onClick={importController.selectAllBookmarks}
+                size="sm"
+                type="button"
+                variant="ghost"
+              >
+                select all
+              </Button>
+              <Button
+                disabled={
+                  importController.selectedBookmarkIds.length === 0 ||
+                  importController.isImportLoading
+                }
+                onClick={importController.clearBookmarkSelection}
+                size="sm"
+                type="button"
+                variant="ghost"
+              >
+                clear
+              </Button>
+            </div>
+          </div>
+
+          <ImportBookmarksContent
+            bookmarkOptions={importController.bookmarkOptions}
+            importError={importController.importError}
+            isImportLoading={importController.isImportLoading}
+            onToggleBookmarkSelection={importController.toggleBookmarkSelection}
+            selectedBookmarkIds={importController.selectedBookmarkIds}
+          />
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="ghost">
+                cancel
+              </Button>
+            </DialogClose>
+            <Button
+              disabled={
+                importController.selectedBookmarkIds.length === 0 ||
+                importController.isImportLoading
+              }
+              onClick={importController.importSelectedBookmarks}
+              type="button"
+            >
+              import selected
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <QuickLinksPreviewCard
+        activePreviewDisplayTitle={previewController.activePreviewDisplayTitle}
+        activePreviewImageUrl={previewController.activePreviewImageUrl}
+        activePreviewLink={previewController.activePreviewLink}
+        activePreviewMetadataDescriptionText={
+          previewController.activePreviewMetadataDescriptionText
+        }
+        activePreviewMetadataTitleText={
+          previewController.activePreviewMetadataTitleText
+        }
+        activePreviewPlatform={previewController.activePreviewPlatform}
+        activePreviewUserTitleText={
+          previewController.activePreviewUserTitleText
+        }
+        expanded={expanded}
+        hasActivePreviewImage={previewController.hasActivePreviewImage}
+        isActivePreviewImageMarkedFailed={
+          previewController.isActivePreviewImageMarkedFailed
+        }
+        isActivePreviewLoading={previewController.isActivePreviewLoading}
+        previewContentDirection={previewController.previewContentDirection}
+        previewPosition={previewController.previewPosition}
+      />
+    </>
   );
 }
