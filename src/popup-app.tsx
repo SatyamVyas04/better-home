@@ -7,13 +7,13 @@ import {
   IconMessageReport,
   IconRefresh,
 } from "@tabler/icons-react";
-import { ModeToggle } from "@/components/mode-toggle/mode-toggle";
-import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { WIDGET_MANIFEST } from "@/components/widgets/widget-registry";
+import { WIDGET_MANIFEST } from "@/components/widget-registry";
+import { ModeToggle } from "@/features/theme/mode-toggle";
+import { ThemeProvider } from "@/features/theme/theme-provider";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useStorageMigration } from "@/hooks/use-storage-migration";
 import { APP_VERSION } from "@/lib/extension-storage";

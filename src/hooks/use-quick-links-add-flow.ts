@@ -1,12 +1,9 @@
 import type * as React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  QuickLink,
-  QuickLinkAddFlowStage,
-} from "@/components/quick-links/model/quick-links.types";
 import type { LinkPreviewCacheEntry } from "@/lib/link-preview";
 import { fetchLinkPreviewMetadata } from "@/lib/link-preview";
 import { extractTitle, isValidUrl, normalizeUrl } from "@/lib/url-utils";
+import type { QuickLink, QuickLinkAddFlowStage } from "@/types/quick-links";
 
 interface UseQuickLinksAddFlowOptions {
   clearStagedTitlePreview: () => void;

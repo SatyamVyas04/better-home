@@ -7,8 +7,8 @@ import {
   PREVIEW_POINTER_OFFSET_X,
   PREVIEW_POINTER_OFFSET_Y,
   URL_SEGMENT_SEPARATOR_REGEX,
-} from "@/components/quick-links/model/quick-links.constants";
-import type { BuildPreviewDescriptionTextOptions } from "@/components/quick-links/model/quick-links.types";
+} from "@/constants/quick-links";
+import type { BuildPreviewDescriptionTextOptions } from "@/types/quick-links";
 
 export const clearTimeoutRef = (
   timeoutRef: React.MutableRefObject<number | null>

@@ -1,15 +1,15 @@
 import { IconLoader2 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
+import { PreviewFallbackMedia } from "@/components/quick-links/preview-fallback-media";
+import { Card } from "@/components/ui/card";
 import {
   EASE_IN_OUT,
   PREVIEW_CARD_HEIGHT,
   PREVIEW_CARD_WIDTH,
   PREVIEW_MEDIA_HEIGHT,
   previewContentSwapVariants,
-} from "@/components/quick-links/model/quick-links.constants";
-import type { QuickLinksPreviewCardProps } from "@/components/quick-links/model/quick-links.types";
-import { PreviewFallbackMedia } from "@/components/quick-links/preview-fallback-media";
-import { Card } from "@/components/ui/card";
+} from "@/constants/quick-links";
+import type { QuickLinksPreviewCardProps } from "@/types/quick-links";
 
 export function QuickLinksPreviewCard({
   activePreviewDisplayTitle,
@@ -36,7 +36,7 @@ export function QuickLinksPreviewCard({
             x: previewPosition.x,
             y: previewPosition.y,
           }}
-          className="pointer-events-none fixed top-0 left-0 z-[70]"
+          className="pointer-events-none fixed top-0 left-0 z-70"
           exit={{ opacity: 0, scale: 0.975 }}
           initial={{
             opacity: 0,

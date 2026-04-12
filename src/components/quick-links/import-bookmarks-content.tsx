@@ -1,9 +1,9 @@
 import { IconExternalLink, IconLoader2 } from "@tabler/icons-react";
 import { useMemo } from "react";
-import type { ImportBookmarksContentProps } from "@/components/quick-links/model/quick-links.types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import type { ImportBookmarksContentProps } from "@/types/quick-links";
 
 export function ImportBookmarksContent({
   bookmarkOptions,

@@ -4,7 +4,7 @@ import {
   IconBrandYoutube,
   IconSparkles,
 } from "@tabler/icons-react";
-import type { PreviewFallbackMediaProps } from "@/components/quick-links/model/quick-links.types";
+import type { PreviewFallbackMediaProps } from "@/types/quick-links";
 
 export function PreviewFallbackMedia({
   platform,

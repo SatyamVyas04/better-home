@@ -1,11 +1,11 @@
 import type * as React from "react";
 import { useCallback, useState } from "react";
+import { extractTitle, isValidUrl, normalizeUrl } from "@/lib/url-utils";
 import type {
   BookmarkImportItem,
   ChromeBookmarkNode,
   QuickLink,
-} from "@/components/quick-links/model/quick-links.types";
-import { extractTitle, isValidUrl, normalizeUrl } from "@/lib/url-utils";
+} from "@/types/quick-links";
 
 interface UseQuickLinksImportControllerOptions {
   ensureLinkPreview: (url: string) => void;

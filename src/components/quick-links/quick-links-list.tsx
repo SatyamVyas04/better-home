@@ -1,9 +1,9 @@
 import { IconExternalLink, IconTrash, IconX } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
-import { EASE_OUT } from "@/components/quick-links/model/quick-links.constants";
-import type { QuickLinksListProps } from "@/components/quick-links/model/quick-links.types";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { EASE_OUT } from "@/constants/quick-links";
+import type { QuickLinksListProps } from "@/types/quick-links";
 
 export function QuickLinksList({
   displayedLinks,
