@@ -22,6 +22,5 @@
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
-  "permissions": ["storage", "bookmarks"],
-  "host_permissions": ["http://*/*", "https://*/*"]
+  "permissions": ["storage", "bookmarks"]
 }

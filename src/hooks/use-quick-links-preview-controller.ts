@@ -16,12 +16,6 @@ import type {
   QuickLink,
   QuickLinksSortMode,
 } from "@/components/quick-links/model/quick-links.types";
-import {
-  buildPreviewDescriptionText,
-  clampPreviewCardPosition,
-  clearPreviewCloseTimeoutRef,
-  clearPreviewOpenTimeoutRef,
-} from "@/components/quick-links/utils/quick-links-preview-utils";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
   cacheLinkPreviewImageDataUrl,
@@ -34,6 +28,11 @@ import {
   shouldRefetchPreview,
   warmLinkPreviewImage,
 } from "@/lib/link-preview";
+import {
+  buildPreviewDescriptionText,
+  clampPreviewCardPosition,
+  clearTimeoutRef,
+} from "@/lib/quick-links-preview-utils";
 import { extractTitle, getFaviconUrl, normalizeUrl } from "@/lib/url-utils";
 
 interface UseQuickLinksPreviewControllerOptions {
@@ -195,11 +194,11 @@ export function useQuickLinksPreviewController({
   const hasPreviewCacheEntries = Object.keys(previewCache).length > 0;
 
   const clearPreviewCloseTimeout = useCallback(() => {
-    clearPreviewCloseTimeoutRef(previewCloseTimeoutRef);
+    clearTimeoutRef(previewCloseTimeoutRef);
   }, []);
 
   const clearPreviewOpenTimeout = useCallback(() => {
-    clearPreviewOpenTimeoutRef(previewOpenTimeoutRef);
+    clearTimeoutRef(previewOpenTimeoutRef);
   }, []);
 
   const markPreviewImageAsFailed = useCallback((imageUrl: string) => {

@@ -1239,7 +1239,6 @@ const fetchXPreview = async (
     }
 
     const payload = (await response.json()) as XOEmbedResponse;
-    const authorName = getNonEmptyString(payload.author_name);
     const description = getTweetTextFromEmbedHtml(
       getNonEmptyString(payload.html)
     );
@@ -1254,9 +1253,7 @@ const fetchXPreview = async (
       quality: description ? "success" : "degraded",
       siteName: "x.com",
       source: "x-oembed",
-      title: authorName
-        ? `@${authorName} on x`
-        : `@${statusDetails.username} on x`,
+      title: `@${statusDetails.username} on x`,
     });
   } catch {
     return null;

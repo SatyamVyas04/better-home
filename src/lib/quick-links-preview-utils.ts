@@ -10,18 +10,7 @@ import {
 } from "@/components/quick-links/model/quick-links.constants";
 import type { BuildPreviewDescriptionTextOptions } from "@/components/quick-links/model/quick-links.types";
 
-export const clearPreviewCloseTimeoutRef = (
-  timeoutRef: React.MutableRefObject<number | null>
-) => {
-  if (timeoutRef.current === null) {
-    return;
-  }
-
-  window.clearTimeout(timeoutRef.current);
-  timeoutRef.current = null;
-};
-
-export const clearPreviewOpenTimeoutRef = (
+export const clearTimeoutRef = (
   timeoutRef: React.MutableRefObject<number | null>
 ) => {
   if (timeoutRef.current === null) {

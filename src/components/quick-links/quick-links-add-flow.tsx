@@ -1,12 +1,12 @@
 import { IconCheck, IconLoader2, IconPlus } from "@tabler/icons-react";
 import { motion } from "motion/react";
-import type { UseQuickLinksAddFlowResult } from "@/components/quick-links/hooks/use-quick-links-add-flow";
 import {
   EASE_IN_OUT,
   EASE_OUT,
 } from "@/components/quick-links/model/quick-links.constants";
 import { Button } from "@/components/ui/button";
 import { OverlappingLabelInput } from "@/components/ui/overlapping-label-input";
+import type { UseQuickLinksAddFlowResult } from "@/hooks/use-quick-links-add-flow";
 
 interface QuickLinksAddFlowProps {
   controller: UseQuickLinksAddFlowResult;

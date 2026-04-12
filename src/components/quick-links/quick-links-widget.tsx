@@ -1,16 +1,13 @@
 import { IconArrowDown, IconArrowUp, IconHistory } from "@tabler/icons-react";
-import { ImportBookmarksContent } from "@/components/quick-links/components/import-bookmarks-content";
-import { QuickLinksAddFlow } from "@/components/quick-links/components/quick-links-add-flow";
-import { QuickLinksList } from "@/components/quick-links/components/quick-links-list";
-import { QuickLinksPreviewCard } from "@/components/quick-links/components/quick-links-preview-card";
-import { useQuickLinksAddFlow } from "@/components/quick-links/hooks/use-quick-links-add-flow";
-import { useQuickLinksImportController } from "@/components/quick-links/hooks/use-quick-links-import-controller";
-import { useQuickLinksPreviewController } from "@/components/quick-links/hooks/use-quick-links-preview-controller";
+import { ImportBookmarksContent } from "@/components/quick-links/import-bookmarks-content";
 import type {
   QuickLink,
   QuickLinksProps,
   QuickLinksSortMode,
 } from "@/components/quick-links/model/quick-links.types";
+import { QuickLinksAddFlow } from "@/components/quick-links/quick-links-add-flow";
+import { QuickLinksList } from "@/components/quick-links/quick-links-list";
+import { QuickLinksPreviewCard } from "@/components/quick-links/quick-links-preview-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -32,6 +29,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useQuickLinksAddFlow } from "@/hooks/use-quick-links-add-flow";
+import { useQuickLinksImportController } from "@/hooks/use-quick-links-import-controller";
+import { useQuickLinksPreviewController } from "@/hooks/use-quick-links-preview-controller";
 
 const getQuickLinksCardClasses = (expanded: boolean, fullSize: boolean) => {
   if (fullSize) {
