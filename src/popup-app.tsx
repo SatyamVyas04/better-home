@@ -7,6 +7,7 @@ import {
   IconMessageReport,
   IconRefresh,
 } from "@tabler/icons-react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -16,7 +17,11 @@ import { ModeToggle } from "@/features/theme/mode-toggle";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useStorageMigration } from "@/hooks/use-storage-migration";
-import { APP_VERSION } from "@/lib/extension-storage";
+import { flushAutosaveBackupNow } from "@/lib/backup-utils";
+import {
+  APP_VERSION,
+  waitForPendingStorageWrites,
+} from "@/lib/extension-storage";
 import {
   DEFAULT_WIDGET_SETTINGS,
   type WidgetSettings,
@@ -28,6 +33,21 @@ function PopupApp() {
     DEFAULT_WIDGET_SETTINGS
   );
   const { status: migrationStatus, retryMigration } = useStorageMigration();
+
+  useEffect(() => {
+    const flushPendingPersistence = () => {
+      flushAutosaveBackupNow().catch(() => null);
+      waitForPendingStorageWrites().catch(() => null);
+    };
+
+    window.addEventListener("pagehide", flushPendingPersistence);
+    window.addEventListener("beforeunload", flushPendingPersistence);
+
+    return () => {
+      window.removeEventListener("pagehide", flushPendingPersistence);
+      window.removeEventListener("beforeunload", flushPendingPersistence);
+    };
+  }, []);
 
   const toggleSetting = (key: keyof WidgetSettings) => {
     setSettings((previousSettings) => ({

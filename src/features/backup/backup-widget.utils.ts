@@ -35,7 +35,7 @@ export function getFooterBackupLabel(
   isBackupLocationReady: boolean
 ): string {
   if (!isBackupLocationReady) {
-    return "BLOCKED";
+    return "LOCAL";
   }
 
   if (status.state === "saving") {
@@ -77,9 +77,9 @@ export function formatHistoryAge(updatedAt: string): string {
 
 export function getFooterLoaderName(
   state: BackupStatus["state"],
-  isBackupLocationReady: boolean
+  _isBackupLocationReady: boolean
 ): BrailleSpinnerName {
-  if (!isBackupLocationReady || state === "error") {
+  if (state === "error") {
     return "columns";
   }
 
@@ -94,7 +94,7 @@ export function getBackupStatusTone(
   state: BackupStatus["state"],
   isBackupLocationReady: boolean
 ): string {
-  if (!isBackupLocationReady || state === "error") {
+  if (state === "error" && isBackupLocationReady) {
     return "text-destructive";
   }
 
@@ -111,11 +111,7 @@ export function getBackupStatusTone(
 
 export function resolveFooterBackupState(
   status: BackupStatus,
-  isBackupLocationReady: boolean
+  _isBackupLocationReady: boolean
 ): BackupStatus["state"] {
-  if (!isBackupLocationReady) {
-    return "error";
-  }
-
   return status.state;
 }

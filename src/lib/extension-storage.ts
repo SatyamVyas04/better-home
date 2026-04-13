@@ -13,6 +13,7 @@ type ChromeStorageListener = (
 type AppStorageListener = (key: string, value: string | null) => void;
 
 const APP_STORAGE_UPDATED_EVENT = "better-home:storage-updated";
+const pendingChromeWrites = new Set<Promise<void>>();
 
 interface ChromeStorageArea {
   get(
@@ -53,6 +54,16 @@ function getChromeStorageAPI(): ChromeStorageAPI | null {
   }
 
   return chrome.storage ?? null;
+}
+
+function trackPendingChromeWrite(writePromise: Promise<void>): Promise<void> {
+  pendingChromeWrites.add(writePromise);
+
+  writePromise.finally(() => {
+    pendingChromeWrites.delete(writePromise);
+  });
+
+  return writePromise;
 }
 
 function dispatchAppStorageUpdated(key: string, value: string | null): void {
@@ -119,7 +130,7 @@ export function writeChromeStorageRaw(
     return Promise.resolve();
   }
 
-  return new Promise((resolve, reject) => {
+  const writePromise = new Promise<void>((resolve, reject) => {
     try {
       chromeStorageArea.set({ [key]: value }, () => {
         dispatchAppStorageUpdated(key, value);
@@ -129,6 +140,33 @@ export function writeChromeStorageRaw(
       reject(error);
     }
   });
+
+  return trackPendingChromeWrite(writePromise);
+}
+
+export async function waitForPendingStorageWrites(
+  timeoutMs = 250
+): Promise<void> {
+  if (pendingChromeWrites.size === 0) {
+    return;
+  }
+
+  const pendingWrites = Array.from(pendingChromeWrites);
+  const settledPromise = Promise.allSettled(pendingWrites).then(() => null);
+
+  if (timeoutMs <= 0) {
+    await settledPromise;
+    return;
+  }
+
+  await Promise.race([
+    settledPromise,
+    new Promise<null>((resolve) => {
+      globalThis.setTimeout(() => {
+        resolve(null);
+      }, timeoutMs);
+    }),
+  ]);
 }
 
 export function subscribeToAppStorageChanges(
@@ -263,16 +301,6 @@ export async function readStorageMigrationState(): Promise<StorageMigrationState
   return null;
 }
 
-export function isLegacyMirrorEnabled(
-  state: StorageMigrationState | null
-): boolean {
-  if (!state) {
-    return true;
-  }
-
-  return state.mirrorUntilVersion === APP_VERSION;
-}
-
 export async function ensureStorageMigration(): Promise<StorageMigrationState> {
   const existingState = await readStorageMigrationState();
 
@@ -331,35 +359,25 @@ export async function ensureStorageMigration(): Promise<StorageMigrationState> {
 }
 
 export async function readAppStorageRaw(key: string): Promise<string | null> {
-  const chromeValue = await readChromeStorageRaw(key);
-
-  if (chromeValue !== null) {
-    return chromeValue;
-  }
-
   const localValue = readLocalStorageRaw(key);
 
   if (localValue !== null) {
-    writeChromeStorageRaw(key, localValue).catch(() => null);
+    return localValue;
   }
 
-  return localValue;
+  const chromeValue = await readChromeStorageRaw(key);
+
+  if (chromeValue !== null) {
+    writeLocalStorageRaw(key, chromeValue);
+  }
+
+  return chromeValue;
 }
 
 export async function writeAppStorageRaw(
   key: string,
   value: string
 ): Promise<void> {
-  try {
-    await writeChromeStorageRaw(key, value);
-  } catch {
-    writeLocalStorageRaw(key, value);
-    return;
-  }
-
-  const migrationState = await readStorageMigrationState();
-
-  if (isLegacyMirrorEnabled(migrationState)) {
-    writeLocalStorageRaw(key, value);
-  }
+  writeLocalStorageRaw(key, value);
+  await writeChromeStorageRaw(key, value).catch(() => null);
 }

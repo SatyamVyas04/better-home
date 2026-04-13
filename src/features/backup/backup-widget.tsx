@@ -1,6 +1,7 @@
 import {
   IconDeviceFloppy,
   IconFolderOpen,
+  IconInfoCircle,
   IconUpload,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -14,6 +15,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useUnicodeSpinnerFrame } from "@/hooks/use-unicode-spinner-frame";
 import {
@@ -24,8 +30,10 @@ import {
   ensureDailyAutoBackup,
   loadBackupFromFilePicker,
   parseBackupFile,
+  type RestorePreviewHint,
   readBackupLocationStatus,
   readBackupTimelineState,
+  readUndoRestoreHint,
   restoreBackup,
   restoreBackupHistoryEntry,
   restoreMostRecentRestoreCheckpoint,
@@ -70,6 +78,8 @@ export function BackupWidget() {
   const [isSelectingBackupLocation, setIsSelectingBackupLocation] =
     useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
+  const [undoRestoreHint, setUndoRestoreHint] =
+    useState<RestorePreviewHint | null>(null);
   const restoreFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const visibleBackupStatus = useVisibleBackupStatus(
@@ -81,8 +91,9 @@ export function BackupWidget() {
     Promise.all([
       readBackupTimelineState(BACKUP_TIMELINE_QUERY_LIMIT),
       readBackupLocationStatus(),
+      readUndoRestoreHint(),
     ])
-      .then(([timelineState, locationStatus]) => {
+      .then(([timelineState, locationStatus, undoHint]) => {
         const visibleSnapshots = timelineState.snapshots
           .filter((snapshot) => snapshot.reason !== "restore-checkpoint")
           .slice(0, BACKUP_HISTORY_VISIBLE_LIMIT);
@@ -93,9 +104,10 @@ export function BackupWidget() {
           timelineState.hasChangesSinceLatestSnapshot
         );
         setCanUndoLastRestore(timelineState.canUndoLastRestore);
+        setUndoRestoreHint(undoHint);
         setBackupLocationStatus(locationStatus);
 
-        if (!locationStatus.configured || locationStatus.needsReauthorization) {
+        if (locationStatus.needsReauthorization) {
           setActiveBackupTab("options");
         }
       })
@@ -104,6 +116,7 @@ export function BackupWidget() {
         setLatestSnapshot(null);
         setHasChangesSinceLatestSnapshot(false);
         setCanUndoLastRestore(false);
+        setUndoRestoreHint(null);
         setBackupLocationStatus(DEFAULT_BACKUP_LOCATION_STATUS);
       });
   }, []);
@@ -385,11 +398,8 @@ export function BackupWidget() {
                 <Button
                   className="h-5 px-2 text-[10px]"
                   disabled={
-                    !(
-                      isBackupLocationReady &&
-                      latestSnapshot &&
-                      hasChangesSinceLatestSnapshot
-                    ) || isRestoringAutoBackupId !== null
+                    !(latestSnapshot && hasChangesSinceLatestSnapshot) ||
+                    isRestoringAutoBackupId !== null
                   }
                   onClick={() => {
                     handleRestoreLatestSnapshot().catch(() => null);
@@ -416,8 +426,8 @@ export function BackupWidget() {
                 }`}
               >
                 {hasChangesSinceLatestSnapshot
-                  ? "changes not saved yet"
-                  : "all changes saved"}
+                  ? "local data is saved instantly; saved version update pending"
+                  : "local data and saved versions are in sync"}
               </p>
             </div>
 
@@ -425,18 +435,58 @@ export function BackupWidget() {
               <span className="font-medium text-[11px] text-foreground">
                 saved versions
               </span>
-              <Button
-                className="h-5 px-2 text-[10px]"
-                disabled={!canUndoLastRestore || isUndoingLastRestore}
-                onClick={() => {
-                  handleUndoLastRestore().catch(() => null);
-                }}
-                size="xs"
-                type="button"
-                variant="outline"
-              >
-                {isUndoingLastRestore ? "undoing..." : "undo"}
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  className="h-5 px-2 text-[10px]"
+                  disabled={!canUndoLastRestore || isUndoingLastRestore}
+                  onClick={() => {
+                    handleUndoLastRestore().catch(() => null);
+                  }}
+                  size="xs"
+                  type="button"
+                  variant="outline"
+                >
+                  {isUndoingLastRestore ? "undoing..." : "undo"}
+                </Button>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      aria-label="Show undo diff preview"
+                      className="h-5 w-5 p-0"
+                      disabled={undoRestoreHint === null}
+                      size="xs"
+                      type="button"
+                      variant="outline"
+                    >
+                      <IconInfoCircle className="size-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    align="end"
+                    className="max-w-[19rem]"
+                    side="top"
+                  >
+                    {undoRestoreHint ? (
+                      <div className="space-y-1">
+                        <p className="font-medium text-[10px] leading-snug">
+                          {undoRestoreHint.summary}
+                        </p>
+                        {undoRestoreHint.details.map((detailLine) => (
+                          <p
+                            className="text-[10px] text-background/90 leading-snug"
+                            key={detailLine}
+                          >
+                            {detailLine}
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-[10px]">No undo preview available.</p>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
 
             <div className="space-y-1.5">

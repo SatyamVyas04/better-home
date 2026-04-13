@@ -18,7 +18,11 @@ import { BackupWidget } from "@/features/backup/backup-widget";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useStorageMigration } from "@/hooks/use-storage-migration";
-import { writeAppStorageRaw } from "@/lib/extension-storage";
+import { flushAutosaveBackupNow } from "@/lib/backup-utils";
+import {
+  waitForPendingStorageWrites,
+  writeAppStorageRaw,
+} from "@/lib/extension-storage";
 import {
   DEFAULT_WIDGET_SETTINGS,
   type WidgetSettings,
@@ -103,6 +107,21 @@ function App() {
 
     return () => {
       chrome?.runtime?.onMessage?.removeListener?.(handleThemeMessage);
+    };
+  }, []);
+
+  useEffect(() => {
+    const flushPendingPersistence = () => {
+      flushAutosaveBackupNow().catch(() => null);
+      waitForPendingStorageWrites().catch(() => null);
+    };
+
+    window.addEventListener("pagehide", flushPendingPersistence);
+    window.addEventListener("beforeunload", flushPendingPersistence);
+
+    return () => {
+      window.removeEventListener("pagehide", flushPendingPersistence);
+      window.removeEventListener("beforeunload", flushPendingPersistence);
     };
   }, []);
 

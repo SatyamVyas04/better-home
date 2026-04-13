@@ -22,8 +22,49 @@ type UpdateBackupStatusFn = (
   detail?: string
 ) => void;
 
+const SNAPSHOT_MERGE_WINDOW_MS = 5 * 60 * 1000;
+
 function readStorageRawWithFallback(key: string): Promise<string | null> {
   return readAppStorageRaw(key);
+}
+
+function getMostRecentSnapshotByReason(
+  entries: AutoBackupEntry[],
+  reason: AutoBackupEntry["reason"]
+): AutoBackupEntry | null {
+  const latestSnapshot = entries.find((entry) => entry.reason === reason);
+
+  return latestSnapshot ?? null;
+}
+
+function shouldMergeWithRecentSnapshot(
+  reason: AutoBackupEntry["reason"],
+  latestSameReasonSnapshot: AutoBackupEntry | null,
+  nextCreatedAt: string
+): boolean {
+  if (!(reason === "autosave" || reason === "restore-checkpoint")) {
+    return false;
+  }
+
+  if (!latestSameReasonSnapshot) {
+    return false;
+  }
+
+  const latestSnapshotTimestamp = Date.parse(
+    latestSameReasonSnapshot.createdAt
+  );
+  const nextSnapshotTimestamp = Date.parse(nextCreatedAt);
+
+  if (
+    Number.isNaN(latestSnapshotTimestamp) ||
+    Number.isNaN(nextSnapshotTimestamp)
+  ) {
+    return false;
+  }
+
+  return (
+    nextSnapshotTimestamp - latestSnapshotTimestamp <= SNAPSHOT_MERGE_WINDOW_MS
+  );
 }
 
 export async function readAutoBackupEntries(): Promise<AutoBackupEntry[]> {
@@ -66,6 +107,33 @@ export async function appendBackupHistoryEntry(
   const compactedExistingEntries = mergeDuplicateAutoBackupEntries(
     existingEntries
   ).slice(0, BACKUP_HISTORY_LIMIT);
+  const latestSameReasonSnapshot = getMostRecentSnapshotByReason(
+    compactedExistingEntries,
+    reason
+  );
+
+  if (
+    shouldMergeWithRecentSnapshot(
+      reason,
+      latestSameReasonSnapshot,
+      nextEntry.createdAt
+    )
+  ) {
+    const mergedEntries = compactedExistingEntries.map((entry) => {
+      if (entry.id !== latestSameReasonSnapshot?.id) {
+        return entry;
+      }
+
+      return {
+        ...entry,
+        createdAt: nextEntry.createdAt,
+        payload,
+      };
+    });
+
+    await writeAutoBackupEntries(mergedEntries);
+    return;
+  }
 
   const shouldSkipAppend =
     reason !== "restore-checkpoint" &&

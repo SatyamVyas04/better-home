@@ -42,7 +42,49 @@ import {
 import { USER_STORAGE_KEYS } from "@/lib/storage-keys";
 
 let autosaveTimer: number | null = null;
+let autosaveInFlight: Promise<void> | null = null;
+let autosaveQueued = false;
 const QUICK_LINKS_PREVIEWS_STORAGE_KEY = "better-home-quick-links-previews";
+
+const STORAGE_AREA_LABELS: Partial<
+  Record<(typeof USER_STORAGE_KEYS)[number], string>
+> = {
+  "better-home-widget-settings": "widgets",
+  "better-home-todos": "todos",
+  "better-home-todo-groups": "todo groups",
+  "better-home-todo-sort": "todo sort",
+  "better-home-todo-group-by": "todo grouping",
+  "better-home-todo-collapsed-sections": "collapsed todo groups",
+  "better-home-todo-filters": "todo filters",
+  "better-home-quick-links": "quick links",
+  "better-home-quick-links-previews": "quick link previews",
+  "better-home-quick-links-sort": "quick links sort",
+  "mood-calendar-2026-data": "mood calendar data",
+  "mood-calendar-show-numbers": "mood calendar numbers",
+  "vite-ui-theme": "theme",
+};
+
+const STRING_RESTORE_HINT_KEYS = new Set([
+  "vite-ui-theme",
+  "better-home-todo-sort",
+  "better-home-quick-links-sort",
+]);
+
+const BOOLEAN_RESTORE_HINT_KEYS = new Set([
+  "better-home-todo-group-by",
+  "mood-calendar-show-numbers",
+]);
+
+const ARRAY_RESTORE_HINT_LABELS: Record<string, string> = {
+  "better-home-todos": "todos",
+  "better-home-todo-groups": "groups",
+  "better-home-quick-links": "links",
+};
+
+export interface RestorePreviewHint {
+  summary: string;
+  details: string[];
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -86,6 +128,98 @@ function sanitizeBackupPayload(backup: BackupData): BackupData {
   return {
     ...backup,
     [QUICK_LINKS_PREVIEWS_STORAGE_KEY]: sanitizedPreviewValue,
+  };
+}
+
+function getStorageAreaLabel(key: string): string {
+  return STORAGE_AREA_LABELS[key as (typeof USER_STORAGE_KEYS)[number]] ?? key;
+}
+
+function createValueSignature(value: unknown): string {
+  return getSnapshotSignature({ value });
+}
+
+function describeArrayValueForRestoreHint(key: string, length: number): string {
+  const label = ARRAY_RESTORE_HINT_LABELS[key] ?? "items";
+  return `${length} ${label}`;
+}
+
+function describeRecordValueForRestoreHint(key: string, value: object): string {
+  if (key === "better-home-todo-collapsed-sections") {
+    const collapsedCount = Object.values(value).filter(Boolean).length;
+    return `${collapsedCount} collapsed`;
+  }
+
+  return `${Object.keys(value).length} entries`;
+}
+
+function describeValueForRestoreHint(key: string, value: unknown): string {
+  if (value === undefined) {
+    return "none";
+  }
+
+  if (STRING_RESTORE_HINT_KEYS.has(key)) {
+    return typeof value === "string" ? value : "default";
+  }
+
+  if (BOOLEAN_RESTORE_HINT_KEYS.has(key)) {
+    return value ? "on" : "off";
+  }
+
+  if (Array.isArray(value)) {
+    return describeArrayValueForRestoreHint(key, value.length);
+  }
+
+  if (isRecord(value)) {
+    return describeRecordValueForRestoreHint(key, value);
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return "updated";
+}
+
+function buildRestorePreviewHint(
+  snapshotPayload: BackupData,
+  currentBackup: BackupData
+): RestorePreviewHint {
+  const changedStorageAreas = USER_STORAGE_KEYS.filter((key) => {
+    return (
+      createValueSignature(currentBackup[key]) !==
+      createValueSignature(snapshotPayload[key])
+    );
+  });
+
+  if (changedStorageAreas.length === 0) {
+    return {
+      summary: "This version already matches your current data.",
+      details: ["Undo/restore would not change anything right now."],
+    };
+  }
+
+  const detailLines = changedStorageAreas.slice(0, 4).map((key) => {
+    const currentValue = describeValueForRestoreHint(key, currentBackup[key]);
+    const restoredValue = describeValueForRestoreHint(
+      key,
+      snapshotPayload[key]
+    );
+
+    return `${getStorageAreaLabel(key)}: ${currentValue} -> ${restoredValue}`;
+  });
+
+  const remainingChanges = changedStorageAreas.length - detailLines.length;
+
+  if (remainingChanges > 0) {
+    detailLines.push(
+      `+ ${remainingChanges} more change${remainingChanges === 1 ? "" : "s"}`
+    );
+  }
+
+  return {
+    summary: `Restoring this version will update ${changedStorageAreas.length} area${changedStorageAreas.length === 1 ? "" : "s"}.`,
+    details: detailLines,
   };
 }
 
@@ -243,20 +377,19 @@ export function queueAutosaveBackup(): void {
   }, AUTOSAVE_DEBOUNCE_MS);
 }
 
-async function flushAutosaveBackup(): Promise<void> {
-  autosaveTimer = null;
-
-  const readiness = await readBackupReadiness();
-
-  if (!readiness.ready) {
-    updateBackupStatus("error", "autosave", readiness.detail);
-    return;
-  }
-
+async function runAutosaveBackup(): Promise<void> {
   updateBackupStatus("saving", "autosave");
 
   try {
     const backupPayload = await createBackup();
+    await ensureAutosaveHistoryBackup(backupPayload);
+
+    const readiness = await readBackupReadiness();
+
+    if (!readiness.ready) {
+      updateBackupStatus("saved", "autosave", "saved locally");
+      return;
+    }
 
     const fileWritten = await writeBackupToConfiguredFile(
       backupPayload,
@@ -269,13 +402,18 @@ async function flushAutosaveBackup(): Promise<void> {
     );
 
     if (!fileWritten) {
+      updateBackupStatus("saved", "autosave", "saved locally");
       return;
     }
 
-    await ensureAutosaveHistoryBackup(backupPayload);
-    await ensureDailyAutoBackup(backupPayload, {
+    const dailyBackupWritten = await ensureDailyAutoBackup(backupPayload, {
       skipReadinessCheck: true,
     });
+
+    if (!dailyBackupWritten) {
+      updateBackupStatus("saved", "autosave", "saved locally");
+      return;
+    }
 
     updateBackupStatus("saved", "autosave");
   } catch (error) {
@@ -286,6 +424,44 @@ async function flushAutosaveBackup(): Promise<void> {
     );
     throw error;
   }
+}
+
+async function flushAutosaveBackup(): Promise<void> {
+  autosaveTimer = null;
+
+  if (autosaveInFlight) {
+    autosaveQueued = true;
+    await autosaveInFlight;
+    return;
+  }
+
+  autosaveInFlight = (async () => {
+    do {
+      autosaveQueued = false;
+      await runAutosaveBackup();
+    } while (autosaveQueued);
+  })();
+
+  try {
+    await autosaveInFlight;
+  } finally {
+    autosaveInFlight = null;
+  }
+}
+
+export async function flushAutosaveBackupNow(): Promise<void> {
+  const hadPendingTimer = autosaveTimer !== null;
+
+  if (autosaveTimer !== null) {
+    window.clearTimeout(autosaveTimer);
+    autosaveTimer = null;
+  }
+
+  if (!(hadPendingTimer || autosaveInFlight)) {
+    return;
+  }
+
+  await flushAutosaveBackup();
 }
 
 async function createRestoreCheckpoint(): Promise<void> {
@@ -374,6 +550,43 @@ export async function readBackupTimelineState(
         }
       : undefined,
   };
+}
+
+export async function readRestorePreviewHint(
+  snapshotId: string
+): Promise<RestorePreviewHint | null> {
+  const [snapshots, currentBackup] = await Promise.all([
+    readAutoBackupEntries(),
+    createBackup(),
+  ]);
+  const targetSnapshot = snapshots.find(
+    (snapshot) => snapshot.id === snapshotId
+  );
+
+  if (!targetSnapshot) {
+    return null;
+  }
+
+  return buildRestorePreviewHint(targetSnapshot.payload, currentBackup);
+}
+
+export async function readUndoRestoreHint(): Promise<RestorePreviewHint | null> {
+  const [snapshots, currentBackup] = await Promise.all([
+    readAutoBackupEntries(),
+    createBackup(),
+  ]);
+  const latestRestoreCheckpoint = snapshots.find(
+    (snapshot) => snapshot.reason === "restore-checkpoint"
+  );
+
+  if (!latestRestoreCheckpoint) {
+    return null;
+  }
+
+  return buildRestorePreviewHint(
+    latestRestoreCheckpoint.payload,
+    currentBackup
+  );
 }
 
 export async function listBackupHistory(

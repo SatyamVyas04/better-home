@@ -5,7 +5,7 @@ export const BACKUP_FILE_CONFIG_KEY = "better-home-backup-file-config";
 export const AUTO_BACKUP_INTERVAL_MS = 24 * 60 * 60 * 1000;
 export const BACKUP_HISTORY_LIMIT = 30;
 export const BACKUP_FILE_HISTORY_LIMIT = 30;
-export const AUTOSAVE_DEBOUNCE_MS = 1500;
+export const AUTOSAVE_DEBOUNCE_MS = 500;
 export const BACKUP_SCHEMA_VERSION = 1;
 
 export type BackupState =
