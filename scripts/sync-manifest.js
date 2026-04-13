@@ -1,13 +1,31 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
+const POPUP_PATH = "./popup.html";
 const MANIFEST_PATH = "./public/manifest.json";
 const EXTENSION_STORAGE_PATH = "./src/lib/extension-storage.ts";
+const POPUP_VERSION_META_PATTERN =
+  /<meta name="better-home-version" content="[^"]+">/;
 const APP_VERSION_PATTERN = /export const APP_VERSION = "[^"]+";/;
 
 const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
+const popupHtml = readFileSync(POPUP_PATH, "utf-8");
 const manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf-8"));
 
 const updates = [];
+
+if (!POPUP_VERSION_META_PATTERN.test(popupHtml)) {
+  throw new Error("Could not find better-home-version meta tag in popup.html");
+}
+
+const nextPopupHtml = popupHtml.replace(
+  POPUP_VERSION_META_PATTERN,
+  `<meta name="better-home-version" content="${pkg.version}">`
+);
+
+if (nextPopupHtml !== popupHtml) {
+  writeFileSync(POPUP_PATH, nextPopupHtml);
+  updates.push("popup.html");
+}
 
 if (manifest.version !== pkg.version) {
   manifest.version = pkg.version;
