@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.7.0](https://github.com/SatyamVyas04/better-home/compare/v1.6.0...v1.7.0) (2026-04-14)
+
+### Features
+
+* add link preview utility functions ([b96bfd5](https://github.com/SatyamVyas04/better-home/commit/b96bfd58505dca4a67f74791c53be73a82ab3b22))
+* enhance quick links preview functionality with hydration and storage management ([81ad0af](https://github.com/SatyamVyas04/better-home/commit/81ad0afb3ed081be3082a1d86777565a098a79fd))
+* implement autosave backup flushing and restore preview hints in backup widget ([99fc919](https://github.com/SatyamVyas04/better-home/commit/99fc91929df2df8ce93aad79c286e6d9a51dc336))
+* modularize quick-links architecture and preview interactions ([05b8678](https://github.com/SatyamVyas04/better-home/commit/05b8678fa1739dd5aa67bd2e31b445e253615b24))
+* session history for user actions ([edb7d58](https://github.com/SatyamVyas04/better-home/commit/edb7d5856f96f2eedc3c9daac1a4418d59c8d506))
+
+### Bug Fixes
+
+* apply review feedback and restructure quick-links directory ([d9a6339](https://github.com/SatyamVyas04/better-home/commit/d9a633975f1108fbaf3ec83af931a5c21a9b7797))
+* apply review feedback on import controller, image cache, and warmup ([8b1ed11](https://github.com/SatyamVyas04/better-home/commit/8b1ed11f6dc1dc703baecbd2832300756305dd4e))
+* include quick-links preview cache in storage keys ([321a96a](https://github.com/SatyamVyas04/better-home/commit/321a96ae760676cc54f6352942f0353cfea363ee))
+* set backup location permissions on select and treat load as location setup ([9c5f3bc](https://github.com/SatyamVyas04/better-home/commit/9c5f3bcbab30381e6f99f2139a1830295b09d2eb))
+* update release hooks to include popup.html and ensure version meta tag is present ([da31c4c](https://github.com/SatyamVyas04/better-home/commit/da31c4c7494b6e1c1345eb0de8f6d2c5074ed6e1))
+
 ## [1.6.0](https://github.com/SatyamVyas04/better-home/compare/v1.5.0...v1.6.0) (2026-04-11)
 
 ### Features
