@@ -14,6 +14,7 @@ import {
   clampPreviewCardPosition,
   clearTimeoutRef,
 } from "@/lib/quick-links-preview-utils";
+import { runTrackedUserAction } from "@/lib/session-history";
 import { extractTitle, normalizeUrl } from "@/lib/url-utils";
 import type { QuickLink, QuickLinksSortMode } from "@/types/quick-links";
 import { useQuickLinksPreviewCache } from "./use-quick-links-preview-cache";
@@ -247,31 +248,44 @@ export function useQuickLinksPreviewController({
     (id: string) => {
       clearPreviewCloseTimeout();
       setActivePreviewLink((prev) => (prev?.id === id ? null : prev));
-      setLinks((prev) => prev.filter((link) => link.id !== id));
+      runTrackedUserAction("delete quick link", () => {
+        setLinks((prev) => prev.filter((link) => link.id !== id));
+      });
     },
     [clearPreviewCloseTimeout, setLinks]
   );
 
   const deleteDuplicateLinks = useCallback(() => {
-    setLinks((prev) => {
-      const seenUrls = new Set<string>();
-      const dedupedLinks: QuickLink[] = [];
+    runTrackedUserAction("remove duplicate quick links", () => {
+      setLinks((prev) => {
+        const seenUrls = new Set<string>();
+        const dedupedLinks: QuickLink[] = [];
 
-      for (let index = prev.length - 1; index >= 0; index -= 1) {
-        const link = prev[index];
-        const normalizedLinkUrl = getComparableUrl(link.url);
+        for (let index = prev.length - 1; index >= 0; index -= 1) {
+          const link = prev[index];
+          const normalizedLinkUrl = getComparableUrl(link.url);
 
-        if (seenUrls.has(normalizedLinkUrl)) {
-          continue;
+          if (seenUrls.has(normalizedLinkUrl)) {
+            continue;
+          }
+
+          seenUrls.add(normalizedLinkUrl);
+          dedupedLinks.unshift(link);
         }
 
-        seenUrls.add(normalizedLinkUrl);
-        dedupedLinks.unshift(link);
-      }
-
-      return dedupedLinks;
+        return dedupedLinks;
+      });
     });
   }, [getComparableUrl, setLinks]);
+
+  const changeSortMode = useCallback(
+    (nextSortMode: QuickLinksSortMode) => {
+      runTrackedUserAction("change quick links sort", () => {
+        setSortMode(nextSortMode);
+      });
+    },
+    [setSortMode]
+  );
 
   useEffect(() => {
     if (!activePreviewLink) {
@@ -392,7 +406,7 @@ export function useQuickLinksPreviewController({
     previewContentDirection,
     previewPosition,
     scheduleFloatingPreviewClose,
-    setSortMode,
+    setSortMode: changeSortMode,
     sortMode,
     stageResolvedTitlePreview,
   };

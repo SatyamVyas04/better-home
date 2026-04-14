@@ -1,5 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { readAppStorageRaw, writeAppStorageRaw } from "@/lib/extension-storage";
+import {
+  captureUserIntentMutation,
+  runTrackedUserAction,
+} from "@/lib/session-history";
 
 declare const chrome: {
   tabs?: {
@@ -91,9 +95,12 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
-      writeAppStorageRaw(storageKey, theme).catch(() => null);
-      setTheme(theme);
+    setTheme: (nextTheme: Theme) => {
+      runTrackedUserAction("change theme", () => {
+        captureUserIntentMutation(storageKey, theme, nextTheme);
+        writeAppStorageRaw(storageKey, nextTheme).catch(() => null);
+        setTheme(nextTheme);
+      });
     },
   };
 

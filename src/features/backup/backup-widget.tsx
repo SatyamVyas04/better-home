@@ -2,10 +2,18 @@ import {
   IconDeviceFloppy,
   IconFolderOpen,
   IconInfoCircle,
+  IconTrash,
   IconUpload,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Popover,
   PopoverContent,
@@ -14,6 +22,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
@@ -23,25 +32,29 @@ import {
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useUnicodeSpinnerFrame } from "@/hooks/use-unicode-spinner-frame";
 import {
-  type AutoBackupSnapshot,
   type BackupLocationStatus,
   type BackupStatus,
   backupNow,
   ensureDailyAutoBackup,
   loadBackupFromFilePicker,
   parseBackupFile,
-  type RestorePreviewHint,
   readBackupLocationStatus,
-  readBackupTimelineState,
-  readUndoRestoreHint,
   restoreBackup,
-  restoreBackupHistoryEntry,
-  restoreMostRecentRestoreCheckpoint,
   selectBackupLocation,
 } from "@/lib/backup-utils";
 import {
-  BACKUP_HISTORY_VISIBLE_LIMIT,
-  BACKUP_TIMELINE_QUERY_LIMIT,
+  readSessionCheckpointSummaries,
+  readUndoSessionRestoreHint,
+  restoreSessionCheckpoint,
+  type SessionCheckpointSummary,
+  type SessionRestoreUndoHint,
+  undoLatestSessionRestore,
+} from "@/lib/session-history";
+import {
+  clearNonUsefulStorageData,
+  type StorageCleanupResult,
+} from "@/lib/storage-maintenance";
+import {
   BACKUP_VISIBLE_STATUS_MIN_SAVING_MS,
   type BackupTabKey,
   DEFAULT_BACKUP_LOCATION_STATUS,
@@ -56,6 +69,497 @@ import {
 } from "./backup-widget.utils";
 import { useVisibleBackupStatus } from "./use-backup-widget-status";
 
+const SESSION_AREA_LABELS: Record<string, string> = {
+  "better-home-widget-settings": "widgets",
+  "better-home-todos": "todos",
+  "better-home-todo-groups": "todo groups",
+  "better-home-todo-sort": "todo sort",
+  "better-home-todo-group-by": "todo grouping",
+  "better-home-todo-collapsed-sections": "collapsed groups",
+  "better-home-todo-filters": "todo filters",
+  "better-home-quick-links": "quick links",
+  "better-home-quick-links-sort": "quick links sort",
+  "mood-calendar-2026-data": "calendar",
+  "mood-calendar-show-numbers": "calendar numbers",
+  "vite-ui-theme": "theme",
+};
+
+const VISIBLE_SESSION_ARCHIVE_COUNT = 3;
+
+function toSessionAreaLabels(changedKeys: string[]): string[] {
+  const uniqueLabels = new Set<string>();
+
+  for (const changedKey of changedKeys) {
+    uniqueLabels.add(SESSION_AREA_LABELS[changedKey] ?? changedKey);
+  }
+
+  return [...uniqueLabels];
+}
+
+interface SessionArchiveItemProps {
+  index: number;
+  isRestoring: boolean;
+  onRestore: (sessionCheckpointId: string) => void;
+  sessionCheckpoint: SessionCheckpointSummary;
+}
+
+function SessionArchiveItem({
+  index,
+  isRestoring,
+  onRestore,
+  sessionCheckpoint,
+}: SessionArchiveItemProps) {
+  const areaLabels = toSessionAreaLabels(sessionCheckpoint.changedKeys);
+  const visibleAreaLabels = areaLabels.slice(0, 3);
+  const hiddenAreaCount = areaLabels.length - visibleAreaLabels.length;
+
+  return (
+    <div className="rounded-md border border-border/60 bg-card/60 px-2 py-2 shadow-sm">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate text-[11px] text-foreground">
+            {index === 0 ? "last session" : `session ${index + 1}`}
+          </p>
+          <p className="truncate text-[10px] text-muted-foreground">
+            {`${sessionCheckpoint.actionCount} change${sessionCheckpoint.actionCount === 1 ? "" : "s"} · ${formatHistoryAge(sessionCheckpoint.closedAt)}`}
+          </p>
+        </div>
+        <Button
+          disabled={isRestoring}
+          onClick={() => {
+            onRestore(sessionCheckpoint.id);
+          }}
+          size="xs"
+          type="button"
+          variant="outline"
+        >
+          {isRestoring ? "restoring..." : "restore"}
+        </Button>
+      </div>
+
+      {areaLabels.length > 0 ? (
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          {visibleAreaLabels.map((areaLabel) => (
+            <span
+              className="rounded border border-border/60 bg-background/60 px-1.5 py-0.5 text-[9px] text-muted-foreground"
+              key={`${sessionCheckpoint.id}-${areaLabel}`}
+            >
+              {areaLabel}
+            </span>
+          ))}
+          {hiddenAreaCount > 0 ? (
+            <span className="rounded border border-border/60 bg-background/60 px-1.5 py-0.5 text-[9px] text-muted-foreground">
+              +{hiddenAreaCount}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+interface SetupTabContentProps {
+  backupLocationStatus: BackupLocationStatus;
+  clearCacheButtonLabel: string;
+  clearCacheMessage: string;
+  handleClearCache: () => void;
+  handleBackupNow: () => void;
+  handleRestoreFileClick: () => void;
+  handleSelectBackupLocation: () => void;
+  handleUploadBackup: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  isBackingUp: boolean;
+  isBackupLocationReady: boolean;
+  isClearCacheArmed: boolean;
+  isClearingCache: boolean;
+  isSelectingBackupLocation: boolean;
+  lastSuccessfulWriteAge: string;
+  restoreFileInputRef: React.RefObject<HTMLInputElement | null>;
+}
+
+function SetupTabContent({
+  backupLocationStatus,
+  clearCacheButtonLabel,
+  clearCacheMessage,
+  handleClearCache,
+  handleBackupNow,
+  handleRestoreFileClick,
+  handleSelectBackupLocation,
+  handleUploadBackup,
+  isBackingUp,
+  isBackupLocationReady,
+  isClearCacheArmed,
+  isClearingCache,
+  isSelectingBackupLocation,
+  lastSuccessfulWriteAge,
+  restoreFileInputRef,
+}: SetupTabContentProps) {
+  return (
+    <TabsContent className="space-y-2" value="options">
+      <div className="rounded-md border border-border/60 bg-muted/30 p-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="truncate font-medium text-[11px] text-foreground">
+            {backupLocationStatus.fileName ?? "no folder chosen"}
+          </span>
+          <span
+            className={`text-[10px] ${
+              isBackupLocationReady ? "text-emerald-500" : "text-destructive"
+            }`}
+          >
+            {isBackupLocationReady ? "ready" : "not ready"}
+          </span>
+        </div>
+        <p className="mt-1 text-[10px] text-muted-foreground">
+          last saved: {lastSuccessfulWriteAge}
+        </p>
+        {backupLocationStatus.lastWriteErrorMessage ? (
+          <p className="mt-1 truncate text-[10px] text-destructive">
+            {backupLocationStatus.lastWriteErrorMessage}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <Button
+          className="w-full"
+          disabled={isSelectingBackupLocation}
+          onClick={handleSelectBackupLocation}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          <IconFolderOpen className="size-3.5" />
+          {isSelectingBackupLocation ? "choosing..." : "choose folder"}
+        </Button>
+
+        <div className="flex items-center gap-2">
+          <Button
+            className="flex-1"
+            disabled={!isBackupLocationReady || isBackingUp}
+            onClick={handleBackupNow}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            <IconDeviceFloppy className="size-3.5" />
+            {isBackingUp ? "saving..." : "save now"}
+          </Button>
+          <Button
+            className="flex-1"
+            onClick={handleRestoreFileClick}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            <IconUpload className="size-3.5" />
+            load file
+          </Button>
+        </div>
+
+        <input
+          accept=".json"
+          className="hidden"
+          onChange={handleUploadBackup}
+          ref={restoreFileInputRef}
+          type="file"
+        />
+
+        <Card
+          className="gap-2 border border-border/60 bg-muted/20 py-3 shadow-sm"
+          size="sm"
+        >
+          <CardHeader className="px-3">
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="font-medium text-[11px]">
+                storage maintenance
+              </CardTitle>
+              <Button
+                className="h-6 shrink-0 px-2 text-[10px]"
+                disabled={isClearingCache}
+                onClick={handleClearCache}
+                size="xs"
+                type="button"
+                variant={isClearCacheArmed ? "destructive" : "outline"}
+              >
+                <IconTrash className="size-3" />
+                {clearCacheButtonLabel}
+              </Button>
+            </div>
+            <CardDescription className="text-[10px]">
+              clean stale cache from older versions
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 px-3">
+            <p className="text-[10px] text-muted-foreground leading-snug">
+              removes preview and legacy cache keys only, while keeping todos,
+              links, calendar, theme, backups, and session history safe.
+            </p>
+            {isClearCacheArmed && !isClearingCache ? (
+              <p className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[10px] text-amber-700 leading-snug dark:text-amber-300">
+                Click again within 4s to confirm cache cleanup.
+              </p>
+            ) : null}
+            {clearCacheMessage ? (
+              <p className="rounded border border-border/60 bg-background/70 px-2 py-1 text-[10px] text-foreground leading-snug">
+                {clearCacheMessage}
+              </p>
+            ) : null}
+          </CardContent>
+        </Card>
+      </div>
+    </TabsContent>
+  );
+}
+
+interface HistoryTabContentProps {
+  handleRestoreSession: (sessionCheckpointId: string) => void;
+  handleUndoSessionRestore: () => void;
+  hasHiddenSessionCheckpoints: boolean;
+  hiddenSessionCheckpoints: SessionCheckpointSummary[];
+  isArchiveExpanded: boolean;
+  isRestoringSessionId: string | null;
+  isUndoingSessionRestore: boolean;
+  latestSession: SessionCheckpointSummary | null;
+  sessionCheckpoints: SessionCheckpointSummary[];
+  setIsArchiveExpanded: React.Dispatch<React.SetStateAction<boolean>>;
+  undoSessionRestoreHint: SessionRestoreUndoHint | null;
+  visibleSessionCheckpoints: SessionCheckpointSummary[];
+}
+
+function HistoryTabContent({
+  handleRestoreSession,
+  handleUndoSessionRestore,
+  hasHiddenSessionCheckpoints,
+  hiddenSessionCheckpoints,
+  isArchiveExpanded,
+  isRestoringSessionId,
+  isUndoingSessionRestore,
+  latestSession,
+  sessionCheckpoints,
+  setIsArchiveExpanded,
+  undoSessionRestoreHint,
+  visibleSessionCheckpoints,
+}: HistoryTabContentProps) {
+  return (
+    <TabsContent className="space-y-2" value="history">
+      <Card
+        className="relative gap-2 border border-border/60 bg-muted/25 py-3 shadow-sm"
+        size="sm"
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(125deg,hsl(var(--primary)/0.09),transparent_58%)]" />
+        <CardHeader className="relative px-3">
+          <CardTitle className="font-medium text-[11px]">
+            session restore
+          </CardTitle>
+          <CardDescription className="text-[10px]">
+            sessions are saved only when this tab closes with net changes
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="relative px-3">
+          {latestSession ? (
+            <p className="text-[10px] text-emerald-500">
+              latest session: {latestSession.actionCount} change
+              {latestSession.actionCount === 1 ? "" : "s"} ·{" "}
+              {formatHistoryAge(latestSession.closedAt)}
+            </p>
+          ) : (
+            <p className="text-[10px] text-muted-foreground">
+              no session saved yet because there are no net changes to restore
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-medium text-[11px] text-foreground">
+          session archive
+        </span>
+        <div className="flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label="Show undo session restore preview"
+                className="h-5 w-5 p-0"
+                disabled={undoSessionRestoreHint === null}
+                size="xs"
+                type="button"
+                variant="outline"
+              >
+                <IconInfoCircle className="size-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent align="end" className="max-w-76" side="top">
+              {undoSessionRestoreHint ? (
+                <div className="space-y-1">
+                  <p className="font-medium text-[10px] leading-snug">
+                    {undoSessionRestoreHint.summary}
+                  </p>
+                  {undoSessionRestoreHint.details.map((detailLine) => (
+                    <p
+                      className="text-[10px] text-background/90 leading-snug"
+                      key={detailLine}
+                    >
+                      {detailLine}
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[10px]">No undo preview available.</p>
+              )}
+            </TooltipContent>
+          </Tooltip>
+
+          <Button
+            className="h-5 px-2 text-[10px]"
+            disabled={
+              !undoSessionRestoreHint?.canUndo || isUndoingSessionRestore
+            }
+            onClick={handleUndoSessionRestore}
+            size="xs"
+            type="button"
+            variant="outline"
+          >
+            {isUndoingSessionRestore ? "undoing..." : "undo"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        {sessionCheckpoints.length === 0 ? (
+          <div className="rounded-md border border-border/70 border-dashed bg-muted/20 px-2 py-2 text-[11px] text-muted-foreground">
+            no restorable sessions
+          </div>
+        ) : (
+          <>
+            {visibleSessionCheckpoints.map((sessionCheckpoint, index) => (
+              <SessionArchiveItem
+                index={index}
+                isRestoring={isRestoringSessionId === sessionCheckpoint.id}
+                key={sessionCheckpoint.id}
+                onRestore={handleRestoreSession}
+                sessionCheckpoint={sessionCheckpoint}
+              />
+            ))}
+
+            {hasHiddenSessionCheckpoints ? (
+              <div className="rounded-md border border-border/60 bg-muted/20 p-2">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] text-muted-foreground">
+                    showing latest {VISIBLE_SESSION_ARCHIVE_COUNT} of{" "}
+                    {sessionCheckpoints.length} sessions
+                  </p>
+                  <Button
+                    className="h-6 px-2 text-[10px]"
+                    onClick={() => {
+                      setIsArchiveExpanded((previousValue) => {
+                        return !previousValue;
+                      });
+                    }}
+                    size="xs"
+                    type="button"
+                    variant="outline"
+                  >
+                    {isArchiveExpanded
+                      ? "show less"
+                      : `show more (${hiddenSessionCheckpoints.length})`}
+                  </Button>
+                </div>
+
+                {isArchiveExpanded ? (
+                  <ScrollArea className="mt-2 h-44 pr-2">
+                    <div className="space-y-1.5">
+                      {hiddenSessionCheckpoints.map(
+                        (sessionCheckpoint, hiddenIndex) => (
+                          <SessionArchiveItem
+                            index={hiddenIndex + VISIBLE_SESSION_ARCHIVE_COUNT}
+                            isRestoring={
+                              isRestoringSessionId === sessionCheckpoint.id
+                            }
+                            key={sessionCheckpoint.id}
+                            onRestore={handleRestoreSession}
+                            sessionCheckpoint={sessionCheckpoint}
+                          />
+                        )
+                      )}
+                    </div>
+                  </ScrollArea>
+                ) : null}
+              </div>
+            ) : null}
+          </>
+        )}
+      </div>
+    </TabsContent>
+  );
+}
+
+interface HandleClearCacheOptions {
+  isClearingCache: boolean;
+  isClearCacheArmed: boolean;
+  armClearCache: () => void;
+  disarmClearCache: () => void;
+  refreshBackupSurface: () => void;
+  setIsClearingCache: (value: boolean) => void;
+  setClearCacheMessage: (value: string) => void;
+}
+
+function getClearCacheMessage(result: StorageCleanupResult): string {
+  if (result.removedKeyCount === 0) {
+    return "No stale cache or legacy keys were found. Your useful data is unchanged.";
+  }
+
+  return `Cleared ${result.removedCacheKeys.length} cache key${result.removedCacheKeys.length === 1 ? "" : "s"} and ${result.removedLegacyKeys.length} legacy key${result.removedLegacyKeys.length === 1 ? "" : "s"}.`;
+}
+
+function getClearCacheButtonLabel(
+  isClearingCache: boolean,
+  isClearCacheArmed: boolean
+): string {
+  if (isClearingCache) {
+    return "clearing...";
+  }
+
+  if (isClearCacheArmed) {
+    return "confirm clear";
+  }
+
+  return "clear cache";
+}
+
+async function executeClearCache({
+  isClearingCache,
+  isClearCacheArmed,
+  armClearCache,
+  disarmClearCache,
+  refreshBackupSurface,
+  setIsClearingCache,
+  setClearCacheMessage,
+}: HandleClearCacheOptions): Promise<void> {
+  if (isClearingCache) {
+    return;
+  }
+
+  if (!isClearCacheArmed) {
+    armClearCache();
+    setClearCacheMessage("");
+    return;
+  }
+
+  setIsClearingCache(true);
+  disarmClearCache();
+
+  try {
+    const result = await clearNonUsefulStorageData();
+    setClearCacheMessage(getClearCacheMessage(result));
+    await refreshBackupSurface();
+  } catch {
+    setClearCacheMessage(
+      "Cache cleanup failed unexpectedly. No backup/session keys were targeted."
+    );
+  } finally {
+    setIsClearingCache(false);
+  }
+}
+
 export function BackupWidget() {
   const [backupStatus] = useLocalStorage<BackupStatus>(
     "better-home-backup-status",
@@ -65,21 +569,23 @@ export function BackupWidget() {
     useState<BackupLocationStatus>(DEFAULT_BACKUP_LOCATION_STATUS);
   const [activeBackupTab, setActiveBackupTab] =
     useState<BackupTabKey>("options");
-  const [autoBackups, setAutoBackups] = useState<AutoBackupSnapshot[]>([]);
-  const [latestSnapshot, setLatestSnapshot] =
-    useState<AutoBackupSnapshot | null>(null);
-  const [hasChangesSinceLatestSnapshot, setHasChangesSinceLatestSnapshot] =
-    useState(false);
-  const [canUndoLastRestore, setCanUndoLastRestore] = useState(false);
-  const [isRestoringAutoBackupId, setIsRestoringAutoBackupId] = useState<
+  const [sessionCheckpoints, setSessionCheckpoints] = useState<
+    SessionCheckpointSummary[]
+  >([]);
+  const [isRestoringSessionId, setIsRestoringSessionId] = useState<
     string | null
   >(null);
-  const [isUndoingLastRestore, setIsUndoingLastRestore] = useState(false);
+  const [undoSessionRestoreHint, setUndoSessionRestoreHint] =
+    useState<SessionRestoreUndoHint | null>(null);
+  const [isUndoingSessionRestore, setIsUndoingSessionRestore] = useState(false);
   const [isSelectingBackupLocation, setIsSelectingBackupLocation] =
     useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
-  const [undoRestoreHint, setUndoRestoreHint] =
-    useState<RestorePreviewHint | null>(null);
+  const [isClearCacheArmed, setIsClearCacheArmed] = useState(false);
+  const [isClearingCache, setIsClearingCache] = useState(false);
+  const [clearCacheMessage, setClearCacheMessage] = useState("");
+  const [isArchiveExpanded, setIsArchiveExpanded] = useState(false);
+  const clearCacheArmTimeoutRef = useRef<number | null>(null);
   const restoreFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const visibleBackupStatus = useVisibleBackupStatus(
@@ -89,22 +595,13 @@ export function BackupWidget() {
 
   const refreshBackupSurface = useCallback(() => {
     Promise.all([
-      readBackupTimelineState(BACKUP_TIMELINE_QUERY_LIMIT),
       readBackupLocationStatus(),
-      readUndoRestoreHint(),
+      readSessionCheckpointSummaries(),
+      readUndoSessionRestoreHint(),
     ])
-      .then(([timelineState, locationStatus, undoHint]) => {
-        const visibleSnapshots = timelineState.snapshots
-          .filter((snapshot) => snapshot.reason !== "restore-checkpoint")
-          .slice(0, BACKUP_HISTORY_VISIBLE_LIMIT);
-
-        setAutoBackups(visibleSnapshots);
-        setLatestSnapshot(timelineState.latestSnapshot ?? null);
-        setHasChangesSinceLatestSnapshot(
-          timelineState.hasChangesSinceLatestSnapshot
-        );
-        setCanUndoLastRestore(timelineState.canUndoLastRestore);
-        setUndoRestoreHint(undoHint);
+      .then(([locationStatus, checkpoints, undoHint]) => {
+        setSessionCheckpoints(checkpoints);
+        setUndoSessionRestoreHint(undoHint);
         setBackupLocationStatus(locationStatus);
 
         if (locationStatus.needsReauthorization) {
@@ -112,11 +609,8 @@ export function BackupWidget() {
         }
       })
       .catch(() => {
-        setAutoBackups([]);
-        setLatestSnapshot(null);
-        setHasChangesSinceLatestSnapshot(false);
-        setCanUndoLastRestore(false);
-        setUndoRestoreHint(null);
+        setSessionCheckpoints([]);
+        setUndoSessionRestoreHint(null);
         setBackupLocationStatus(DEFAULT_BACKUP_LOCATION_STATUS);
       });
   }, []);
@@ -152,8 +646,34 @@ export function BackupWidget() {
     return () => {
       window.removeEventListener("focus", handleWindowFocus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      if (clearCacheArmTimeoutRef.current !== null) {
+        window.clearTimeout(clearCacheArmTimeoutRef.current);
+      }
     };
   }, [refreshBackupSurface]);
+
+  const disarmClearCache = () => {
+    if (clearCacheArmTimeoutRef.current !== null) {
+      window.clearTimeout(clearCacheArmTimeoutRef.current);
+      clearCacheArmTimeoutRef.current = null;
+    }
+
+    setIsClearCacheArmed(false);
+  };
+
+  const armClearCache = () => {
+    setIsClearCacheArmed(true);
+
+    if (clearCacheArmTimeoutRef.current !== null) {
+      window.clearTimeout(clearCacheArmTimeoutRef.current);
+    }
+
+    clearCacheArmTimeoutRef.current = window.setTimeout(() => {
+      setIsClearCacheArmed(false);
+      clearCacheArmTimeoutRef.current = null;
+    }, 4000);
+  };
 
   const handleSelectBackupLocation = async () => {
     setIsSelectingBackupLocation(true);
@@ -211,34 +731,36 @@ export function BackupWidget() {
     event.target.value = "";
   };
 
-  const handleRestoreSnapshot = async (snapshotId: string) => {
-    setIsRestoringAutoBackupId(snapshotId);
-
-    const restored = await restoreBackupHistoryEntry(snapshotId);
-    setIsRestoringAutoBackupId(null);
+  const handleRestoreSession = async (sessionCheckpointId: string) => {
+    setIsRestoringSessionId(sessionCheckpointId);
+    const restored = await restoreSessionCheckpoint(sessionCheckpointId);
+    setIsRestoringSessionId(null);
 
     if (restored) {
       window.location.reload();
     }
   };
 
-  const handleRestoreLatestSnapshot = async () => {
-    if (!latestSnapshot) {
-      return;
-    }
-
-    await handleRestoreSnapshot(latestSnapshot.id);
-  };
-
-  const handleUndoLastRestore = async () => {
-    setIsUndoingLastRestore(true);
-
-    const restored = await restoreMostRecentRestoreCheckpoint();
-    setIsUndoingLastRestore(false);
+  const handleUndoSessionRestore = async () => {
+    setIsUndoingSessionRestore(true);
+    const restored = await undoLatestSessionRestore();
+    setIsUndoingSessionRestore(false);
 
     if (restored) {
       window.location.reload();
     }
+  };
+
+  const handleClearCache = async () => {
+    await executeClearCache({
+      isClearingCache,
+      isClearCacheArmed,
+      armClearCache,
+      disarmClearCache,
+      refreshBackupSurface,
+      setIsClearingCache,
+      setClearCacheMessage,
+    });
   };
 
   const isBackupLocationReady =
@@ -264,9 +786,19 @@ export function BackupWidget() {
   const lastSuccessfulWriteAge = backupLocationStatus.lastSuccessfulWriteAt
     ? formatHistoryAge(backupLocationStatus.lastSuccessfulWriteAt)
     : "never";
-  const previousSnapshots = autoBackups.filter((snapshot) => {
-    return snapshot.id !== latestSnapshot?.id;
-  });
+  const latestSession = sessionCheckpoints[0] ?? null;
+  const visibleSessionCheckpoints = sessionCheckpoints.slice(
+    0,
+    VISIBLE_SESSION_ARCHIVE_COUNT
+  );
+  const hiddenSessionCheckpoints = sessionCheckpoints.slice(
+    VISIBLE_SESSION_ARCHIVE_COUNT
+  );
+  const hasHiddenSessionCheckpoints = hiddenSessionCheckpoints.length > 0;
+  const clearCacheButtonLabel = getClearCacheButtonLabel(
+    isClearingCache,
+    isClearCacheArmed
+  );
 
   return (
     <Popover>
@@ -293,7 +825,7 @@ export function BackupWidget() {
         <PopoverHeader>
           <PopoverTitle>save & restore</PopoverTitle>
           <PopoverDescription>
-            choose a folder & recover saved versions anytime
+            choose a folder & recover previous sessions.
           </PopoverDescription>
         </PopoverHeader>
 
@@ -308,219 +840,52 @@ export function BackupWidget() {
               setup
             </TabsTrigger>
             <TabsTrigger className="w-full" value="history">
-              saved versions
+              previous sessions
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent className="space-y-2" value="options">
-            <div className="rounded-md border border-border/60 bg-muted/30 p-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="truncate font-medium text-[11px] text-foreground">
-                  {backupLocationStatus.fileName ?? "no folder chosen"}
-                </span>
-                <span
-                  className={`text-[10px] ${
-                    isBackupLocationReady
-                      ? "text-emerald-500"
-                      : "text-destructive"
-                  }`}
-                >
-                  {isBackupLocationReady ? "ready" : "not ready"}
-                </span>
-              </div>
-              <p className="mt-1 text-[10px] text-muted-foreground">
-                last saved: {lastSuccessfulWriteAge}
-              </p>
-              {backupLocationStatus.lastWriteErrorMessage && (
-                <p className="mt-1 truncate text-[10px] text-destructive">
-                  {backupLocationStatus.lastWriteErrorMessage}
-                </p>
-              )}
-            </div>
+          <SetupTabContent
+            backupLocationStatus={backupLocationStatus}
+            clearCacheButtonLabel={clearCacheButtonLabel}
+            clearCacheMessage={clearCacheMessage}
+            handleBackupNow={() => {
+              handleBackupNow().catch(() => null);
+            }}
+            handleClearCache={() => {
+              handleClearCache().catch(() => null);
+            }}
+            handleRestoreFileClick={handleRestoreFileClick}
+            handleSelectBackupLocation={() => {
+              handleSelectBackupLocation().catch(() => null);
+            }}
+            handleUploadBackup={handleUploadBackup}
+            isBackingUp={isBackingUp}
+            isBackupLocationReady={isBackupLocationReady}
+            isClearCacheArmed={isClearCacheArmed}
+            isClearingCache={isClearingCache}
+            isSelectingBackupLocation={isSelectingBackupLocation}
+            lastSuccessfulWriteAge={lastSuccessfulWriteAge}
+            restoreFileInputRef={restoreFileInputRef}
+          />
 
-            <div className="space-y-2">
-              <Button
-                className="w-full"
-                disabled={isSelectingBackupLocation}
-                onClick={() => {
-                  handleSelectBackupLocation().catch(() => null);
-                }}
-                size="sm"
-                type="button"
-                variant="outline"
-              >
-                <IconFolderOpen className="size-3.5" />
-                {isSelectingBackupLocation ? "choosing..." : "choose folder"}
-              </Button>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  className="flex-1"
-                  disabled={!isBackupLocationReady || isBackingUp}
-                  onClick={() => {
-                    handleBackupNow().catch(() => null);
-                  }}
-                  size="sm"
-                  type="button"
-                  variant="outline"
-                >
-                  <IconDeviceFloppy className="size-3.5" />
-                  {isBackingUp ? "saving..." : "save now"}
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={handleRestoreFileClick}
-                  size="sm"
-                  type="button"
-                  variant="outline"
-                >
-                  <IconUpload className="size-3.5" />
-                  load file
-                </Button>
-              </div>
-
-              <input
-                accept=".json"
-                className="hidden"
-                onChange={handleUploadBackup}
-                ref={restoreFileInputRef}
-                type="file"
-              />
-            </div>
-          </TabsContent>
-
-          <TabsContent className="space-y-2" value="history">
-            <div className="rounded-md border border-border/60 bg-muted/30 p-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-medium text-[11px] text-foreground">
-                  your data
-                </span>
-                <Button
-                  className="h-5 px-2 text-[10px]"
-                  disabled={
-                    !(latestSnapshot && hasChangesSinceLatestSnapshot) ||
-                    isRestoringAutoBackupId !== null
-                  }
-                  onClick={() => {
-                    handleRestoreLatestSnapshot().catch(() => null);
-                  }}
-                  size="xs"
-                  type="button"
-                  variant="outline"
-                >
-                  revert latest
-                </Button>
-              </div>
-
-              <p className="mt-1 text-[10px] text-muted-foreground">
-                {latestSnapshot
-                  ? `latest ${formatHistoryAge(latestSnapshot.createdAt)}`
-                  : "no saved version yet"}
-              </p>
-
-              <p
-                className={`mt-1 text-[10px] ${
-                  hasChangesSinceLatestSnapshot
-                    ? "text-amber-500"
-                    : "text-emerald-500"
-                }`}
-              >
-                {hasChangesSinceLatestSnapshot
-                  ? "local data is saved instantly; saved version update pending"
-                  : "local data and saved versions are in sync"}
-              </p>
-            </div>
-
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-medium text-[11px] text-foreground">
-                saved versions
-              </span>
-              <div className="flex items-center gap-1">
-                <Button
-                  className="h-5 px-2 text-[10px]"
-                  disabled={!canUndoLastRestore || isUndoingLastRestore}
-                  onClick={() => {
-                    handleUndoLastRestore().catch(() => null);
-                  }}
-                  size="xs"
-                  type="button"
-                  variant="outline"
-                >
-                  {isUndoingLastRestore ? "undoing..." : "undo"}
-                </Button>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      aria-label="Show undo diff preview"
-                      className="h-5 w-5 p-0"
-                      disabled={undoRestoreHint === null}
-                      size="xs"
-                      type="button"
-                      variant="outline"
-                    >
-                      <IconInfoCircle className="size-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    align="end"
-                    className="max-w-[19rem]"
-                    side="top"
-                  >
-                    {undoRestoreHint ? (
-                      <div className="space-y-1">
-                        <p className="font-medium text-[10px] leading-snug">
-                          {undoRestoreHint.summary}
-                        </p>
-                        {undoRestoreHint.details.map((detailLine) => (
-                          <p
-                            className="text-[10px] text-background/90 leading-snug"
-                            key={detailLine}
-                          >
-                            {detailLine}
-                          </p>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-[10px]">No undo preview available.</p>
-                    )}
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              {previousSnapshots.length === 0 ? (
-                <p className="text-[11px] text-muted-foreground">
-                  no saved versions yet
-                </p>
-              ) : (
-                previousSnapshots.map((snapshot) => (
-                  <div
-                    className="flex items-center justify-between gap-2"
-                    key={snapshot.id}
-                  >
-                    <span className="truncate text-[11px] text-muted-foreground">
-                      {formatHistoryAge(snapshot.createdAt)}
-                    </span>
-                    <Button
-                      disabled={isRestoringAutoBackupId === snapshot.id}
-                      onClick={() => {
-                        handleRestoreSnapshot(snapshot.id).catch(() => null);
-                      }}
-                      size="xs"
-                      type="button"
-                      variant="outline"
-                    >
-                      {isRestoringAutoBackupId === snapshot.id
-                        ? "restoring..."
-                        : "restore"}
-                    </Button>
-                  </div>
-                ))
-              )}
-            </div>
-          </TabsContent>
+          <HistoryTabContent
+            handleRestoreSession={(sessionCheckpointId) => {
+              handleRestoreSession(sessionCheckpointId).catch(() => null);
+            }}
+            handleUndoSessionRestore={() => {
+              handleUndoSessionRestore().catch(() => null);
+            }}
+            hasHiddenSessionCheckpoints={hasHiddenSessionCheckpoints}
+            hiddenSessionCheckpoints={hiddenSessionCheckpoints}
+            isArchiveExpanded={isArchiveExpanded}
+            isRestoringSessionId={isRestoringSessionId}
+            isUndoingSessionRestore={isUndoingSessionRestore}
+            latestSession={latestSession}
+            sessionCheckpoints={sessionCheckpoints}
+            setIsArchiveExpanded={setIsArchiveExpanded}
+            undoSessionRestoreHint={undoSessionRestoreHint}
+            visibleSessionCheckpoints={visibleSessionCheckpoints}
+          />
         </Tabs>
       </PopoverContent>
     </Popover>

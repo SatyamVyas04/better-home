@@ -1,6 +1,7 @@
 import type React from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { runTrackedUserAction } from "@/lib/session-history";
 import {
   applyFilters,
   applyFiltersAndSorting,
@@ -60,6 +61,10 @@ export function useTodoListController() {
   const holdTimeoutRef = useRef<number | null>(null);
   const textareaRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
 
+  const runTodoAction = <T>(label: string, action: () => T): T => {
+    return runTrackedUserAction(label, action);
+  };
+
   useEffect(() => {
     setTodos((prev) => {
       const hasLegacyTodoShape = prev.some(
@@ -113,9 +118,11 @@ export function useTodoListController() {
   });
 
   const assignTodoGroup = (todoId: string, groupId: string | null) => {
-    setTodos((prev) =>
-      prev.map((todo) => (todo.id === todoId ? { ...todo, groupId } : todo))
-    );
+    runTodoAction("assign task group", () => {
+      setTodos((prev) =>
+        prev.map((todo) => (todo.id === todoId ? { ...todo, groupId } : todo))
+      );
+    });
   };
 
   const resetGroupDraft = () => {
@@ -150,12 +157,14 @@ export function useTodoListController() {
   };
 
   const deleteGroupAndClearTodos = (groupId: string) => {
-    setTodoGroups((prev) => prev.filter((group) => group.id !== groupId));
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.groupId === groupId ? { ...todo, groupId: null } : todo
-      )
-    );
+    runTodoAction("delete todo group", () => {
+      setTodoGroups((prev) => prev.filter((group) => group.id !== groupId));
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo.groupId === groupId ? { ...todo, groupId: null } : todo
+        )
+      );
+    });
   };
 
   const createGroupForTodo = (todoId: string) => {
@@ -164,28 +173,33 @@ export function useTodoListController() {
       return false;
     }
 
-    const existingGroup = todoGroups.find(
-      (group) => group.name.toLowerCase() === normalizedName.toLowerCase()
-    );
+    const didCreateGroup = runTodoAction("create todo group", () => {
+      const existingGroup = todoGroups.find(
+        (group) => group.name.toLowerCase() === normalizedName.toLowerCase()
+      );
 
-    if (existingGroup) {
-      assignTodoGroup(todoId, existingGroup.id);
+      if (existingGroup) {
+        assignTodoGroup(todoId, existingGroup.id);
+        return true;
+      }
+
+      const newGroup: TodoGroup = {
+        id: crypto.randomUUID(),
+        name: normalizedName,
+        color: groupDraftColor,
+      };
+
+      setTodoGroups((prev) => [newGroup, ...prev]);
+      assignTodoGroup(todoId, newGroup.id);
+      return true;
+    });
+
+    if (didCreateGroup) {
       blurActiveElement();
       resetGroupDraft();
-      return true;
     }
 
-    const newGroup: TodoGroup = {
-      id: crypto.randomUUID(),
-      name: normalizedName,
-      color: groupDraftColor,
-    };
-
-    setTodoGroups((prev) => [newGroup, ...prev]);
-    assignTodoGroup(todoId, newGroup.id);
-    blurActiveElement();
-    resetGroupDraft();
-    return true;
+    return didCreateGroup;
   };
 
   const addTodo = () => {
@@ -203,28 +217,36 @@ export function useTodoListController() {
       createdAt: Date.now(),
     };
 
-    setTodos((prev) => [todo, ...prev]);
+    runTodoAction("add task", () => {
+      setTodos((prev) => [todo, ...prev]);
+    });
     setNewTodo("");
   };
 
   const toggleTodo = (id: string) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+    runTodoAction("toggle task", () => {
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        )
+      );
+    });
   };
 
   const toggleImportant = (id: string) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, important: !todo.important } : todo
-      )
-    );
+    runTodoAction("toggle task importance", () => {
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo.id === id ? { ...todo, important: !todo.important } : todo
+        )
+      );
+    });
   };
 
   const deleteTodo = (id: string) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    runTodoAction("delete task", () => {
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    });
     if (editingTodoId === id) {
       setEditingTodoId(null);
       setEditTodoText("");
@@ -248,11 +270,13 @@ export function useTodoListController() {
       return;
     }
 
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, text: trimmedText.toLowerCase() } : todo
-      )
-    );
+    runTodoAction("edit task text", () => {
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo.id === id ? { ...todo, text: trimmedText.toLowerCase() } : todo
+        )
+      );
+    });
 
     cancelEditingTodo();
   };
@@ -278,35 +302,63 @@ export function useTodoListController() {
   );
 
   const handleReorder = (reorderedTodos: Todo[]) => {
-    setSortMode("manual");
+    runTodoAction("reorder tasks", () => {
+      setSortMode("manual");
 
-    const hasActiveFilters = filters.hideCompleted || filters.importantOnly;
-    if (!hasActiveFilters) {
-      setTodos(reorderedTodos);
-      return;
-    }
+      const hasActiveFilters = filters.hideCompleted || filters.importantOnly;
+      if (!hasActiveFilters) {
+        setTodos(reorderedTodos);
+        return;
+      }
 
-    setTodos((prev) => mergeReorderedWithHidden(reorderedTodos, prev, filters));
+      setTodos((prev) =>
+        mergeReorderedWithHidden(reorderedTodos, prev, filters)
+      );
+    });
   };
 
   const handleGroupedReorder = (sectionId: string, reorderedTodos: Todo[]) => {
-    setSortMode("manual");
-    setTodos((prev) =>
-      mergeReorderedSectionWithHidden(
-        reorderedTodos,
-        prev,
-        filters,
-        todoGroupsById,
-        sectionId
-      )
-    );
+    runTodoAction("reorder grouped tasks", () => {
+      setSortMode("manual");
+      setTodos((prev) =>
+        mergeReorderedSectionWithHidden(
+          reorderedTodos,
+          prev,
+          filters,
+          todoGroupsById,
+          sectionId
+        )
+      );
+    });
   };
 
   const toggleSectionCollapsed = (sectionId: string) => {
-    setCollapsedSections((prev) => ({
-      ...prev,
-      [sectionId]: !(prev[sectionId] ?? false),
-    }));
+    runTodoAction("toggle collapsed task section", () => {
+      setCollapsedSections((prev) => ({
+        ...prev,
+        [sectionId]: !(prev[sectionId] ?? false),
+      }));
+    });
+  };
+
+  const updateSortMode = (nextSortMode: SortMode) => {
+    runTodoAction("change todo sort", () => {
+      setSortMode(nextSortMode);
+    });
+  };
+
+  const updateFilters = (
+    value: TodoFilters | ((previousFilters: TodoFilters) => TodoFilters)
+  ) => {
+    runTodoAction("change todo filters", () => {
+      setFilters(value);
+    });
+  };
+
+  const updateGroupByEnabled = (enabled: boolean) => {
+    runTodoAction("toggle todo grouping", () => {
+      setGroupByEnabled(enabled);
+    });
   };
 
   const handleNewTodoKeyDown = (
@@ -458,12 +510,12 @@ export function useTodoListController() {
     resetGroupDraft,
     setEditTodoText,
     setEditingTodoId,
-    setFilters,
-    setGroupByEnabled,
+    setFilters: updateFilters,
+    setGroupByEnabled: updateGroupByEnabled,
     setGroupDraftColor,
     setGroupDraftName,
     setNewTodo,
-    setSortMode,
+    setSortMode: updateSortMode,
     setTextareaRef,
     sortMode,
     todoGroupsById,

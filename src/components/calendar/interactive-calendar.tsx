@@ -17,6 +17,7 @@ import { useCalendarData } from "@/hooks/use-calendar-data";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { MOOD_COLORS } from "@/lib/calendar-constants";
 import { MONTH_GAP, MONTHS_2026, QUADRIMESTERS } from "@/lib/calendar-utils";
+import { runTrackedUserAction } from "@/lib/session-history";
 import { cn } from "@/lib/utils";
 import type { InteractiveCalendarProps } from "@/types/calendar";
 import { MonthGrid } from "./month-grid";
@@ -70,7 +71,11 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
                 showNumbers ? "Hide date numbers" : "Show date numbers"
               }
               className="size-6 p-0"
-              onClick={() => setShowNumbers(!showNumbers)}
+              onClick={() => {
+                runTrackedUserAction("toggle calendar numbers", () => {
+                  setShowNumbers(!showNumbers);
+                });
+              }}
               size="sm"
               title={showNumbers ? "Hide numbers" : "Show numbers"}
               variant={showNumbers ? "default" : "outline"}

@@ -49,7 +49,7 @@ export interface UseQuickLinksPreviewControllerResult {
     y: number;
   };
   scheduleFloatingPreviewClose: () => void;
-  setSortMode: React.Dispatch<React.SetStateAction<QuickLinksSortMode>>;
+  setSortMode: (nextSortMode: QuickLinksSortMode) => void;
   sortMode: QuickLinksSortMode;
   stageResolvedTitlePreview: (
     url: string,

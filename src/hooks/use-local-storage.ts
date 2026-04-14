@@ -7,6 +7,7 @@ import {
   subscribeToChromeStorageChanges,
   writeAppStorageRaw,
 } from "@/lib/extension-storage";
+import { captureUserIntentMutation } from "@/lib/session-history";
 
 export function useLocalStorage<T>(
   key: string,
@@ -39,6 +40,7 @@ export function useLocalStorage<T>(
         try {
           const serializedValue = JSON.stringify(valueToStore);
           writeAppStorageRaw(key, serializedValue).catch(() => null);
+          captureUserIntentMutation(key, prev, valueToStore);
           queueAutosaveBackup();
         } catch {
           return valueToStore;

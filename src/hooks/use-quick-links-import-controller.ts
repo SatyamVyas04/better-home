@@ -1,5 +1,6 @@
 import type * as React from "react";
 import { useCallback, useState } from "react";
+import { runTrackedUserAction } from "@/lib/session-history";
 import { extractTitle, isValidUrl, normalizeUrl } from "@/lib/url-utils";
 import type {
   BookmarkImportItem,
@@ -167,31 +168,35 @@ export function useQuickLinksImportController({
     const selectedIds = new Set(selectedBookmarkIds);
     const importedBookmarkUrls: string[] = [];
 
-    setLinks((prev) => {
-      const nextLinks = [...prev];
-      const seenUrls = new Set(prev.map((link) => getComparableUrl(link.url)));
+    runTrackedUserAction("import bookmarks to quick links", () => {
+      setLinks((prev) => {
+        const nextLinks = [...prev];
+        const seenUrls = new Set(
+          prev.map((link) => getComparableUrl(link.url))
+        );
 
-      for (const bookmark of bookmarkOptions) {
-        if (!selectedIds.has(bookmark.id)) {
-          continue;
+        for (const bookmark of bookmarkOptions) {
+          if (!selectedIds.has(bookmark.id)) {
+            continue;
+          }
+
+          const comparableUrl = getComparableUrl(bookmark.url);
+          if (seenUrls.has(comparableUrl)) {
+            continue;
+          }
+
+          seenUrls.add(comparableUrl);
+          importedBookmarkUrls.push(bookmark.url);
+          nextLinks.push({
+            favicon: getResolvedFavicon(bookmark.url),
+            id: crypto.randomUUID(),
+            title: bookmark.title,
+            url: bookmark.url,
+          });
         }
 
-        const comparableUrl = getComparableUrl(bookmark.url);
-        if (seenUrls.has(comparableUrl)) {
-          continue;
-        }
-
-        seenUrls.add(comparableUrl);
-        importedBookmarkUrls.push(bookmark.url);
-        nextLinks.push({
-          favicon: getResolvedFavicon(bookmark.url),
-          id: crypto.randomUUID(),
-          title: bookmark.title,
-          url: bookmark.url,
-        });
-      }
-
-      return nextLinks;
+        return nextLinks;
+      });
     });
 
     for (const importedBookmarkUrl of importedBookmarkUrls) {

@@ -13,14 +13,15 @@ type ChromeStorageListener = (
 type AppStorageListener = (key: string, value: string | null) => void;
 
 const APP_STORAGE_UPDATED_EVENT = "better-home:storage-updated";
-const pendingChromeWrites = new Set<Promise<void>>();
+const pendingChromeWrites = new Set<Promise<unknown>>();
 
 interface ChromeStorageArea {
   get(
-    keys: string[] | string | Record<string, unknown>,
+    keys: string[] | string | Record<string, unknown> | null,
     callback: (items: Record<string, unknown>) => void
   ): void;
   set(items: Record<string, unknown>, callback?: () => void): void;
+  remove(keys: string[] | string, callback?: () => void): void;
 }
 
 interface ChromeStorageAPI {
@@ -35,7 +36,7 @@ declare const chrome: {
   storage?: ChromeStorageAPI;
 };
 
-export const APP_VERSION = "1.6.0";
+export const APP_VERSION = "1.8.0";
 
 export interface StorageMigrationState {
   completed: boolean;
@@ -56,7 +57,7 @@ function getChromeStorageAPI(): ChromeStorageAPI | null {
   return chrome.storage ?? null;
 }
 
-function trackPendingChromeWrite(writePromise: Promise<void>): Promise<void> {
+function trackPendingChromeWrite<T>(writePromise: Promise<T>): Promise<T> {
   pendingChromeWrites.add(writePromise);
 
   writePromise.finally(() => {
@@ -81,12 +82,55 @@ function dispatchAppStorageUpdated(key: string, value: string | null): void {
   );
 }
 
+function removeLocalStorageRaw(key: string): boolean {
+  try {
+    window.localStorage.removeItem(key);
+    dispatchAppStorageUpdated(key, null);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function readLocalStorageRaw(key: string): string | null {
   try {
     return window.localStorage.getItem(key);
   } catch {
     return null;
   }
+}
+
+export function listLocalStorageKeys(): string[] {
+  try {
+    const keys: string[] = [];
+
+    for (let index = 0; index < window.localStorage.length; index += 1) {
+      const key = window.localStorage.key(index);
+
+      if (key) {
+        keys.push(key);
+      }
+    }
+
+    return keys;
+  } catch {
+    return [];
+  }
+}
+
+export function removeLocalStorageKeys(keys: string[]): string[] {
+  const uniqueKeys = [...new Set(keys)];
+  const removedKeys: string[] = [];
+
+  for (const key of uniqueKeys) {
+    const existingValue = readLocalStorageRaw(key);
+
+    if (existingValue !== null && removeLocalStorageRaw(key)) {
+      removedKeys.push(key);
+    }
+  }
+
+  return removedKeys;
 }
 
 export function writeLocalStorageRaw(key: string, value: string): void {
@@ -121,6 +165,24 @@ export function readChromeStorageRaw(key: string): Promise<string | null> {
   });
 }
 
+export function listChromeStorageKeys(): Promise<string[]> {
+  const chromeStorageArea = getChromeStorageAPI()?.local;
+
+  if (!chromeStorageArea) {
+    return Promise.resolve([]);
+  }
+
+  return new Promise((resolve) => {
+    try {
+      chromeStorageArea.get(null, (items) => {
+        resolve(Object.keys(items));
+      });
+    } catch {
+      resolve([]);
+    }
+  });
+}
+
 export function writeChromeStorageRaw(
   key: string,
   value: string
@@ -142,6 +204,46 @@ export function writeChromeStorageRaw(
   });
 
   return trackPendingChromeWrite(writePromise);
+}
+
+export function removeChromeStorageKeys(keys: string[]): Promise<string[]> {
+  const chromeStorageArea = getChromeStorageAPI()?.local;
+  const uniqueKeys = [...new Set(keys)];
+
+  if (!(chromeStorageArea && uniqueKeys.length > 0)) {
+    return Promise.resolve([]);
+  }
+
+  const removePromise = new Promise<string[]>((resolve) => {
+    try {
+      chromeStorageArea.get(uniqueKeys, (items) => {
+        const existingKeys = uniqueKeys.filter((key) => {
+          return Object.hasOwn(items, key);
+        });
+
+        if (existingKeys.length === 0) {
+          resolve([]);
+          return;
+        }
+
+        try {
+          chromeStorageArea.remove(existingKeys, () => {
+            for (const removedKey of existingKeys) {
+              dispatchAppStorageUpdated(removedKey, null);
+            }
+
+            resolve(existingKeys);
+          });
+        } catch {
+          resolve([]);
+        }
+      });
+    } catch {
+      resolve([]);
+    }
+  });
+
+  return trackPendingChromeWrite(removePromise);
 }
 
 export async function waitForPendingStorageWrites(

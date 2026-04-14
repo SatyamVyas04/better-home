@@ -18,11 +18,22 @@ import { BackupWidget } from "@/features/backup/backup-widget";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useStorageMigration } from "@/hooks/use-storage-migration";
-import { flushAutosaveBackupNow } from "@/lib/backup-utils";
+import {
+  backupUnsyncedChangesToFileOnLeave,
+  flushAutosaveBackupNow,
+  queueAutosaveBackup,
+} from "@/lib/backup-utils";
 import {
   waitForPendingStorageWrites,
   writeAppStorageRaw,
 } from "@/lib/extension-storage";
+import {
+  beginNewTabSession,
+  finalizeSessionCheckpointOnLeave,
+  redoTrackedUserAction,
+  setSessionActionTrackingEnabled,
+  undoTrackedUserAction,
+} from "@/lib/session-history";
 import {
   DEFAULT_WIDGET_SETTINGS,
   type WidgetSettings,
@@ -90,6 +101,15 @@ function App() {
   const { status: migrationStatus, retryMigration } = useStorageMigration();
 
   useEffect(() => {
+    setSessionActionTrackingEnabled(true);
+    beginNewTabSession().catch(() => null);
+
+    return () => {
+      setSessionActionTrackingEnabled(false);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleThemeMessage = (
       message: ChromeMessage,
       _sender: unknown,
@@ -114,6 +134,8 @@ function App() {
     const flushPendingPersistence = () => {
       flushAutosaveBackupNow().catch(() => null);
       waitForPendingStorageWrites().catch(() => null);
+      finalizeSessionCheckpointOnLeave().catch(() => null);
+      backupUnsyncedChangesToFileOnLeave().catch(() => null);
     };
 
     window.addEventListener("pagehide", flushPendingPersistence);
@@ -122,6 +144,70 @@ function App() {
     return () => {
       window.removeEventListener("pagehide", flushPendingPersistence);
       window.removeEventListener("beforeunload", flushPendingPersistence);
+    };
+  }, []);
+
+  useEffect(() => {
+    const isEditableElement = (target: EventTarget | null): boolean => {
+      if (!(target instanceof HTMLElement)) {
+        return false;
+      }
+
+      if (target.isContentEditable) {
+        return true;
+      }
+
+      const tagName = target.tagName.toLowerCase();
+      return (
+        tagName === "input" || tagName === "textarea" || tagName === "select"
+      );
+    };
+
+    const handleGlobalUndoRedo = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || isEditableElement(event.target)) {
+        return;
+      }
+
+      const isPrimaryModifierPressed = event.ctrlKey || event.metaKey;
+      if (!isPrimaryModifierPressed) {
+        return;
+      }
+
+      const pressedKey = event.key.toLowerCase();
+      const isUndoShortcut = pressedKey === "z" && !event.shiftKey;
+      const isRedoShortcut =
+        (pressedKey === "z" && event.shiftKey) || pressedKey === "y";
+
+      if (!(isUndoShortcut || isRedoShortcut)) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (isUndoShortcut) {
+        undoTrackedUserAction()
+          .then((didUndo) => {
+            if (didUndo) {
+              queueAutosaveBackup();
+            }
+          })
+          .catch(() => null);
+        return;
+      }
+
+      redoTrackedUserAction()
+        .then((didRedo) => {
+          if (didRedo) {
+            queueAutosaveBackup();
+          }
+        })
+        .catch(() => null);
+    };
+
+    window.addEventListener("keydown", handleGlobalUndoRedo);
+
+    return () => {
+      window.removeEventListener("keydown", handleGlobalUndoRedo);
     };
   }, []);
 

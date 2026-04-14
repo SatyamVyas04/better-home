@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { runTrackedUserAction } from "@/lib/session-history";
 import type { CalendarData, DayEntry } from "@/types/calendar";
 
 export function useCalendarData() {
@@ -11,10 +12,12 @@ export function useCalendarData() {
 
   const handleSaveEntry = useCallback(
     (dateKey: string, entry: DayEntry) => {
-      setCalendarData((prev) => ({
-        ...prev,
-        [dateKey]: entry,
-      }));
+      runTrackedUserAction("update calendar entry", () => {
+        setCalendarData((prev) => ({
+          ...prev,
+          [dateKey]: entry,
+        }));
+      });
     },
     [setCalendarData]
   );

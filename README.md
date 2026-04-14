@@ -47,7 +47,8 @@ Tasks · Quick Links · Mood Calendar - everything you need, nothing you don't.*
 | **Mood Calendar** | Track how you feel every day of 2026 with a beautiful, color-coded calendar. Supports quadrimester and full-year views with smooth Motion animations, optional day-number toggle, and inline notes. |
 | **Responsive Layout** | Works seamlessly from ultrawide monitors to small laptops. |
 | **Customizable** | Enable or disable any widget via the extension popup - make it *your* home. |
-| **Backup & Restore** | Download your data as JSON to backup or transfer to another browser. Upload to restore your tasks, links, calendar entries, and settings. |
+| **Undo / Redo + Session Restore** | Local changes save instantly. Use `Ctrl+Z` / `Ctrl+Shift+Z` for in-session undo/redo, then restore a whole previous editing session from history after reopening a new tab. |
+| **Backup & Restore** | Keep manual JSON exports/restores, plus daily file backups and opportunistic file sync on page leave when changes were made. |
 
 ---
 

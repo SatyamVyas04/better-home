@@ -44,6 +44,7 @@ import { USER_STORAGE_KEYS } from "@/lib/storage-keys";
 let autosaveTimer: number | null = null;
 let autosaveInFlight: Promise<void> | null = null;
 let autosaveQueued = false;
+let hasUnsyncedFileChanges = false;
 const QUICK_LINKS_PREVIEWS_STORAGE_KEY = "better-home-quick-links-previews";
 
 const STORAGE_AREA_LABELS: Partial<
@@ -383,39 +384,8 @@ async function runAutosaveBackup(): Promise<void> {
   try {
     const backupPayload = await createBackup();
     await ensureAutosaveHistoryBackup(backupPayload);
-
-    const readiness = await readBackupReadiness();
-
-    if (!readiness.ready) {
-      updateBackupStatus("saved", "autosave", "saved locally");
-      return;
-    }
-
-    const fileWritten = await writeBackupToConfiguredFile(
-      backupPayload,
-      {
-        appendHistory: false,
-        historyReason: "autosave",
-        requestPermission: true,
-      },
-      updateBackupStatus
-    );
-
-    if (!fileWritten) {
-      updateBackupStatus("saved", "autosave", "saved locally");
-      return;
-    }
-
-    const dailyBackupWritten = await ensureDailyAutoBackup(backupPayload, {
-      skipReadinessCheck: true,
-    });
-
-    if (!dailyBackupWritten) {
-      updateBackupStatus("saved", "autosave", "saved locally");
-      return;
-    }
-
-    updateBackupStatus("saved", "autosave");
+    hasUnsyncedFileChanges = true;
+    updateBackupStatus("saved", "autosave", "saved locally");
   } catch (error) {
     updateBackupStatus(
       "error",
@@ -462,6 +432,42 @@ export async function flushAutosaveBackupNow(): Promise<void> {
   }
 
   await flushAutosaveBackup();
+}
+
+export async function backupUnsyncedChangesToFileOnLeave(): Promise<boolean> {
+  if (!hasUnsyncedFileChanges) {
+    return false;
+  }
+
+  const readiness = await readBackupReadiness();
+  if (!readiness.ready) {
+    return false;
+  }
+
+  updateBackupStatus("saving", "autosave");
+
+  try {
+    const backupPayload = await createBackup();
+    const fileWritten = await writeBackupToConfiguredFile(
+      backupPayload,
+      {
+        appendHistory: true,
+        historyReason: "autosave",
+        requestPermission: true,
+      },
+      updateBackupStatus
+    );
+
+    if (!fileWritten) {
+      return false;
+    }
+
+    hasUnsyncedFileChanges = false;
+    updateBackupStatus("saved", "autosave");
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function createRestoreCheckpoint(): Promise<void> {
@@ -695,6 +701,7 @@ export async function backupNow(): Promise<boolean> {
   });
 
   updateBackupStatus("saved", "manual");
+  hasUnsyncedFileChanges = false;
   return true;
 }
 
@@ -724,6 +731,7 @@ export async function saveBackupWithFilePicker(
 
   await appendBackupHistoryEntry(sanitizedBackup, "manual");
   updateBackupStatus("saved", "file-picker");
+  hasUnsyncedFileChanges = false;
   return true;
 }
 

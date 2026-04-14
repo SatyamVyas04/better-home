@@ -2,6 +2,7 @@ import type * as React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LinkPreviewCacheEntry } from "@/lib/link-preview";
 import { fetchLinkPreviewMetadata } from "@/lib/link-preview";
+import { runTrackedUserAction } from "@/lib/session-history";
 import { extractTitle, isValidUrl, normalizeUrl } from "@/lib/url-utils";
 import type { QuickLink, QuickLinkAddFlowStage } from "@/types/quick-links";
 
@@ -161,7 +162,9 @@ export function useQuickLinksAddFlow({
       favicon: getResolvedFavicon(normalizedUrl),
     };
 
-    setLinks((prev) => [...prev, link]);
+    runTrackedUserAction("add quick link", () => {
+      setLinks((prev) => [...prev, link]);
+    });
     ensureLinkPreview(normalizedUrl);
     resetAddFlow();
   }, [
