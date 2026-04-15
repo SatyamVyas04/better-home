@@ -31,26 +31,38 @@ export function useLocalStorage<T>(
     const localStorageValue = readLocalStorageRaw(key);
     return parseStoredValue(localStorageValue);
   });
+  const storedValueRef = useRef(storedValue);
+
+  const updateStoredValue = useCallback((nextValue: T) => {
+    storedValueRef.current = nextValue;
+    setStoredValue(nextValue);
+  }, []);
 
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
-      setStoredValue((prev) => {
-        const valueToStore = value instanceof Function ? value(prev) : value;
+      const previousValue = storedValueRef.current;
+      const valueToStore =
+        typeof value === "function"
+          ? (value as (prev: T) => T)(previousValue)
+          : value;
 
-        try {
-          const serializedValue = JSON.stringify(valueToStore);
-          writeAppStorageRaw(key, serializedValue).catch(() => null);
-          captureUserIntentMutation(key, prev, valueToStore);
-          queueAutosaveBackup();
-        } catch {
-          return valueToStore;
-        }
+      updateStoredValue(valueToStore);
 
-        return valueToStore;
-      });
+      try {
+        const serializedValue = JSON.stringify(valueToStore);
+        writeAppStorageRaw(key, serializedValue).catch(() => null);
+        captureUserIntentMutation(key, previousValue, valueToStore);
+        queueAutosaveBackup();
+      } catch {
+        return;
+      }
     },
-    [key]
+    [key, updateStoredValue]
   );
+
+  useEffect(() => {
+    storedValueRef.current = storedValue;
+  }, [storedValue]);
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -58,14 +70,14 @@ export function useLocalStorage<T>(
         return;
       }
 
-      setStoredValue(parseStoredValue(e.newValue));
+      updateStoredValue(parseStoredValue(e.newValue));
     };
 
     const syncWithChromeStorage = async () => {
       const chromeStorageValue = await readAppStorageRaw(key);
 
       if (chromeStorageValue) {
-        setStoredValue(parseStoredValue(chromeStorageValue));
+        updateStoredValue(parseStoredValue(chromeStorageValue));
         return;
       }
 
@@ -92,7 +104,7 @@ export function useLocalStorage<T>(
           typeof valueChange.newValue === "string"
             ? valueChange.newValue
             : null;
-        setStoredValue(parseStoredValue(nextRawValue));
+        updateStoredValue(parseStoredValue(nextRawValue));
       }
     );
 
@@ -102,7 +114,7 @@ export function useLocalStorage<T>(
           return;
         }
 
-        setStoredValue(parseStoredValue(rawValue));
+        updateStoredValue(parseStoredValue(rawValue));
       }
     );
 
@@ -113,7 +125,7 @@ export function useLocalStorage<T>(
       unsubscribeFromChromeStorage();
       unsubscribeFromAppStorage();
     };
-  }, [key, parseStoredValue]);
+  }, [key, parseStoredValue, updateStoredValue]);
 
   return [storedValue, setValue];
 }

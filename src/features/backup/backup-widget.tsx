@@ -2,7 +2,6 @@ import {
   IconDeviceFloppy,
   IconFolderOpen,
   IconInfoCircle,
-  IconTrash,
   IconUpload,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -50,10 +49,6 @@ import {
   type SessionRestoreUndoHint,
   undoLatestSessionRestore,
 } from "@/lib/session-history";
-import {
-  clearNonUsefulStorageData,
-  type StorageCleanupResult,
-} from "@/lib/storage-maintenance";
 import {
   BACKUP_VISIBLE_STATUS_MIN_SAVING_MS,
   type BackupTabKey,
@@ -160,17 +155,12 @@ function SessionArchiveItem({
 
 interface SetupTabContentProps {
   backupLocationStatus: BackupLocationStatus;
-  clearCacheButtonLabel: string;
-  clearCacheMessage: string;
-  handleClearCache: () => void;
   handleBackupNow: () => void;
   handleRestoreFileClick: () => void;
   handleSelectBackupLocation: () => void;
   handleUploadBackup: (event: React.ChangeEvent<HTMLInputElement>) => void;
   isBackingUp: boolean;
   isBackupLocationReady: boolean;
-  isClearCacheArmed: boolean;
-  isClearingCache: boolean;
   isSelectingBackupLocation: boolean;
   lastSuccessfulWriteAge: string;
   restoreFileInputRef: React.RefObject<HTMLInputElement | null>;
@@ -178,17 +168,12 @@ interface SetupTabContentProps {
 
 function SetupTabContent({
   backupLocationStatus,
-  clearCacheButtonLabel,
-  clearCacheMessage,
-  handleClearCache,
   handleBackupNow,
   handleRestoreFileClick,
   handleSelectBackupLocation,
   handleUploadBackup,
   isBackingUp,
   isBackupLocationReady,
-  isClearCacheArmed,
-  isClearingCache,
   isSelectingBackupLocation,
   lastSuccessfulWriteAge,
   restoreFileInputRef,
@@ -262,49 +247,6 @@ function SetupTabContent({
           ref={restoreFileInputRef}
           type="file"
         />
-
-        <Card
-          className="gap-2 border border-border/60 bg-muted/20 py-3 shadow-sm"
-          size="sm"
-        >
-          <CardHeader className="px-3">
-            <div className="flex items-center justify-between gap-2">
-              <CardTitle className="font-medium text-[11px]">
-                storage maintenance
-              </CardTitle>
-              <Button
-                className="h-6 shrink-0 px-2 text-[10px]"
-                disabled={isClearingCache}
-                onClick={handleClearCache}
-                size="xs"
-                type="button"
-                variant={isClearCacheArmed ? "destructive" : "outline"}
-              >
-                <IconTrash className="size-3" />
-                {clearCacheButtonLabel}
-              </Button>
-            </div>
-            <CardDescription className="text-[10px]">
-              clean stale cache from older versions
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2 px-3">
-            <p className="text-[10px] text-muted-foreground leading-snug">
-              removes preview and legacy cache keys only, while keeping todos,
-              links, calendar, theme, backups, and session history safe.
-            </p>
-            {isClearCacheArmed && !isClearingCache ? (
-              <p className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[10px] text-amber-700 leading-snug dark:text-amber-300">
-                Click again within 4s to confirm cache cleanup.
-              </p>
-            ) : null}
-            {clearCacheMessage ? (
-              <p className="rounded border border-border/60 bg-background/70 px-2 py-1 text-[10px] text-foreground leading-snug">
-                {clearCacheMessage}
-              </p>
-            ) : null}
-          </CardContent>
-        </Card>
       </div>
     </TabsContent>
   );
@@ -492,74 +434,6 @@ function HistoryTabContent({
   );
 }
 
-interface HandleClearCacheOptions {
-  isClearingCache: boolean;
-  isClearCacheArmed: boolean;
-  armClearCache: () => void;
-  disarmClearCache: () => void;
-  refreshBackupSurface: () => void;
-  setIsClearingCache: (value: boolean) => void;
-  setClearCacheMessage: (value: string) => void;
-}
-
-function getClearCacheMessage(result: StorageCleanupResult): string {
-  if (result.removedKeyCount === 0) {
-    return "No stale cache or legacy keys were found. Your useful data is unchanged.";
-  }
-
-  return `Cleared ${result.removedCacheKeys.length} cache key${result.removedCacheKeys.length === 1 ? "" : "s"} and ${result.removedLegacyKeys.length} legacy key${result.removedLegacyKeys.length === 1 ? "" : "s"}.`;
-}
-
-function getClearCacheButtonLabel(
-  isClearingCache: boolean,
-  isClearCacheArmed: boolean
-): string {
-  if (isClearingCache) {
-    return "clearing...";
-  }
-
-  if (isClearCacheArmed) {
-    return "confirm clear";
-  }
-
-  return "clear cache";
-}
-
-async function executeClearCache({
-  isClearingCache,
-  isClearCacheArmed,
-  armClearCache,
-  disarmClearCache,
-  refreshBackupSurface,
-  setIsClearingCache,
-  setClearCacheMessage,
-}: HandleClearCacheOptions): Promise<void> {
-  if (isClearingCache) {
-    return;
-  }
-
-  if (!isClearCacheArmed) {
-    armClearCache();
-    setClearCacheMessage("");
-    return;
-  }
-
-  setIsClearingCache(true);
-  disarmClearCache();
-
-  try {
-    const result = await clearNonUsefulStorageData();
-    setClearCacheMessage(getClearCacheMessage(result));
-    await refreshBackupSurface();
-  } catch {
-    setClearCacheMessage(
-      "Cache cleanup failed unexpectedly. No backup/session keys were targeted."
-    );
-  } finally {
-    setIsClearingCache(false);
-  }
-}
-
 export function BackupWidget() {
   const [backupStatus] = useLocalStorage<BackupStatus>(
     "better-home-backup-status",
@@ -581,11 +455,7 @@ export function BackupWidget() {
   const [isSelectingBackupLocation, setIsSelectingBackupLocation] =
     useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
-  const [isClearCacheArmed, setIsClearCacheArmed] = useState(false);
-  const [isClearingCache, setIsClearingCache] = useState(false);
-  const [clearCacheMessage, setClearCacheMessage] = useState("");
   const [isArchiveExpanded, setIsArchiveExpanded] = useState(false);
-  const clearCacheArmTimeoutRef = useRef<number | null>(null);
   const restoreFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const visibleBackupStatus = useVisibleBackupStatus(
@@ -646,34 +516,8 @@ export function BackupWidget() {
     return () => {
       window.removeEventListener("focus", handleWindowFocus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-
-      if (clearCacheArmTimeoutRef.current !== null) {
-        window.clearTimeout(clearCacheArmTimeoutRef.current);
-      }
     };
   }, [refreshBackupSurface]);
-
-  const disarmClearCache = () => {
-    if (clearCacheArmTimeoutRef.current !== null) {
-      window.clearTimeout(clearCacheArmTimeoutRef.current);
-      clearCacheArmTimeoutRef.current = null;
-    }
-
-    setIsClearCacheArmed(false);
-  };
-
-  const armClearCache = () => {
-    setIsClearCacheArmed(true);
-
-    if (clearCacheArmTimeoutRef.current !== null) {
-      window.clearTimeout(clearCacheArmTimeoutRef.current);
-    }
-
-    clearCacheArmTimeoutRef.current = window.setTimeout(() => {
-      setIsClearCacheArmed(false);
-      clearCacheArmTimeoutRef.current = null;
-    }, 4000);
-  };
 
   const handleSelectBackupLocation = async () => {
     setIsSelectingBackupLocation(true);
@@ -751,18 +595,6 @@ export function BackupWidget() {
     }
   };
 
-  const handleClearCache = async () => {
-    await executeClearCache({
-      isClearingCache,
-      isClearCacheArmed,
-      armClearCache,
-      disarmClearCache,
-      refreshBackupSurface,
-      setIsClearingCache,
-      setClearCacheMessage,
-    });
-  };
-
   const isBackupLocationReady =
     backupLocationStatus.configured &&
     !backupLocationStatus.needsReauthorization;
@@ -795,10 +627,6 @@ export function BackupWidget() {
     VISIBLE_SESSION_ARCHIVE_COUNT
   );
   const hasHiddenSessionCheckpoints = hiddenSessionCheckpoints.length > 0;
-  const clearCacheButtonLabel = getClearCacheButtonLabel(
-    isClearingCache,
-    isClearCacheArmed
-  );
 
   return (
     <Popover>
@@ -846,13 +674,8 @@ export function BackupWidget() {
 
           <SetupTabContent
             backupLocationStatus={backupLocationStatus}
-            clearCacheButtonLabel={clearCacheButtonLabel}
-            clearCacheMessage={clearCacheMessage}
             handleBackupNow={() => {
               handleBackupNow().catch(() => null);
-            }}
-            handleClearCache={() => {
-              handleClearCache().catch(() => null);
             }}
             handleRestoreFileClick={handleRestoreFileClick}
             handleSelectBackupLocation={() => {
@@ -861,8 +684,6 @@ export function BackupWidget() {
             handleUploadBackup={handleUploadBackup}
             isBackingUp={isBackingUp}
             isBackupLocationReady={isBackupLocationReady}
-            isClearCacheArmed={isClearCacheArmed}
-            isClearingCache={isClearingCache}
             isSelectingBackupLocation={isSelectingBackupLocation}
             lastSuccessfulWriteAge={lastSuccessfulWriteAge}
             restoreFileInputRef={restoreFileInputRef}
