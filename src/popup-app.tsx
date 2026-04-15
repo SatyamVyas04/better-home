@@ -197,7 +197,7 @@ function PopupApp() {
               <IconBrandGithub className="size-4" />
             </a>
             <a
-              aria-label="X (Twitter)"
+              aria-label="X"
               className="text-muted-foreground transition-colors hover:text-foreground"
               href="https://x.com/SatyamVyas04"
               rel="noopener noreferrer"

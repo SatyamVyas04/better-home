@@ -96,11 +96,11 @@ const getPlatformFallbackTitle = (
   if (platform === "x") {
     const statusDetails = getXStatusDetails(targetUrl);
     if (statusDetails) {
-      return `@${statusDetails.username} on x`;
+      return `@${statusDetails.username} on X`;
     }
 
     const handle = getXProfileHandle(targetUrl);
-    return handle ? `@${handle} on x` : "x.com";
+    return handle ? `@${handle} on X` : "X";
   }
 
   if (platform === "github") {
@@ -142,7 +142,7 @@ const getPlatformFallbackDescription = (
   if (platform === "x") {
     const statusDetails = getXStatusDetails(targetUrl);
     if (statusDetails) {
-      return `tweet by @${statusDetails.username}`;
+      return `post by @${statusDetails.username}`;
     }
   }
 
@@ -214,7 +214,7 @@ export const isLikelyHtmlContentType = (contentType: string): boolean => {
   );
 };
 
-export const getTweetTextFromEmbedHtml = (html: string): string => {
+export const getXPostTextFromEmbedHtml = (html: string): string => {
   if (!html) {
     return "";
   }

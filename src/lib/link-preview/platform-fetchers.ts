@@ -1,4 +1,4 @@
-import { buildCacheEntry, getTweetTextFromEmbedHtml } from "./builders";
+import { buildCacheEntry, getXPostTextFromEmbedHtml } from "./builders";
 import { getDefaultIconUrl } from "./icon-metadata";
 import {
   type GitHubResourceDetails,
@@ -82,21 +82,35 @@ export const fetchXPreview = async (
     return null;
   }
 
-  const canonicalStatusUrl = `https://twitter.com/${statusDetails.username}/status/${statusDetails.statusId}`;
-  const oEmbedUrl = `https://publish.twitter.com/oembed?url=${encodeURIComponent(canonicalStatusUrl)}&omit_script=true`;
+  const canonicalStatusUrl = `https://x.com/${statusDetails.username}/status/${statusDetails.statusId}`;
+  const oEmbedEndpoints = [
+    "https://publish.x.com/oembed",
+    "https://publish.twitter.com/oembed",
+  ];
+  const query = `url=${encodeURIComponent(canonicalStatusUrl)}&omit_script=true`;
 
   try {
-    const response = await fetch(oEmbedUrl, {
-      credentials: "omit",
-      signal,
-    });
+    let payload: XOEmbedResponse | null = null;
 
-    if (!response.ok) {
+    for (const endpoint of oEmbedEndpoints) {
+      const response = await fetch(`${endpoint}?${query}`, {
+        credentials: "omit",
+        signal,
+      });
+
+      if (!response.ok) {
+        continue;
+      }
+
+      payload = (await response.json()) as XOEmbedResponse;
+      break;
+    }
+
+    if (!payload) {
       return null;
     }
 
-    const payload = (await response.json()) as XOEmbedResponse;
-    const description = getTweetTextFromEmbedHtml(
+    const description = getXPostTextFromEmbedHtml(
       getNonEmptyString(payload.html)
     );
 
@@ -108,9 +122,9 @@ export const fetchXPreview = async (
       platform: "x",
       previousEntry,
       quality: description ? "success" : "degraded",
-      siteName: "x.com",
+      siteName: "X",
       source: "x-oembed",
-      title: `@${statusDetails.username} on x`,
+      title: `@${statusDetails.username} on X`,
     });
   } catch {
     return null;
