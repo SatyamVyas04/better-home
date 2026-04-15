@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.4](https://github.com/SatyamVyas04/better-home/compare/v1.7.3...v1.7.4) (2026-04-15)
+
+### Bug Fixes
+
+* add fallback image URL for X platform and improve YouTube description fetching ([98074d6](https://github.com/SatyamVyas04/better-home/commit/98074d64441ba5910a42371fc3b17756b7492af6))
+* update references to Twitter as X and adjust related functionality ([9eb382d](https://github.com/SatyamVyas04/better-home/commit/9eb382d0f2fe2f5b0156a84db8387d0656763af0))
+
 ## [1.7.3](https://github.com/SatyamVyas04/better-home/compare/v1.7.2...v1.7.3) (2026-04-15)
 
 ### Bug Fixes
