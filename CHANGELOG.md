@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.7.1](https://github.com/SatyamVyas04/better-home/compare/v1.7.0...v1.7.1) (2026-04-15)
+
+### Bug Fixes
+
+* update host_permissions to optional_host_permissions in manifest.json ([7508f3a](https://github.com/SatyamVyas04/better-home/commit/7508f3afdc407251089f445acd707d877f305991))
+
 ## [1.7.0](https://github.com/SatyamVyas04/better-home/compare/v1.6.0...v1.7.0) (2026-04-14)
 
 ### Features
