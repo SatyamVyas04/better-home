@@ -2,6 +2,7 @@ import {
   PREVIEW_DEGRADED_RETRY_BASE_MS,
   PREVIEW_DEGRADED_RETRY_MAX_MS,
   PREVIEW_SUCCESS_TTL_MS,
+  X_PREVIEW_FALLBACK_IMAGE_URL,
 } from "./constants";
 import { getDefaultIconUrl } from "./icon-metadata";
 import {
@@ -168,8 +169,12 @@ export const buildDegradedEntry = (
   source: LinkPreviewSource = "platform-fallback"
 ): LinkPreviewCacheEntry => {
   const fallbackSiteName = getHostLabel(targetUrl);
-  const fallbackImageUrl =
-    platform === "youtube" ? getYouTubeThumbnailUrl(targetUrl) : "";
+  let fallbackImageUrl = "";
+  if (platform === "youtube") {
+    fallbackImageUrl = getYouTubeThumbnailUrl(targetUrl);
+  } else if (platform === "x") {
+    fallbackImageUrl = X_PREVIEW_FALLBACK_IMAGE_URL;
+  }
   const fallbackDescription = getPlatformFallbackDescription(
     targetUrl,
     platform

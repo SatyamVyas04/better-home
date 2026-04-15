@@ -1,4 +1,5 @@
 import { buildCacheEntry, getXPostTextFromEmbedHtml } from "./builders";
+import { X_PREVIEW_FALLBACK_IMAGE_URL } from "./constants";
 import { getDefaultIconUrl } from "./icon-metadata";
 import {
   type GitHubResourceDetails,
@@ -17,6 +18,46 @@ interface YouTubeOEmbedResponse {
   title?: string;
 }
 
+const YOUTUBE_SHORT_DESCRIPTION_REGEX =
+  /"shortDescription":"((?:\\.|[^"\\])*)"/;
+
+const extractYouTubeShortDescription = (html: string): string => {
+  const match = YOUTUBE_SHORT_DESCRIPTION_REGEX.exec(html);
+  const encodedDescription = getNonEmptyString(match?.[1]);
+  if (!encodedDescription) {
+    return "";
+  }
+
+  try {
+    return getNonEmptyString(
+      JSON.parse(`"${encodedDescription}"`) as string
+    ).replace(/\s+/g, " ");
+  } catch {
+    return "";
+  }
+};
+
+const fetchYouTubeVideoDescription = async (
+  canonicalWatchUrl: string,
+  signal: AbortSignal
+): Promise<string> => {
+  try {
+    const response = await fetch(canonicalWatchUrl, {
+      credentials: "omit",
+      signal,
+    });
+
+    if (!response.ok) {
+      return "";
+    }
+
+    const html = await response.text();
+    return extractYouTubeShortDescription(html);
+  } catch {
+    return "";
+  }
+};
+
 export const fetchYouTubePreview = async (
   targetUrl: string,
   signal: AbortSignal,
@@ -28,7 +69,8 @@ export const fetchYouTubePreview = async (
     return null;
   }
 
-  const oEmbedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(getCanonicalYouTubeWatchUrl(videoId))}&format=json`;
+  const canonicalWatchUrl = getCanonicalYouTubeWatchUrl(videoId);
+  const oEmbedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(canonicalWatchUrl)}&format=json`;
 
   try {
     const response = await fetch(oEmbedUrl, {
@@ -42,9 +84,16 @@ export const fetchYouTubePreview = async (
 
     const payload = (await response.json()) as YouTubeOEmbedResponse;
     const title = getNonEmptyString(payload.title);
-    const description = getNonEmptyString(payload.author_name)
-      ? `by ${getNonEmptyString(payload.author_name)}`
-      : "";
+    const author = getNonEmptyString(payload.author_name);
+    const videoDescription = await fetchYouTubeVideoDescription(
+      canonicalWatchUrl,
+      signal
+    );
+    const descriptionParts = [
+      author ? `by ${author}` : "",
+      clipText(videoDescription, 360),
+    ].filter(Boolean);
+    const description = descriptionParts.join(" • ");
     const imageUrl =
       resolveUrl(getNonEmptyString(payload.thumbnail_url), targetUrl) ||
       getYouTubeThumbnailUrlById(videoId);
@@ -117,7 +166,7 @@ export const fetchXPreview = async (
     return buildCacheEntry({
       description,
       iconUrl: getDefaultIconUrl(targetUrl),
-      imageUrl: "",
+      imageUrl: X_PREVIEW_FALLBACK_IMAGE_URL,
       now,
       platform: "x",
       previousEntry,

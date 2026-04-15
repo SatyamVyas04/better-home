@@ -15,6 +15,8 @@ export const URL_FRAGMENT_SPLIT_REGEX = /[?&#/]/;
 export const X_STATUS_PATH_REGEX = /^\/([^/]+)\/status\/(\d+)/i;
 export const GITHUB_NUMBER_REGEX = /^\d+$/;
 export const GIT_SUFFIX_REGEX = /\.git$/i;
+export const X_PREVIEW_FALLBACK_IMAGE_URL =
+  "https://abs.twimg.com/rweb/ssr/default/v2/og/image.png";
 
 export const ICON_SIZE_REGEX = /^(\d+)x(\d+)$/i;
 export const WHITESPACE_REGEX = /\s+/;
