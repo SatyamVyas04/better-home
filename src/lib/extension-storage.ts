@@ -36,7 +36,7 @@ declare const chrome: {
   storage?: ChromeStorageAPI;
 };
 
-export const APP_VERSION = "1.7.1";
+export const APP_VERSION = "1.7.2";
 
 export interface StorageMigrationState {
   completed: boolean;
