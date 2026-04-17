@@ -1,11 +1,11 @@
 import {
   IconAlertCircle,
-  IconBrandGithub,
-  IconBrandX,
+  IconClockExclamation,
   IconHeart,
   IconRefresh,
 } from "@tabler/icons-react";
 import { useEffect } from "react";
+import { FooterQuote, QuotesProvider } from "@/components/quotes/quotes-widget";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -36,8 +36,10 @@ import {
 } from "@/lib/session-history";
 import {
   DEFAULT_WIDGET_SETTINGS,
+  normalizeWidgetSettings,
   type WidgetSettings,
 } from "@/types/widget-settings";
+import { Separator } from "./components/ui/separator";
 
 interface ChromeMessage {
   type: string;
@@ -94,10 +96,11 @@ function getLayoutKey(settings: WidgetSettings): LayoutKey {
 }
 
 function App() {
-  const [settings] = useLocalStorage<WidgetSettings>(
+  const [storedSettings] = useLocalStorage<WidgetSettings>(
     "better-home-widget-settings",
     DEFAULT_WIDGET_SETTINGS
   );
+  const settings = normalizeWidgetSettings(storedSettings);
   const { status: migrationStatus, retryMigration } = useStorageMigration();
 
   useEffect(() => {
@@ -304,114 +307,75 @@ function App() {
           {layouts[layoutKey]}
         </main>
 
-        <footer className="border-border border-t bg-card py-1">
-          <TooltipProvider delayDuration={200}>
-            <div className="flex w-full items-center overflow-hidden px-3 text-muted-foreground text-xs">
-              <div className="flex shrink-0 items-center gap-2 pr-3">
-                <a
-                  className="flex shrink-0 items-center gap-2 transition-colors hover:text-foreground"
-                  href="https://github.com/SatyamVyas04/better-home"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  <img
-                    alt="better-home logo"
-                    className="size-4 shrink-0"
-                    height={16}
-                    src="/better-home-logo-48.png"
-                    width={16}
-                  />
-                  <span className="font-medium text-foreground">
-                    better-home
+        <footer className="border-border/70 border-t bg-card/80 px-1 py-1 backdrop-blur supports-backdrop-filter:bg-card/65">
+          <TooltipProvider delayDuration={180}>
+            <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+              <a
+                className="group flex shrink-0 items-center gap-1 rounded-md bg-accent px-1 py-1 text-foreground transition-colors"
+                href="https://github.com/SatyamVyas04/better-home"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <img
+                  alt="better-home logo"
+                  className="size-3.5 shrink-0"
+                  height={14}
+                  src="/better-home-logo-48.png"
+                  width={14}
+                />
+                <span className="font-medium text-[10px] text-foreground tracking-tight">
+                  better-home
+                </span>
+              </a>
+
+              {settings.showQuotes && (
+                <div className="hidden min-w-0 flex-1 items-center gap-1 md:flex">
+                  <Separator className="w-px" orientation="vertical" />
+                  <QuotesProvider>
+                    <FooterQuote />
+                  </QuotesProvider>
+                </div>
+              )}
+
+              <div className="ml-auto max-w-64 flex-1">
+                <div className="flex items-center gap-1 overflow-hidden rounded-md border border-border/60 bg-muted/35">
+                  <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1 font-medium text-[9px] text-primary uppercase tracking-wide">
+                    <IconClockExclamation className="size-3" />
                   </span>
-                </a>
+                  <p className="truncate text-[10px] text-muted-foreground">
+                    milestones & reminders, coming soon!
+                  </p>
+                </div>
               </div>
 
-              <span className="h-4 w-px shrink-0 bg-border/70" />
-
-              <div className="min-w-0 flex-1 px-3">
-                <p className="truncate text-[11px] text-muted-foreground">
-                  quotes, coming soon
-                </p>
-              </div>
-
-              <div className="shrink-0 px-1">
+              <div className="shrink-0">
                 <BackupWidget />
               </div>
 
-              <span className="h-4 w-px shrink-0 bg-border/70" />
+              <Separator className="w-px" orientation="vertical" />
 
-              <div className="ml-1 flex shrink-0 items-center gap-px">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      asChild
-                      size="icon-sm"
-                      type="button"
-                      variant="ghost"
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    asChild
+                    className="text-pink-500 transition-colors hover:bg-pink-500! hover:text-white"
+                    size="icon-sm"
+                    variant="ghost"
+                  >
+                    <a
+                      aria-label="support"
+                      href="https://github.com/sponsors/SatyamVyas04"
+                      rel="noopener noreferrer"
+                      target="_blank"
                     >
-                      <a
-                        aria-label="source"
-                        href="https://github.com/SatyamVyas04/better-home"
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        <IconBrandGithub className="size-3.5" />
-                      </a>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="text-[10px]">source</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      asChild
-                      size="icon-sm"
-                      type="button"
-                      variant="ghost"
-                    >
-                      <a
-                        aria-label="x"
-                        href="https://x.com/SatyamVyas04"
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        <IconBrandX className="size-3.5" />
-                      </a>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="text-[10px]">x</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      asChild
-                      className="text-pink-500 transition-colors hover:text-pink-400"
-                      size="icon-sm"
-                      type="button"
-                      variant="ghost"
-                    >
-                      <a
-                        aria-label="support"
-                        href="https://github.com/sponsors/SatyamVyas04"
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        <IconHeart className="size-3.5" />
-                      </a>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p className="text-[10px]">support us</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
+                      <IconHeart className="size-3.5" />
+                    </a>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p className="text-[10px]">support us</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </TooltipProvider>
         </footer>

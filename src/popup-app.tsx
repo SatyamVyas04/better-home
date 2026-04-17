@@ -1,5 +1,6 @@
 import {
   IconAlertCircle,
+  IconBlockquote,
   IconBrandGithub,
   IconBrandLinkedin,
   IconBrandX,
@@ -24,14 +25,16 @@ import {
 } from "@/lib/extension-storage";
 import {
   DEFAULT_WIDGET_SETTINGS,
+  normalizeWidgetSettings,
   type WidgetSettings,
 } from "@/types/widget-settings";
 
 function PopupApp() {
-  const [settings, setSettings] = useLocalStorage<WidgetSettings>(
+  const [storedSettings, setSettings] = useLocalStorage<WidgetSettings>(
     "better-home-widget-settings",
     DEFAULT_WIDGET_SETTINGS
   );
+  const settings = normalizeWidgetSettings(storedSettings);
   const { status: migrationStatus, retryMigration } = useStorageMigration();
 
   useEffect(() => {
@@ -50,10 +53,14 @@ function PopupApp() {
   }, []);
 
   const toggleSetting = (key: keyof WidgetSettings) => {
-    setSettings((previousSettings) => ({
-      ...previousSettings,
-      [key]: !previousSettings[key],
-    }));
+    setSettings((previousSettings) => {
+      const normalizedSettings = normalizeWidgetSettings(previousSettings);
+
+      return {
+        ...normalizedSettings,
+        [key]: !normalizedSettings[key],
+      };
+    });
   };
 
   return (
@@ -143,6 +150,26 @@ function PopupApp() {
                 </div>
               );
             })}
+
+            <div className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-accent/30">
+              <div className="flex items-center gap-2">
+                <IconBlockquote className="size-3.5 text-muted-foreground" />
+                <Label
+                  className="cursor-pointer text-xs"
+                  htmlFor="widget-quotes"
+                >
+                  quotes
+                </Label>
+              </div>
+              <Switch
+                checked={settings.showQuotes}
+                className="scale-90"
+                id="widget-quotes"
+                onCheckedChange={() => {
+                  toggleSetting("showQuotes");
+                }}
+              />
+            </div>
           </div>
         </div>
 
