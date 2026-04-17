@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.8.0](https://github.com/SatyamVyas04/better-home/compare/v1.7.4...v1.8.0) (2026-04-17)
+
+### Features
+
+* **quotes:** add rotating neon quotes widget ([ccc9c4d](https://github.com/SatyamVyas04/better-home/commit/ccc9c4dfa22a83acdb887d01c5f95f7d210c5ca7))
+
+### Bug Fixes
+
+* **storage:** remove missing keys on restore ([c555fc5](https://github.com/SatyamVyas04/better-home/commit/c555fc50c31c49c75cf3d80aa92a6cb5928b28a2))
+* **vite:** initialize theme before app mount ([c1d803b](https://github.com/SatyamVyas04/better-home/commit/c1d803b85eb298b2538e6dcdc3457ae17e9036c7))
+
 ## [1.7.4](https://github.com/SatyamVyas04/better-home/compare/v1.7.3...v1.7.4) (2026-04-15)
 
 ### Bug Fixes
