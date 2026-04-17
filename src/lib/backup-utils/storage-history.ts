@@ -1,4 +1,9 @@
-import { readAppStorageRaw, writeAppStorageRaw } from "@/lib/extension-storage";
+import {
+  readAppStorageRaw,
+  removeAppStorageKeys,
+  writeAppStorageRaw,
+} from "@/lib/extension-storage";
+import { USER_STORAGE_KEYS } from "@/lib/storage-keys";
 import {
   AUTO_BACKUP_META_KEY,
   AUTO_BACKUPS_KEY,
@@ -165,8 +170,13 @@ export async function applyBackupPayload(
   source: BackupSource,
   updateBackupStatus: UpdateBackupStatusFn
 ): Promise<void> {
-  for (const key of Object.keys(backup)) {
+  for (const key of USER_STORAGE_KEYS) {
     const value = backup[key];
+
+    if (value === undefined) {
+      await removeAppStorageKeys([key]);
+      continue;
+    }
 
     if (typeof value === "string" && key === "vite-ui-theme") {
       await writeAppStorageRaw(key, value);

@@ -483,3 +483,14 @@ export async function writeAppStorageRaw(
   writeLocalStorageRaw(key, value);
   await writeChromeStorageRaw(key, value).catch(() => null);
 }
+
+export async function removeAppStorageKeys(keys: string[]): Promise<void> {
+  const uniqueKeys = [...new Set(keys)];
+
+  if (uniqueKeys.length === 0) {
+    return;
+  }
+
+  removeLocalStorageKeys(uniqueKeys);
+  await removeChromeStorageKeys(uniqueKeys).catch(() => null);
+}

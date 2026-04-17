@@ -1,4 +1,8 @@
-import { readAppStorageRaw, writeAppStorageRaw } from "@/lib/extension-storage";
+import {
+  readAppStorageRaw,
+  removeAppStorageKeys,
+  writeAppStorageRaw,
+} from "@/lib/extension-storage";
 import {
   SESSION_ACTION_JOURNAL_KEY,
   SESSION_CHECKPOINTS_KEY,
@@ -226,6 +230,7 @@ async function applyUserIntentSnapshot(
       const serializedValue = serializeStorageValue(key, value);
 
       if (serializedValue === null) {
+        await removeAppStorageKeys([key]);
         continue;
       }
 
