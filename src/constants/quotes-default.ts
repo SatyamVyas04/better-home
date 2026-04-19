@@ -1,874 +1,507 @@
 import type { QuoteEntry } from "@/types/quotes";
 
 export const quotesDefault: QuoteEntry[] = [
+  // ─── David Goggins ───────────────────────────────────────────────
   {
-    attribution: "Buddha",
-    highlightKeywords: ["mind"],
-    text: "“Quiet the mind and the soul will speak.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["comfortable", "potential"],
+    text: "You are in danger of living a life so comfortable and soft, that you will die without ever realizing your true potential.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["imagine", "become"],
-    text: "“What you think, you become. What you feel, you attract. What you imagine, you create.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["calluses", "brain"],
+    text: "You have to build calluses on your brain just like how you build calluses on your hands.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["happiness", "appreciate"],
-    text: "“Happiness will never come to those who fail to appreciate what they already have.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["accountable", "victim"],
+    text: "Stop making excuses. Stop being a victim. Take personal responsibility. Hold yourself accountable.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["soul", "body"],
-    text: "“You don’t have a Soul. You are a soul. You have a body.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["40%", "done"],
+    text: "When your mind is telling you you're done, you're really only 40% done.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["give", "everything"],
-    text: "“If you want to fly, give up everything that weighs you down.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["uncomfortable", "Master"],
+    text: "The only way to grow is to learn to be comfortable with being uncomfortable. Master your mind.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["happiness", "satisfaction", "suffering"],
-    text: "“All suffering is caused by ignorance. People inflict pain on others in the selfish pursuit of their own happiness or satisfaction.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["tired", "done"],
+    text: "I don't stop when I'm tired. I stop when I'm done.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["kind", "necessary"],
-    text: "“Before you speak, let your words pass through three gates: Is it true? Is it necessary? Is it kind?”",
+    attribution: "David Goggins",
+    highlightKeywords: ["Suffering", "test"],
+    text: "Suffering is the true test of life.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["inevitable"],
-    text: "“Pain is inevitable. Suffering is optional.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["hard", "easy"],
+    text: "If you choose the hard road, it becomes easier. If you choose the easy road, it becomes harder.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["truth", "mistakes", "starting"],
-    text: "“There are only two mistakes one can make along the road to truth; not going all the way, and not starting.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["accountability", "mirror"],
+    text: "The accountability mirror doesn't lie. Face yourself every single day.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["impurity", "depends"],
-    text: "“Purity or impurity depends on oneself, no one can purify another.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["conversation", "yourself"],
+    text: "The most important conversation you'll ever have is the one you have with yourself.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["morning", "matters"],
-    text: "“Every morning we are born again. What we do today is what matters most.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["Average", "average"],
+    text: "Average scares me. I never want to be average.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["gracefully", "matters", "gently"],
-    text: "“In the end, only three things matters: how much you loved, how gently you lived, and how gracefully you let go of things not meant for you.”",
+    attribution: "David Goggins",
+    highlightKeywords: ["war", "yourself"],
+    text: "The war is with yourself. And the goal is to win every single day.",
   },
+
+  // ─── Harvey Specter (Suits) ───────────────────────────────────────
   {
-    attribution: "Buddha",
-    highlightKeywords: ["time", "happen"],
-    text: "“Don’t rush anything. When the time is right it’ll happen.”",
+    attribution: "Harvey Specter",
+    highlightKeywords: ["dreams", "goals"],
+    text: "I don't have dreams, I have goals.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["forgive", "everything"],
-    text: "“To understand everything is to forgive everything.”",
+    attribution: "Harvey Specter",
+    highlightKeywords: ["win", "rules"],
+    text: "Win a no-win situation by rewriting the rules.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["life", "observe"],
-    text: "“When it hurts, observe. Life is trying to teach you something.”",
+    attribution: "Harvey Specter",
+    highlightKeywords: ["bragging", "true"],
+    text: "It's not bragging if it's true.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["change", "painful"],
-    text: "“Change is never painful. Only resistance to change is painful.”",
+    attribution: "Harvey Specter",
+    highlightKeywords: ["statue", "pigeon"],
+    text: "Life is this: sometimes you're the statue, sometimes you're the pigeon. Know which one you are at all times.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["life", "change"],
-    text: "“One moment can change a day, one day can change a life, and one life can change the world.”",
+    attribution: "Harvey Specter",
+    highlightKeywords: ["job", "me"],
+    text: "Anyone can do my job. But no one can be me.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["attachment"],
-    text: "“The root of all suffering is attachment.”",
+    attribution: "Harvey Specter",
+    highlightKeywords: ["lucky", "luck"],
+    text: "I don't get lucky. I make my own luck.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["time"],
-    text: "“The trouble is, you think you have time.”",
+    attribution: "Harvey Specter",
+    highlightKeywords: ["choice", "always"],
+    text: "You always have a choice.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["mind", "life", "change"],
-    text: "“Your mind is a powerful thing. When you start to filter it with positive thoughts your life will start to change.”",
+    attribution: "Harvey Specter",
+    highlightKeywords: ["Fake", "make"],
+    text: "Fake it till you make it? No. Be it till you see it.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["loved", "hurt"],
-    text: "“If you truly loved yourself, you could never hurt another.”",
+    attribution: "Harvey Specter",
+    highlightKeywords: ["best", "better"],
+    text: "I'm not about being the best. I'm about being better than you.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["life", "otherwise"],
-    text: "“Be where you are; otherwise you will miss your life.”",
+    attribution: "Harvey Specter",
+    highlightKeywords: ["lose", "win"],
+    text: "That's the difference between you and me. You wanna lose small. I wanna win big.",
   },
+
+  // ─── Steve Jobs ───────────────────────────────────────────────────
   {
-    attribution: "Buddha",
-    highlightKeywords: ["thought", "result"],
-    text: "“All that we are is the result of what we have thought.”",
+    attribution: "Steve Jobs",
+    highlightKeywords: ["great", "love"],
+    text: "The only way to do great work is to love what you do.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["truth", "hidden"],
-    text: "“Three things cannot be long hidden: the sun, the moon, and the truth.”",
+    attribution: "Steve Jobs",
+    highlightKeywords: ["crazy", "change"],
+    text: "The people who are crazy enough to think they can change the world are the ones who do.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["happiness", "depend"],
-    text: "“Happiness does not depend on what you have or who you are. It solely relies on what you think.”",
+    attribution: "Steve Jobs",
+    highlightKeywords: ["hungry", "foolish"],
+    text: "Stay hungry, stay foolish.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["suffering", "holding"],
-    text: "“Suffering is not holding you, you are holding suffering.”",
+    attribution: "Steve Jobs",
+    highlightKeywords: ["limited", "life"],
+    text: "Your time is limited, so don't waste it living someone else's life.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["health", "greatest"],
-    text: "“Health is the greatest gift, contentment the greatest wealth, faithfulness the best relationship.”",
+    attribution: "Steve Jobs",
+    highlightKeywords: ["heart", "intuition"],
+    text: "Have the courage to follow your heart and intuition. They somehow already know what you truly want to become.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["good", "persecuted"],
-    text: "“Virtue is persecuted more by the wicked than it is loved by the good.”",
+    attribution: "Steve Jobs",
+    highlightKeywords: ["Innovation", "leader"],
+    text: "Innovation distinguishes between a leader and a follower.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["believe", "agrees", "reason"],
-    text: "“Believe nothing, no matter where you read it, or who said it, no matter if I have said it, unless it agrees with your own reason and your own common sense.”",
+    attribution: "Steve Jobs",
+    highlightKeywords: ["Simple", "complex"],
+    text: "Simple can be harder than complex. But it's worth it.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["never"],
-    text: "“I never see what has been done; I only see what remains to be done.”",
+    attribution: "Steve Jobs",
+    highlightKeywords: ["die", "lose"],
+    text: "Remembering that you are going to die is the best way to avoid the trap of thinking you have something to lose.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["power", "sharing", "giving"],
-    text: "“If you knew what I know about the power of giving, you would not let a single meal pass without sharing it in some way.”",
+    attribution: "Steve Jobs",
+    highlightKeywords: ["dots", "backwards"],
+    text: "You can't connect the dots looking forward; you can only connect them looking backwards.",
   },
   {
-    attribution: "Buddha",
-    highlightKeywords: ["path", "saves"],
-    text: "“No one saves us but ourselves. No one can and no one may. We ourselves must walk the path.”",
+    attribution: "Steve Jobs",
+    highlightKeywords: ["quality", "excellence"],
+    text: "Be a yardstick of quality. Some people aren't used to an environment where excellence is expected.",
   },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["perfect", "everything"],
-    text: "“When you realize how perfect everything is you will tilt your head back and laugh at the sky.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["give"],
-    text: "“Give, even if you only have a little.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["cling"],
-    text: "“You only lose what you cling to.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["happiness", "life", "candle"],
-    text: "“Thousands of candles can be lighted from a single candle, and the life of the candle will not be shortened. Happiness never decreases by being shared.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["never"],
-    text: "“I never see what has been done; I only see what remains to be done.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["intent", "training"],
-    text: "“I will not look at another’s bowl intent on finding a fault: a training to be observed.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["care", "good", "influenced"],
-    text: "“Whatever words we utter should be chosen with care for people will hear them and be influenced by them for good or ill.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["evil", "root", "slandering", "doctrine"],
-    text: "“What is evil? Killing is evil, lying is evil, slandering is evil, abuse is evil, gossip is evil, envy is evil, hatred is evil, to cling to false doctrine is evil; all these things are evil. And what is the root of evil? Desire is the root of evil, illusion is the root of evil.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["future", "mind"],
-    text: "“Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["mind", "enemy"],
-    text: "“It is a man’s own mind, not his enemy or foe, that lures him to evil ways.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["evil", "root", "slandering", "doctrine"],
-    text: "“What is evil? Killing is evil, lying is evil, slandering is evil, abuse is evil, gossip is evil, envy is evil, hatred is evil, to cling to false doctrine is evil; all these things are evil. And what is the root of evil? Desire is the root of evil, illusion is the root of evil.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["happiness", "thought", "follows", "thoughts"],
-    text: "“All that we are is the result of what we have thought: it is founded on our thoughts and made up of our thoughts. If a man speak or act with an evil thought, suffering follows him as the wheel follows the hoof of the beast that draws the wagon…. If a man speak or act with a good thought, happiness follows him like a shadow that never leaves him.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["victory", "conquer", "better"],
-    text: "“It is better to conquer yourself than to win a thousand battles. Then the victory is yours. It cannot be taken from you.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["believe", "agrees", "reason"],
-    text: "“Believe nothing, no matter where you read it, or who said it, no matter if I have said it, unless it agrees with your own reason and your own common sense.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["purpose", "truth"],
-    text: "“Those who have failed to work toward the truth have missed the purpose of living.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["life", "foolish", "night"],
-    text: "“Long is the night to him who is awake; long is a mile to him who is tired; long is life to the foolish who do not know the true law.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["ardently", "knows"],
-    text: "“Ardently do today what must be done. Who knows? Tomorrow, death comes.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["meditate", "regret"],
-    text: "“Meditate… do not delay, lest you later regret it.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["path", "health", "sufferings"],
-    text: "“One should strive to understand what underlies sufferings and diseases – and aim for health and well-being while gaining in the path.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["meditation", "delight"],
-    text: "“Delight in meditation and solitude. Compose yourself, be happy. You are a seeker.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["bright", "yellow", "wear", "robe"],
-    text: "“If a man’s thoughts are muddy, If he is reckless and full of deceit, How can he wear the yellow robe? Whoever is master of his own nature, Bright, clear and true, He may indeed wear the yellow robe.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["fine", "accordance", "beautiful"],
-    text: "“Like a fine flower, beautiful to look at but without scent, fine words are fruitless in a man who does not act in accordance with them.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["mastery", "work", "meditate"],
-    text: "“Meditate. Live purely. Be quiet. Do your work with mastery. Like the moon, come out from behind the clouds! Shine”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["imagine", "become"],
-    text: "“What you think, you become. What you feel, you attract. What you imagine, you create.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["help", "discarded", "unguarded", "thoughts"],
-    text: "“For soon the body is discarded, Then what does it feel? A useless log of wood, it lies on the ground, Then what does it know? Your worst enemy cannot harm you As much as your own thoughts, unguarded. But once mastered, No one can help you as much, Not even your father or your mother.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["happiness", "meditation", "flow"],
-    text: "“If you are quiet enough, you will hear the flow of the universe. You will feel its rhythm. Go with this flow. Happiness lies ahead. Meditation is key.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["wisdom", "life", "control"],
-    text: "“Though one should live a hundred years without wisdom and control, yet better, indeed, is a single day’s life of one who is wise and meditative.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["wisdom", "meditation", "path"],
-    text: "“Meditation brings wisdom; lack of meditation leaves ignorance. Know well what leads you forward and what hold you back, and choose the path that leads to wisdom.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["mind", "life", "harmony", "meditate"],
-    text: "“If you meditate earnestly, pure in mind and kind in deeds, leading a disciplined life in harmony with the dharma, you will grow in glory. If you meditate earnestly, through spiritual disciplines you can make an island for yourself that no flood can overwhelm.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["light", "path"],
-    text: "“If you light a lamp for someone else it will also brighten your path.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["good", "neither"],
-    text: "“Neither fire, nor wind, birth, nor death, can erase our good deeds.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["happiness", "work"],
-    text: "“Happiness comes when your work and words are of benefit to yourself and others.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["work", "salvation"],
-    text: "“Work out your own salvation. Do not depend on others.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["help", "look"],
-    text: "“If we fail to look after others when they need help, who will look after us?”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["truth", "beyond"],
-    text: "“One who acts on truth is happy in this world and beyond.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["mind", "remembering"],
-    text: "“Remembering a wrong is like carrying a burden on the mind.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["mind", "desires"],
-    text: "“There is no fear for one whose mind is not filled with desires.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["irrigators", "straighten", "carpenters"],
-    text: "“Irrigators channel waters; fletchers straighten arrows; carpenters bend wood; the wise master themselves.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["truth", "stop"],
-    text: "“Stop, stop. Do not speak. The ultimate truth is not even to think.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["endurance", "victory", "disciplines"],
-    text: "“Endurance is one of the most difficult disciplines, but it is to the one who endures that the final victory comes.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["life", "avoids"],
-    text: "“Avoid evil deeds as a man who loves life avoids poison.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["heart", "worth"],
-    text: "“If anything is worth doing, do it with all your heart.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["journey", "heart", "love"],
-    text: "“You are far from the end of your journey. The way is not in the sky. The way is in the heart. See how you love.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["love", "hatred"],
-    text: "“Hatred does not cease by hatred, but only by love; this is the eternal rule.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["love", "affection", "universe", "entire"],
-    text: "“You can search throughout the entire universe for someone who is more deserving of your love and affection than you are yourself, and that person is not to be found anywhere. You yourself, as much as anybody in the entire universe deserves your love and affection.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["good", "purity"],
-    text: "“There has to be evil so that good can prove its purity above it.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["love"],
-    text: "“True love is born from understanding.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["life", "love", "cultivate"],
-    text: "“Just as a mother would protect her only child with her life, even so let one cultivate a boundless love towards all beings.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["love", "ambition"],
-    text: "“Ambition is like love, impatient both of delays and rivals.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["snake", "sheds"],
-    text: "“Just as a snake sheds its skin, we must shed our past over and over again.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["peace", "everything"],
-    text: "“Everything that has a beginning has an ending. Make your peace with that and all will be well.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["future", "mind", "health"],
-    text: "“The secret of health for both mind and body is not to mourn for the past, nor to worry about the future, but to live the present moment wisely and earnestly.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["conquer", "conquering"],
-    text: "“To conquer oneself is a greater task than conquering others.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["life", "change"],
-    text: "“If we could see the miracle of a single flower clearly, our whole life would change.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["life", "live"],
-    text: "“To live a pure unselfish life, one must count nothing as one’s own in the midst of abundance.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["compassion", "incomplete"],
-    text: "“If your compassion does not include yourself, it is incomplete.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["compassion", "suffering", "beings"],
-    text: "“Have compassion for all beings, rich and poor alike; each has their suffering. Some suffer too much, others too little.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["compassion", "truth", "life"],
-    text: "“Teach this triple truth to all: A generous heart, kind speech, and a life of service and compassion are the things which renew humanity.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["compassion", "wisdom", "learn", "perfect"],
-    text: "“‎Imagine that every person in the world is enlightened but you. They are all your teachers, each doing just the right things to help you learn perfect patience, perfect wisdom, perfect compassion.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["kindness", "heart", "equally"],
-    text: "“As rain falls equally on the just and the unjust, do not burden your heart with judgement but rain your kindness equally on all.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["compassion", "strength"],
-    text: "“In separateness lies the world’s greatest misery; in compassion lies the world’s true strength.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["compassion", "happiness"],
-    text: "“For the good of the many, for the happiness of the many, out of compassion for the world.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["bothering", "opinions"],
-    text: "“People with opinions just go around bothering each other.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["beings", "born", "dwelling", "living"],
-    text: "“Whatever living beings there may be feeble or strong, long, stout, or of medium size, short, small, large, those seen or those unseen, those dwelling far or near, those who are born as well as those yet to be born may all beings have happy minds.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["drawing", "tongue"],
-    text: "“The tongue like a sharp knife kills without drawing blood.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["expecting", "drinking"],
-    text: "“Holding onto anger is like drinking poison and expecting the other person to die.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["punished", "anger"],
-    text: "“You will not be punished for your anger. You will be punished by your anger.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["conquer", "goodness"],
-    text: "“Conquer anger with non-anger. Conquer badness with goodness. Conquer meanness with generosity.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["unguarded", "thoughts"],
-    text: "“Your worst enemy cannot harm you as much as your own unguarded thoughts.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["intent", "grasping", "throwing"],
-    text: "“Holding on to anger is like grasping a hot coal with the intent of throwing it at someone else; you are the one who gets burned.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["mind", "resentment", "disappear"],
-    text: "“Anger will never disappear so long as thoughts of resentment are cherished in the mind. Anger will disappear as soon as thoughts of resentment are forgotten.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["compounded", "diligence"],
-    text: "“Chaos is inherent in all compounded things. Strive on with diligence.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["mind", "enemy"],
-    text: "“It is a man’s own mind, not his enemy or foe, that lures him to evil ways.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["kindness", "truth", "silence"],
-    text: "“Silence the angry man with love. Silence the ill-natured man with kindness. Silence the miser with generosity. Silence the liar with truth.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["peace", "heart"],
-    text: "“At the end of the day, I’m at peace because my intentions are good and my heart is pure.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["better"],
-    text: "“It’s better to travel well than to arrive.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["truth", "called", "talks"],
-    text: "“A man is not called wise because he talks and talks again; but if he is peaceful, loving, and fearless then he is in truth called wise.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["peace"],
-    text: "“Peace comes from within. Do not seek it without.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["peace", "resentful"],
-    text: "“Those who are free of resentful thoughts surely find peace.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["peace", "mind", "overrate"],
-    text: "“Do not overrate what you have received, nor envy others. He who envies others does not obtain peace of mind.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["peace", "better"],
-    text: "“Better than a thousand hollow words, is one word that brings peace.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["good", "words", "speak"],
-    text: "“However many holy words you read, however many you speak, what good will they do you If you do not act upon them?”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["blessing", "support", "occupation"],
-    text: "“To support mother and father, to cherish wife and children, and to be engaged in peaceful occupation — this is the greatest blessing.”",
-  },
-  {
-    attribution: "Buddha",
-    highlightKeywords: ["peace", "friendship"],
-    text: "“Friendship is the only cure for hatred, the only guarantee of peace.”",
-  },
-  {
-    attribution: "Jocko Willink",
-    highlightKeywords: ["discipline"],
-    text: "Discipline equals freedom.",
-  },
-  {
-    attribution: "Jocko Willink",
-    highlightKeywords: ["everything", "ownership"],
-    text: "Extreme ownership. Leaders must own everything in their world. There is no one else to blame.",
-  },
-  {
-    attribution: "Jocko Willink",
-    highlightKeywords: ["disciplined", "motivated"],
-    text: "Don't wait for the motivated person to show up. Be the disciplined person.",
-  },
-  {
-    attribution: "Jocko Willink",
-    highlightKeywords: ["practice"],
-    text: "The more you practice, the luckier you get.",
-  },
-  {
-    attribution: "Jocko Willink",
-    highlightKeywords: ["swinging", "fighting"],
-    text: "Go down swinging. And if you're going to go down, go down fighting.",
-  },
-  {
-    attribution: "Jocko Willink",
-    highlightKeywords: ["researching", "reading"],
-    text: "Stop researching every aspect of it and reading every blog post about it... Just go out and do it.",
-  },
-  {
-    attribution: "Jocko Willink",
-    highlightKeywords: ["growth"],
-    text: "There is no growth in the comfort zone.",
-  },
-  {
-    attribution: "Alex Hormozi",
-    highlightKeywords: ["self", "confident", "become"],
-    text: "You do not become confident by shouting affirmations in the mirror, but by having a stack of undeniable proof that you are who you say you are. Outwork your self-doubt.",
-  },
-  {
-    attribution: "Alex Hormozi",
-    highlightKeywords: ["work"],
-    text: "The work works on you more than you work on it.",
-  },
-  {
-    attribution: "Alex Hormozi",
-    highlightKeywords: ["negates"],
-    text: "Volume negates luck.",
-  },
-  {
-    attribution: "Alex Hormozi",
-    highlightKeywords: ["want", "successful"],
-    text: "If you want to be successful, find someone who has what you want and do exactly what they did.",
-  },
-  {
-    attribution: "Alex Hormozi",
-    highlightKeywords: ["work"],
-    text: "Hard work is the only thing that actually works.",
-  },
-  {
-    attribution: "Alex Hormozi",
-    highlightKeywords: ["endure"],
-    text: "The person who can endure the most pain wins.",
-  },
-  {
-    attribution: "Alex Hormozi",
-    highlightKeywords: ["results"],
-    text: "Your results are a lagging measure of your habits.",
-  },
+
+  // ─── Kobe Bryant ─────────────────────────────────────────────────
   {
     attribution: "Kobe Bryant",
-    highlightKeywords: ["rest"],
+    highlightKeywords: ["Rest", "end"],
     text: "Rest at the end, not in the middle.",
   },
   {
     attribution: "Kobe Bryant",
-    highlightKeywords: ["opportunity", "rise"],
-    text: "Everything negative - pressure, challenges - is all an opportunity for me to rise.",
+    highlightKeywords: ["obsessed", "am"],
+    text: "Those closest to me thought I was obsessed. I was. I am.",
   },
   {
     attribution: "Kobe Bryant",
-    highlightKeywords: ["give", "moment"],
-    text: "The moment you give up, is the moment you let someone else win.",
+    highlightKeywords: ["hard", "champions"],
+    text: "The details of hard work — that's what separates champions.",
   },
   {
     attribution: "Kobe Bryant",
-    highlightKeywords: ["fail", "probably"],
+    highlightKeywords: ["afraid", "fail"],
     text: "If you're afraid to fail, then you're probably going to fail.",
   },
   {
     attribution: "Kobe Bryant",
-    highlightKeywords: ["dedication"],
+    highlightKeywords: ["give up", "win"],
+    text: "The moment you give up is the moment you let someone else win.",
+  },
+  {
+    attribution: "Kobe Bryant",
+    highlightKeywords: ["Mamba", "process"],
+    text: "Mamba mentality is about focusing on the process and the journey, not the result.",
+  },
+  {
+    attribution: "Kobe Bryant",
+    highlightKeywords: ["train", "mentality"],
+    text: "When you wake up at 3 or 4am and train, that's the Mamba mentality.",
+  },
+  {
+    attribution: "Kobe Bryant",
+    highlightKeywords: ["love", "process"],
+    text: "I fell in love with the game. And when you fall in love with the process, results take care of themselves.",
+  },
+  {
+    attribution: "Kobe Bryant",
+    highlightKeywords: ["challenges", "rise"],
+    text: "Everything negative — pressure, challenges — is all an opportunity for me to rise.",
+  },
+  {
+    attribution: "Kobe Bryant",
+    highlightKeywords: ["Dedication", "dreams"],
     text: "Dedication sees dreams come true.",
   },
+
+  // ─── LeBron James ────────────────────────────────────────────────
   {
-    attribution: "Kobe Bryant",
-    highlightKeywords: ["language", "relate", "people"],
-    text: "I can't relate to lazy people. We don't speak the same language. I don't understand you. I don't want to understand you.",
+    attribution: "LeBron James",
+    highlightKeywords: ["afraid", "failure"],
+    text: "Don't be afraid of failure. This is the way to succeed.",
   },
   {
-    attribution: "Kobe Bryant",
-    highlightKeywords: ["work", "perseverance"],
-    text: "Great things come from hard work and perseverance. No excuses.",
+    attribution: "LeBron James",
+    highlightKeywords: ["remembered", "work"],
+    text: "I want to be remembered for all the work I put in.",
   },
   {
-    attribution: "Andrew Huberman",
-    highlightKeywords: ["change", "exactly"],
-    text: "The brain does not want to change. It wants to keep things exactly as they are.",
+    attribution: "LeBron James",
+    highlightKeywords: ["Pressure", "diamonds"],
+    text: "Pressure busts pipes, but it also makes diamonds.",
   },
   {
-    attribution: "Andrew Huberman",
-    highlightKeywords: ["motivation", "dopamine"],
-    text: "Dopamine is not about reward; it’s about motivation and the pursuit of things.",
+    attribution: "LeBron James",
+    highlightKeywords: ["prepared", "process"],
+    text: "I believe in being prepared and trusting the process.",
+  },
+
+  // ─── Conor McGregor ──────────────────────────────────────────────
+  {
+    attribution: "Conor McGregor",
+    highlightKeywords: ["talent", "obsession"],
+    text: "There's no talent here, this is hard work. This is an obsession.",
   },
   {
-    attribution: "Andrew Huberman",
-    highlightKeywords: ["effort", "pathways"],
-    text: "Effort is the thing that builds the neural pathways for more effort.",
+    attribution: "Conor McGregor",
+    highlightKeywords: ["courage", "speak"],
+    text: "If you can see it here and you have the courage enough to speak it, it will happen.",
   },
   {
-    attribution: "Andrew Huberman",
-    highlightKeywords: ["action"],
-    text: "Action first, feeling later.",
+    attribution: "Conor McGregor",
+    highlightKeywords: ["lost", "learn"],
+    text: "I've never lost. It's win or learn, never lose.",
   },
   {
-    attribution: "Andrew Huberman",
-    highlightKeywords: ["incremental", "nervous"],
-    text: "Small incremental steps are the way to rewire your nervous system.",
+    attribution: "Conor McGregor",
+    highlightKeywords: ["take part", "take over"],
+    text: "We're not just here to take part. We're here to take over.",
   },
   {
-    attribution: "Andrew Huberman",
-    highlightKeywords: ["focus", "level"],
-    text: "Your level of focus is determined by your level of physiological arousal.",
+    attribution: "Conor McGregor",
+    highlightKeywords: ["designed", "best"],
+    text: "I was designed to be the best.",
+  },
+
+  // ─── Cristiano Ronaldo ───────────────────────────────────────────
+  {
+    attribution: "Cristiano Ronaldo",
+    highlightKeywords: ["hard", "talent"],
+    text: "Hard work beats talent when talent doesn't work hard.",
   },
   {
-    attribution: "Andrew Huberman",
-    highlightKeywords: ["enemy", "recovery"],
-    text: "Stress is not the enemy. The lack of recovery is the enemy.",
+    attribution: "Cristiano Ronaldo",
+    highlightKeywords: ["love", "fear"],
+    text: "Your love of the game must be greater than your fear of failure.",
   },
   {
-    attribution: "Wim Hof",
-    highlightKeywords: ["learn", "mind"],
-    text: "If you can learn how to use your mind, anything is possible.",
+    attribution: "Cristiano Ronaldo",
+    highlightKeywords: ["perfectionist", "well"],
+    text: "I am not a perfectionist, but I like to feel that things are done well.",
   },
   {
-    attribution: "Wim Hof",
-    highlightKeywords: ["breathe"],
-    text: "Breathe, motherf***er.",
+    attribution: "Cristiano Ronaldo",
+    highlightKeywords: ["dedication", "hunger"],
+    text: "Talent is not enough. It's about dedication and the hunger to be the best.",
   },
   {
-    attribution: "Wim Hof",
-    highlightKeywords: ["merciless"],
-    text: "The cold is a merciless but righteous teacher.",
+    attribution: "Cristiano Ronaldo",
+    highlightKeywords: ["learn", "improve"],
+    text: "I feel an endless need to learn, to improve, to evolve.",
+  },
+
+  // ─── Serena Williams ─────────────────────────────────────────────
+  {
+    attribution: "Serena Williams",
+    highlightKeywords: ["champion", "recover"],
+    text: "I really think a champion is defined not by their wins but by how they can recover when they fall.",
   },
   {
-    attribution: "Wim Hof",
-    highlightKeywords: ["afraid", "lived"],
-    text: "I'm not afraid to die, I'm afraid not to have lived.",
+    attribution: "Serena Williams",
+    highlightKeywords: ["lose", "setbacks"],
+    text: "I don't like to lose — at anything. Yet I've grown most not from victories, but setbacks.",
   },
   {
-    attribution: "Wim Hof",
-    highlightKeywords: ["understanding"],
-    text: "Feeling is understanding.",
+    attribution: "Serena Williams",
+    highlightKeywords: ["success", "inspiration"],
+    text: "Every woman's success should be an inspiration to another.",
+  },
+
+  // ─── Michael Jordan ──────────────────────────────────────────────
+  {
+    attribution: "Michael Jordan",
+    highlightKeywords: ["Limits", "illusion"],
+    text: "Limits, like fears, are often just an illusion.",
   },
   {
-    attribution: "Wim Hof",
-    highlightKeywords: ["become", "alienated"],
-    text: "We have become alienated from nature. But the cold can bring us back to what we once were.",
+    attribution: "Michael Jordan",
+    highlightKeywords: ["failed", "succeed"],
+    text: "I've failed over and over and over again in my life. And that is why I succeed.",
   },
   {
-    attribution: "Wim Hof",
-    highlightKeywords: ["mind"],
-    text: "You are the master of your own mind.",
+    attribution: "Michael Jordan",
+    highlightKeywords: ["Heart", "great"],
+    text: "Heart is what separates the good from the great.",
   },
   {
-    attribution: "Peter Attia",
-    highlightKeywords: ["health", "marathon"],
-    text: "Health is a marathon, not a sprint. You have to plan for the long game.",
+    attribution: "Michael Jordan",
+    highlightKeywords: ["Talent", "championships"],
+    text: "Talent wins games, but teamwork and intelligence wins championships.",
   },
   {
-    attribution: "Peter Attia",
-    highlightKeywords: ["longevity", "exercise"],
-    text: "Exercise is the most potent longevity drug we have.",
+    attribution: "Michael Jordan",
+    highlightKeywords: ["weakness", "strength"],
+    text: "My attitude is that if you push me towards something that you think is a weakness, then I will turn that perceived weakness into a strength.",
+  },
+
+  // ─── Muhammad Ali ────────────────────────────────────────────────
+  {
+    attribution: "Muhammad Ali",
+    highlightKeywords: ["Impossible", "small"],
+    text: "Impossible is just a big word thrown around by small men.",
   },
   {
-    attribution: "Peter Attia",
-    highlightKeywords: ["goal", "kick"],
-    text: "The goal is to be the most kick-ass 100-year-old you can be.",
+    attribution: "Muhammad Ali",
+    highlightKeywords: ["Champions", "gym"],
+    text: "Champions aren't made in the gym. Champions are made from something they have deep inside them.",
   },
   {
-    attribution: "Peter Attia",
-    highlightKeywords: ["measure"],
-    text: "You can't manage what you don't measure.",
+    attribution: "Muhammad Ali",
+    highlightKeywords: ["quit", "champion"],
+    text: "I hated every minute of training, but I said: don't quit. Suffer now and live the rest of your life as a champion.",
   },
   {
-    attribution: "Peter Attia",
-    highlightKeywords: ["stability", "foundation"],
-    text: "Stability is the foundation upon which all other physical attributes are built.",
+    attribution: "Muhammad Ali",
+    highlightKeywords: ["butterfly", "bee"],
+    text: "Float like a butterfly, sting like a bee.",
+  },
+
+  // ─── Timothée Chalamet ───────────────────────────────────────────
+  {
+    attribution: "Timothée Chalamet",
+    highlightKeywords: ["meaningful", "authentic"],
+    text: "I want to be part of meaningful stories. I want to find roles that are authentic.",
   },
   {
-    attribution: "Peter Attia",
-    highlightKeywords: ["important", "longevity"],
-    text: "Nutrition is important, but it's not as important as exercise for longevity.",
+    attribution: "Timothée Chalamet",
+    highlightKeywords: ["passionate", "everything"],
+    text: "I think if you're passionate about something and you go for it with everything you have, it shows.",
   },
   {
-    attribution: "Peter Attia",
-    highlightKeywords: ["health", "determines"],
-    text: "Mindset is the variable that determines how you apply the science of health.",
+    attribution: "Timothée Chalamet",
+    highlightKeywords: ["vulnerability", "actor"],
+    text: "There's a vulnerability in being an actor that makes you deeply human.",
   },
   {
-    attribution: "Naval Ravikant",
-    highlightKeywords: ["lucky"],
-    text: "Get rich without getting lucky.",
+    attribution: "Timothée Chalamet",
+    highlightKeywords: ["present", "control"],
+    text: "Be present. Commit to the moment. That's the only thing you can control.",
+  },
+
+  // ─── Christopher Nolan ──────────────────────────────────────────
+  {
+    attribution: "Christopher Nolan",
+    highlightKeywords: ["Cinema", "empathy"],
+    text: "Cinema is the most powerful empathy machine ever invented.",
   },
   {
-    attribution: "Naval Ravikant",
-    highlightKeywords: ["curiosity", "passion", "knowledge"],
-    text: "Specific knowledge is found by pursuing your genuine curiosity and passion rather than whatever is hot right now.",
+    attribution: "Christopher Nolan",
+    highlightKeywords: ["story", "emotional"],
+    text: "A story needs to have a clear, emotional journey. Everything else is craft.",
   },
   {
-    attribution: "Naval Ravikant",
-    highlightKeywords: ["happiness", "develop"],
-    text: "Happiness is a choice you make and a skill you develop.",
+    attribution: "Christopher Nolan",
+    highlightKeywords: ["Dreams", "real"],
+    text: "Dreams feel real while we're in them. It's only when we wake up that we realize something was actually strange.",
   },
   {
-    attribution: "Naval Ravikant",
-    highlightKeywords: ["love"],
-    text: "Read what you love until you love to read.",
+    attribution: "Christopher Nolan",
+    highlightKeywords: ["rules", "break"],
+    text: "Understanding the rules is how you earn the right to break them.",
+  },
+
+  // ─── Gordon Ramsay ───────────────────────────────────────────────
+  {
+    attribution: "Gordon Ramsay",
+    highlightKeywords: ["passion", "Cooking"],
+    text: "Cooking is about passion, so it may look slightly temperamental in a way that it's too assertive to the naked eye.",
   },
   {
-    attribution: "Naval Ravikant",
-    highlightKeywords: ["brand", "build"],
-    text: "The best way to build a brand is by being yourself.",
+    attribution: "Gordon Ramsay",
+    highlightKeywords: ["looking back", "forward"],
+    text: "I don't like looking back. I'm always constantly looking forward. I'm not the one to sit and cry over spilt milk. I'm too busy looking for the next cow.",
   },
   {
-    attribution: "Naval Ravikant",
-    highlightKeywords: ["learn", "build"],
-    text: "Learn to sell. Learn to build. If you can do both, you will be unstoppable.",
+    attribution: "Gordon Ramsay",
+    highlightKeywords: ["standard", "high"],
+    text: "Set yourself a very high standard and never let anyone bring you below it.",
   },
   {
-    attribution: "Naval Ravikant",
-    highlightKeywords: ["contract", "unhappy"],
-    text: "Desire is a contract that you make with yourself to be unhappy until you get what you want.",
+    attribution: "Gordon Ramsay",
+    highlightKeywords: ["hard", "best"],
+    text: "I work hard, and I play hard too. I want to be the best, and I think I am.",
   },
+
+  // ─── Walter White (Breaking Bad) ────────────────────────────────
+  {
+    attribution: "Walter White",
+    highlightKeywords: ["one", "knocks"],
+    text: "I am the one who knocks.",
+  },
+  {
+    attribution: "Walter White",
+    highlightKeywords: ["alive", "good"],
+    text: "I did it for me. I liked it. I was good at it. And I was really... I was alive.",
+  },
+
+  // ─── Don Draper (Mad Men) ────────────────────────────────────────
+  {
+    attribution: "Don Draper",
+    highlightKeywords: ["sign", "losing"],
+    text: "The day you sign a client is the day you start losing them.",
+  },
+  {
+    attribution: "Don Draper",
+    highlightKeywords: ["happiness", "moment"],
+    text: "What is happiness? It's a moment before you need more happiness.",
+  },
+  {
+    attribution: "Don Draper",
+    highlightKeywords: ["forward", "happened"],
+    text: "Move forward. This never happened. It will shock you how much this never happened.",
+  },
+
+  // ─── Jordan Peterson ─────────────────────────────────────────────
   {
     attribution: "Jordan Peterson",
-    highlightKeywords: ["give", "clean", "room"],
-    text: "Clean your room. If you can’t even clean up your own room, who the hell are you to give advice to the world?",
-  },
-  {
-    attribution: "Jordan Peterson",
-    highlightKeywords: ["yesterday", "compare"],
+    highlightKeywords: ["yesterday", "today"],
     text: "Compare yourself to who you were yesterday, not to who someone else is today.",
   },
   {
     attribution: "Jordan Peterson",
-    highlightKeywords: ["truth"],
-    text: "Tell the truth, or at least don't lie.",
+    highlightKeywords: ["truth", "lie"],
+    text: "Tell the truth. Or at least don't lie.",
   },
   {
     attribution: "Jordan Peterson",
-    highlightKeywords: ["meaningful"],
+    highlightKeywords: ["meaningful", "expedient"],
     text: "Pursue what is meaningful, not what is expedient.",
   },
   {
     attribution: "Jordan Peterson",
-    highlightKeywords: ["listening", "assume"],
-    text: "Assume that the person you are listening to might know something you don't.",
+    highlightKeywords: ["room", "clean"],
+    text: "Clean your room. Master the local. Then expand.",
   },
   {
     attribution: "Jordan Peterson",
-    highlightKeywords: ["everything", "going"],
+    highlightKeywords: ["sacrifice", "become"],
+    text: "You must sacrifice who you are to become who you could be.",
+  },
+  {
+    attribution: "Jordan Peterson",
+    highlightKeywords: ["straight", "shoulders"],
+    text: "Stand up straight with your shoulders back and accept the terrible responsibility of life.",
+  },
+  {
+    attribution: "Jordan Peterson",
+    highlightKeywords: ["price", "everything"],
     text: "You're going to pay a price for every bloody thing you do and everything you don't do.",
   },
-  {
-    attribution: "Jordan Peterson",
-    highlightKeywords: ["path", "destruction"],
-    text: "Don’t be a victim. That’s a path to resentment and destruction.",
-  },
+
+  // ─── Marcus Aurelius ─────────────────────────────────────────────
   {
     attribution: "Marcus Aurelius",
-    highlightKeywords: ["action", "impediment"],
+    highlightKeywords: ["action", "way"],
     text: "The impediment to action advances action. What stands in the way becomes the way.",
   },
   {
     attribution: "Marcus Aurelius",
-    highlightKeywords: ["time", "good"],
+    highlightKeywords: ["good", "Be"],
     text: "Waste no more time arguing what a good man should be. Be one.",
   },
   {
@@ -878,982 +511,1581 @@ export const quotesDefault: QuoteEntry[] = [
   },
   {
     attribution: "Marcus Aurelius",
-    highlightKeywords: ["life", "thinking"],
+    highlightKeywords: ["mind", "strength"],
+    text: "You have power over your mind, not outside events. Realize this, and you will find strength.",
+  },
+  {
+    attribution: "Marcus Aurelius",
+    highlightKeywords: ["happy", "thinking"],
     text: "Very little is needed to make a happy life; it is all within yourself, in your way of thinking.",
   },
   {
     attribution: "Marcus Aurelius",
-    highlightKeywords: ["strength", "mind"],
-    text: "You have power over your mind - not outside events. Realize this, and you will find strength.",
+    highlightKeywords: ["present", "Confine"],
+    text: "Confine yourself to the present.",
   },
   {
     attribution: "Marcus Aurelius",
-    highlightKeywords: ["performed", "revenge"],
-    text: "The best revenge is to be unlike him who performed the injury.",
+    highlightKeywords: ["minute", "seriousness"],
+    text: "Concentrate every minute on doing what's in front of you with precise and genuine seriousness.",
   },
   {
     attribution: "Marcus Aurelius",
-    highlightKeywords: ["truth", "perspective"],
-    text: "Everything we hear is an opinion, not a fact. Everything we see is a perspective, not the truth.",
+    highlightKeywords: ["life", "think"],
+    text: "You could leave life right now. Let that determine what you do and say and think.",
   },
+
+  // ─── Jocko Willink ───────────────────────────────────────────────
+  {
+    attribution: "Jocko Willink",
+    highlightKeywords: ["Discipline", "freedom"],
+    text: "Discipline equals freedom.",
+  },
+  {
+    attribution: "Jocko Willink",
+    highlightKeywords: ["ownership", "blame"],
+    text: "Extreme ownership. Leaders must own everything in their world. There is no one else to blame.",
+  },
+  {
+    attribution: "Jocko Willink",
+    highlightKeywords: ["Default", "aggressive"],
+    text: "Default: aggressive.",
+  },
+  {
+    attribution: "Jocko Willink",
+    highlightKeywords: ["wrong", "Good"],
+    text: "When things go wrong, there's always one answer: Good.",
+  },
+  {
+    attribution: "Jocko Willink",
+    highlightKeywords: ["overthink", "Execute"],
+    text: "Don't overthink. Execute.",
+  },
+  {
+    attribution: "Jocko Willink",
+    highlightKeywords: ["Leadership", "charge"],
+    text: "Leadership is not about being in charge. It's about taking care of those in your charge.",
+  },
+  {
+    attribution: "Jocko Willink",
+    highlightKeywords: ["growth", "comfort zone"],
+    text: "There is no growth in the comfort zone.",
+  },
+
+  // ─── Alex Hormozi ────────────────────────────────────────────────
+  {
+    attribution: "Alex Hormozi",
+    highlightKeywords: ["confident", "proof"],
+    text: "You don't become confident by shouting affirmations. You become confident by stacking undeniable proof that you are who you say you are.",
+  },
+  {
+    attribution: "Alex Hormozi",
+    highlightKeywords: ["Volume", "luck"],
+    text: "Volume negates luck.",
+  },
+  {
+    attribution: "Alex Hormozi",
+    highlightKeywords: ["work", "works"],
+    text: "The work works on you more than you work on it.",
+  },
+  {
+    attribution: "Alex Hormozi",
+    highlightKeywords: ["endure", "pain"],
+    text: "The person who can endure the most pain wins.",
+  },
+  {
+    attribution: "Alex Hormozi",
+    highlightKeywords: ["results", "habits"],
+    text: "Your results are a lagging measure of your habits.",
+  },
+  {
+    attribution: "Alex Hormozi",
+    highlightKeywords: ["successful", "exactly"],
+    text: "If you want to be successful, find someone who has what you want and do exactly what they did.",
+  },
+  {
+    attribution: "Alex Hormozi",
+    highlightKeywords: ["Hard work", "works"],
+    text: "Hard work is the only thing that actually works.",
+  },
+  {
+    attribution: "Alex Hormozi",
+    highlightKeywords: ["Sales", "helping"],
+    text: "Sales is not a dirty word. It's the art of helping someone get what they already want.",
+  },
+
+  // ─── Ryan Holiday ────────────────────────────────────────────────
   {
     attribution: "Ryan Holiday",
-    highlightKeywords: ["obstacle"],
+    highlightKeywords: ["obstacle", "way"],
     text: "The obstacle is the way.",
   },
   {
     attribution: "Ryan Holiday",
-    highlightKeywords: ["enemy"],
+    highlightKeywords: ["Ego", "enemy"],
     text: "Ego is the enemy.",
   },
   {
     attribution: "Ryan Holiday",
-    highlightKeywords: ["stillness"],
+    highlightKeywords: ["Stillness", "key"],
     text: "Stillness is the key.",
   },
   {
     attribution: "Ryan Holiday",
-    highlightKeywords: ["character"],
+    highlightKeywords: ["Character", "fate"],
     text: "Character is fate.",
   },
   {
     attribution: "Ryan Holiday",
-    highlightKeywords: ["everything"],
+    highlightKeywords: ["Discipline", "best self"],
+    text: "Discipline is not a punishment. It's a way to become your best self.",
+  },
+  {
+    attribution: "Ryan Holiday",
+    highlightKeywords: ["Love", "fate"],
+    text: "Amor Fati: Love your fate. Which is, in fact, your life.",
+  },
+  {
+    attribution: "Ryan Holiday",
+    highlightKeywords: ["anything", "everything"],
     text: "How you do anything is how you do everything.",
   },
+
+  // ─── Naval Ravikant ──────────────────────────────────────────────
   {
-    attribution: "Ryan Holiday",
-    highlightKeywords: ["life", "love"],
-    text: "Amor Fati: Love your fate, which is in fact your life.",
+    attribution: "Naval Ravikant",
+    highlightKeywords: ["curiosity", "passion"],
+    text: "Specific knowledge is found by pursuing your genuine curiosity and passion rather than whatever is hot right now.",
   },
   {
-    attribution: "Ryan Holiday",
-    highlightKeywords: ["discipline", "self"],
-    text: "Discipline is not a punishment, it's a way to become your best self.",
+    attribution: "Naval Ravikant",
+    highlightKeywords: ["Happiness", "skill"],
+    text: "Happiness is a choice you make and a skill you develop.",
   },
   {
-    attribution: "Ali Abdaal",
-    highlightKeywords: ["progress", "productivity"],
-    text: "Productivity is about making progress on the things that matter, not just doing more things.",
+    attribution: "Naval Ravikant",
+    highlightKeywords: ["love", "read"],
+    text: "Read what you love until you love to read.",
   },
   {
-    attribution: "Ali Abdaal",
-    highlightKeywords: ["journey", "enjoy"],
-    text: "Enjoy the journey, because the destination is often just the beginning of another journey.",
+    attribution: "Naval Ravikant",
+    highlightKeywords: ["sell", "build"],
+    text: "Learn to sell. Learn to build. If you can do both, you will be unstoppable.",
   },
   {
-    attribution: "Ali Abdaal",
-    highlightKeywords: ["power", "better"],
-    text: "The power of tiny gains: 1% better every day leads to massive results.",
+    attribution: "Naval Ravikant",
+    highlightKeywords: ["Desire", "unhappy"],
+    text: "Desire is a contract you make with yourself to be unhappy until you get what you want.",
   },
   {
-    attribution: "Ali Abdaal",
-    highlightKeywords: ["consistency", "better", "showing"],
-    text: "Consistency over intensity. Showing up every day is better than showing up once a week for a marathon session.",
+    attribution: "Naval Ravikant",
+    highlightKeywords: ["learn", "skill"],
+    text: "The most important skill is to learn to learn.",
   },
   {
-    attribution: "Ali Abdaal",
-    highlightKeywords: ["life", "time"],
-    text: "Systemize your life so that you can spend your time on the things you love.",
+    attribution: "Naval Ravikant",
+    highlightKeywords: ["peace", "indifference"],
+    text: "A rational person can find peace by cultivating indifference to things outside of their control.",
   },
   {
-    attribution: "Ali Abdaal",
-    highlightKeywords: ["success"],
-    text: "Success is a slow burn, not a quick flash.",
+    attribution: "Naval Ravikant",
+    highlightKeywords: ["Judgment", "leverage"],
+    text: "Judgment is the most important skill. Everything else is leverage.",
   },
+
+  // ─── Andrew Huberman ─────────────────────────────────────────────
   {
-    attribution: "Ali Abdaal",
-    highlightKeywords: ["perfection"],
-    text: "Don't aim for perfection, aim for 'done'.",
+    attribution: "Andrew Huberman",
+    highlightKeywords: ["brain", "change"],
+    text: "The brain does not want to change. It wants to keep things exactly as they are.",
   },
   {
-    attribution: "Steven Bartlett",
-    highlightKeywords: ["time", "best"],
-    text: "The best time to plant a tree was 20 years ago. The second best time is now.",
+    attribution: "Andrew Huberman",
+    highlightKeywords: ["Dopamine", "motivation"],
+    text: "Dopamine is not about reward. It's about motivation and the pursuit of things.",
   },
   {
-    attribution: "Steven Bartlett",
-    highlightKeywords: ["network"],
-    text: "Your network is your net worth.",
+    attribution: "Andrew Huberman",
+    highlightKeywords: ["Effort", "neural"],
+    text: "Effort is the thing that builds the neural pathways for more effort.",
   },
   {
-    attribution: "Steven Bartlett",
-    highlightKeywords: ["learn"],
-    text: "Fail fast, learn faster.",
+    attribution: "Andrew Huberman",
+    highlightKeywords: ["Action", "feeling"],
+    text: "Action first, feeling later.",
   },
   {
-    attribution: "Steven Bartlett",
-    highlightKeywords: ["truth", "first"],
-    text: "The truth will set you free, but first it will piss you off.",
+    attribution: "Andrew Huberman",
+    highlightKeywords: ["Stress", "recovery"],
+    text: "Stress is not the enemy. The lack of recovery is the enemy.",
   },
   {
-    attribution: "Steven Bartlett",
-    highlightKeywords: ["discipline", "accomplishment"],
-    text: "Discipline is the bridge between goals and accomplishment.",
+    attribution: "Andrew Huberman",
+    highlightKeywords: ["Sleep", "brain"],
+    text: "Sleep is the single most effective thing you can do to reset your brain and body.",
   },
   {
-    attribution: "Steven Bartlett",
-    highlightKeywords: ["control", "schedule"],
-    text: "If you don't control your schedule, your schedule will control you.",
+    attribution: "Andrew Huberman",
+    highlightKeywords: ["focus", "arousal"],
+    text: "Your level of focus is determined by your level of physiological arousal.",
   },
-  {
-    attribution: "Steven Bartlett",
-    highlightKeywords: ["action", "impatient"],
-    text: "Be impatient with action, but patient with results.",
-  },
-  {
-    attribution: "Chris Williamson",
-    highlightKeywords: ["success", "byproduct"],
-    text: "Success is a byproduct of being the best version of yourself.",
-  },
-  {
-    attribution: "Chris Williamson",
-    highlightKeywords: ["wisdom"],
-    text: "Seek wisdom, not just information.",
-  },
-  {
-    attribution: "Chris Williamson",
-    highlightKeywords: ["life", "quality"],
-    text: "The quality of your life is the quality of your questions.",
-  },
-  {
-    attribution: "Chris Williamson",
-    highlightKeywords: ["discipline", "needs"],
-    text: "Discipline is doing what needs to be done even if you don't want to.",
-  },
-  {
-    attribution: "Chris Williamson",
-    highlightKeywords: ["change", "perspective"],
-    text: "Perspective is everything. If you change how you look at things, the things you look at change.",
-  },
-  {
-    attribution: "Chris Williamson",
-    highlightKeywords: ["curiosity"],
-    text: "Your curiosity is your compass.",
-  },
-  {
-    attribution: "Chris Williamson",
-    highlightKeywords: ["education", "ego"],
-    text: "Don't let your ego get in the way of your education.",
-  },
-  {
-    attribution: "Mark Manson",
-    highlightKeywords: ["choosing", "matters"],
-    text: "The subtle art of not giving a f*ck is about choosing what matters to you and letting go of the rest.",
-  },
-  {
-    attribution: "Mark Manson",
-    highlightKeywords: ["happiness", "problems"],
-    text: "Happiness comes from solving problems, not from the absence of them.",
-  },
-  {
-    attribution: "Mark Manson",
-    highlightKeywords: ["answers", "follow"],
-    text: "Don't just sit there. Do something. The answers will follow.",
-  },
-  {
-    attribution: "Mark Manson",
-    highlightKeywords: ["growth", "learn", "wrong"],
-    text: "Growth is an endlessly iterative process. When we learn something new, we don’t go from 'wrong' to 'right.' Rather, we go from wrong to slightly less wrong.",
-  },
-  {
-    attribution: "Mark Manson",
-    highlightKeywords: ["struggle", "defined"],
-    text: "Who you are is defined by what you’re willing to struggle for.",
-  },
-  {
-    attribution: "Mark Manson",
-    highlightKeywords: ["circumstances", "responsible"],
-    text: "We are responsible for everything in our lives, no matter the external circumstances.",
-  },
-  {
-    attribution: "Mark Manson",
-    highlightKeywords: ["metrics", "measure"],
-    text: "Values are the metrics by which we measure our lives.",
-  },
-  {
-    attribution: "Mel Robbins",
-    highlightKeywords: ["life", "completely"],
-    text: "You are one decision away from a completely different life.",
-  },
-  {
-    attribution: "Mel Robbins",
-    highlightKeywords: ["physically", "impulse", "seconds"],
-    text: "The 5-second rule: If you have an impulse to act on a goal, you must physically move within 5 seconds or your brain will kill the idea.",
-  },
-  {
-    attribution: "Mel Robbins",
-    highlightKeywords: ["motivation", "garbage"],
-    text: "Motivation is garbage. You're never going to feel like it.",
-  },
-  {
-    attribution: "Mel Robbins",
-    highlightKeywords: ["physically", "impulse"],
-    text: "If you have an impulse to act on a goal, you must physically move within 5 seconds.",
-  },
-  {
-    attribution: "Mel Robbins",
-    highlightKeywords: ["time", "waiting"],
-    text: "Stop waiting for the right time. The right time is now.",
-  },
-  {
-    attribution: "Mel Robbins",
-    highlightKeywords: ["confidence", "action"],
-    text: "Confidence is a skill you build through action, not a feeling you wait for.",
-  },
-  {
-    attribution: "Mel Robbins",
-    highlightKeywords: ["feelings"],
-    text: "Your feelings don't matter. Your actions do.",
-  },
-  {
-    attribution: "Steve Jobs",
-    highlightKeywords: ["work", "love"],
-    text: "The only way to do great work is to love what you do.",
-  },
-  {
-    attribution: "Steve Jobs",
-    highlightKeywords: ["innovation", "distinguishes"],
-    text: "Innovation distinguishes between a leader and a follower.",
-  },
-  {
-    attribution: "Steve Jobs",
-    highlightKeywords: ["stay"],
-    text: "Stay hungry, stay foolish.",
-  },
-  {
-    attribution: "Steve Jobs",
-    highlightKeywords: ["time", "life"],
-    text: "Your time is limited, so don't waste it living someone else's life.",
-  },
-  {
-    attribution: "Steve Jobs",
-    highlightKeywords: ["design", "looks"],
-    text: "Design is not just what it looks like and feels like. Design is how it works.",
-  },
-  {
-    attribution: "Steve Jobs",
-    highlightKeywords: ["change", "people"],
-    text: "The people who are crazy enough to think they can change the world are the ones who do.",
-  },
-  {
-    attribution: "Steve Jobs",
-    highlightKeywords: ["quality", "important"],
-    text: "Quality is more important than quantity. One home run is much better than two doubles.",
-  },
-  {
-    attribution: "Steve Jobs",
-    highlightKeywords: ["wonderful", "cemetery", "richest"],
-    text: "Being the richest man in the cemetery doesn't matter to me. Going to bed at night saying we've done something wonderful… that's what matters to me.",
-  },
-  {
-    attribution: "Steve Jobs",
-    highlightKeywords: ["details", "waiting"],
-    text: "Details matter, it's worth waiting to get it right.",
-  },
-  {
-    attribution: "Steve Jobs",
-    highlightKeywords: ["life", "faith"],
-    text: "Sometimes life hits you in the head with a brick. Don't lose faith.",
-  },
-  {
-    attribution: "Bill Gates",
-    highlightKeywords: ["success", "thinking"],
-    text: "Success is a lousy teacher. It seduces smart people into thinking they can't lose.",
-  },
-  {
-    attribution: "Bill Gates",
-    highlightKeywords: ["success", "failure"],
-    text: "It's fine to celebrate success but it is more important to heed the lessons of failure.",
-  },
-  {
-    attribution: "Bill Gates",
-    highlightKeywords: ["change", "occur", "next"],
-    text: "We always overestimate the change that will occur in the next two years and underestimate the change that will occur in the next ten.",
-  },
-  {
-    attribution: "Bill Gates",
-    highlightKeywords: ["mistake", "poor"],
-    text: "If you are born poor its not your mistake, but if you die poor its your mistake.",
-  },
-  {
-    attribution: "Bill Gates",
-    highlightKeywords: ["customers", "greatest"],
-    text: "Your most unhappy customers are your greatest source of learning.",
-  },
-  {
-    attribution: "Bill Gates",
-    highlightKeywords: ["insulting", "compare"],
-    text: "Don't compare yourself with anyone in this world… if you do so, you are insulting yourself.",
-  },
-  {
-    attribution: "Bill Gates",
-    highlightKeywords: ["lazy", "choose"],
-    text: "I choose a lazy person to do a hard job. Because a lazy person will find an easy way to do it.",
-  },
-  {
-    attribution: "Bill Gates",
-    highlightKeywords: ["patience"],
-    text: "Patience is a key element of success.",
-  },
-  {
-    attribution: "Bill Gates",
-    highlightKeywords: ["technology", "business"],
-    text: "Information technology and business are becoming inextricably interwoven.",
-  },
-  {
-    attribution: "Bill Gates",
-    highlightKeywords: ["progress", "belief"],
-    text: "The belief that the world is getting worse is a huge barrier to progress.",
-  },
-  {
-    attribution: "Jeff Bezos",
-    highlightKeywords: ["brand", "people"],
-    text: "Your brand is what other people say about you when you're not in the room.",
-  },
-  {
-    attribution: "Jeff Bezos",
-    highlightKeywords: ["double", "inventiveness"],
-    text: "If you double the number of experiments you do per year you’re going to double your inventiveness.",
-  },
-  {
-    attribution: "Jeff Bezos",
-    highlightKeywords: ["shiny", "addicted"],
-    text: "A company shouldn’t get addicted to being shiny, because shiny doesn’t last.",
-  },
-  {
-    attribution: "Jeff Bezos",
-    highlightKeywords: ["time", "service", "building"],
-    text: "In the old world, you devoted 30% of your time to building a great service and 70% of your time to shouting about it. In the new world, that reverses.",
-  },
-  {
-    attribution: "Jeff Bezos",
-    highlightKeywords: ["vision", "stubborn"],
-    text: "We are stubborn on vision. We are flexible on details.",
-  },
-  {
-    attribution: "Jeff Bezos",
-    highlightKeywords: ["interesting", "tolerate"],
-    text: "If you can't tolerate critics, don't do anything new or interesting.",
-  },
-  {
-    attribution: "Jeff Bezos",
-    highlightKeywords: ["invent", "tight"],
-    text: "One of the only ways to get out of a tight box is to invent your way out.",
-  },
-  {
-    attribution: "Jeff Bezos",
-    highlightKeywords: ["competitors"],
-    text: "Obsess over customers, not competitors.",
-  },
-  {
-    attribution: "Jeff Bezos",
-    highlightKeywords: ["regret", "failed"],
-    text: "I knew that if I failed I wouldn’t regret that, but I knew the one thing I might regret is not trying.",
-  },
-  {
-    attribution: "Jeff Bezos",
-    highlightKeywords: ["still"],
-    text: "It's still Day 1.",
-  },
+
+  // ─── Elon Musk ────────────────────────────────────────────────────
   {
     attribution: "Elon Musk",
-    highlightKeywords: ["important", "favor"],
+    highlightKeywords: ["important", "odds"],
     text: "When something is important enough, you do it even if the odds are not in your favor.",
   },
   {
     attribution: "Elon Musk",
-    highlightKeywords: ["failure", "innovating"],
+    highlightKeywords: ["Failure", "innovating"],
     text: "Failure is an option here. If things are not failing, you are not innovating enough.",
   },
   {
     attribution: "Elon Musk",
-    highlightKeywords: ["persistence", "give"],
+    highlightKeywords: ["Persistence", "give up"],
     text: "Persistence is very important. You should not give up unless you are forced to give up.",
   },
   {
     attribution: "Elon Musk",
-    highlightKeywords: ["probability", "establish"],
-    text: "The first step is to establish that something is possible; then probability will occur.",
+    highlightKeywords: ["fundamental", "reason"],
+    text: "Boil things down to the most fundamental truths and reason up from there.",
   },
   {
     attribution: "Elon Musk",
-    highlightKeywords: ["future", "better", "bright"],
-    text: "If you get up in the morning and think the future is going to be better, it is a bright day. Otherwise, it's not.",
-  },
-  {
-    attribution: "Elon Musk",
-    highlightKeywords: ["extraordinary", "possible"],
+    highlightKeywords: ["ordinary", "extraordinary"],
     text: "I think it is possible for ordinary people to choose to be extraordinary.",
   },
   {
     attribution: "Elon Musk",
-    highlightKeywords: ["control", "basket"],
-    text: "It's OK to have your eggs in one basket as long as you control what happens to that basket.",
+    highlightKeywords: ["Work", "hell"],
+    text: "Work like hell. If you do the simple math, you can outwork everyone.",
   },
   {
     attribution: "Elon Musk",
-    highlightKeywords: ["great"],
-    text: "Great companies are built on great products.",
+    highlightKeywords: ["criticism", "valuable"],
+    text: "Constantly seek criticism. A well-thought-out critique of whatever you're doing is as valuable as gold.",
+  },
+
+  // ─── Jeff Bezos ──────────────────────────────────────────────────
+  {
+    attribution: "Jeff Bezos",
+    highlightKeywords: ["brand", "room"],
+    text: "Your brand is what other people say about you when you're not in the room.",
   },
   {
-    attribution: "Elon Musk",
-    highlightKeywords: ["better", "constantly"],
-    text: "Constant feedback loop: constantly think about what you've done and how you could be doing it better.",
+    attribution: "Jeff Bezos",
+    highlightKeywords: ["failed", "regret"],
+    text: "I knew that if I failed I wouldn't regret that, but I knew the one thing I might regret is not trying.",
   },
   {
-    attribution: "Elon Musk",
-    highlightKeywords: ["work", "weeks"],
-    text: "Work like hell. I mean you just have to put in 80 to 100 hour weeks every week.",
+    attribution: "Jeff Bezos",
+    highlightKeywords: ["stubborn", "vision"],
+    text: "We are stubborn on vision. We are flexible on details.",
+  },
+  {
+    attribution: "Jeff Bezos",
+    highlightKeywords: ["Day", "1"],
+    text: "It's still Day 1.",
+  },
+  {
+    attribution: "Jeff Bezos",
+    highlightKeywords: ["customers", "competitors"],
+    text: "Obsess over customers, not competitors.",
+  },
+  {
+    attribution: "Jeff Bezos",
+    highlightKeywords: ["long-term", "trap"],
+    text: "Focus on long-term outcomes. Short-term thinking is a trap.",
+  },
+
+  // ─── Mark Zuckerberg ────────────────────────────────────────────
+  {
+    attribution: "Mark Zuckerberg",
+    highlightKeywords: ["risk", "guaranteed"],
+    text: "The biggest risk is not taking any risk. In a world that's changing really quickly, the only strategy guaranteed to fail is not taking risks.",
   },
   {
     attribution: "Mark Zuckerberg",
-    highlightKeywords: ["risk", "taking", "guaranteed"],
-    text: "The biggest risk is not taking any risk. In a world that is changing really quickly, the only strategy that is guaranteed to fail is not taking risks.",
+    highlightKeywords: ["Done", "perfect"],
+    text: "Done is better than perfect.",
+  },
+  {
+    attribution: "Mark Zuckerberg",
+    highlightKeywords: ["mission", "business"],
+    text: "Building a mission and building a business go hand in hand.",
+  },
+  {
+    attribution: "Mark Zuckerberg",
+    highlightKeywords: ["important", "doing"],
+    text: "The question I ask myself almost every day is: 'Am I doing the most important thing I could be doing?'",
   },
   {
     attribution: "Mark Zuckerberg",
     highlightKeywords: ["fast", "breaking"],
     text: "Move fast and break things. Unless you are breaking stuff, you are not moving fast enough.",
   },
-  {
-    attribution: "Mark Zuckerberg",
-    highlightKeywords: ["perfect"],
-    text: "Done is better than perfect.",
-  },
-  {
-    attribution: "Mark Zuckerberg",
-    highlightKeywords: ["care", "build"],
-    text: "People don't care about what you say, they care about what you build.",
-  },
-  {
-    attribution: "Mark Zuckerberg",
-    highlightKeywords: ["business", "mission"],
-    text: "Building a mission and building a business go hand-in-hand.",
-  },
-  {
-    attribution: "Mark Zuckerberg",
-    highlightKeywords: ["progress", "business", "easier"],
-    text: "I think that a simple rule of business is, if you do the things that are easier first, then you can actually make a lot of progress.",
-  },
-  {
-    attribution: "Mark Zuckerberg",
-    highlightKeywords: ["important", "question"],
-    text: "The question I ask myself almost every day is: 'Am I doing the most important thing I could be doing?'",
-  },
-  {
-    attribution: "Mark Zuckerberg",
-    highlightKeywords: ["power", "transparent"],
-    text: "By giving people the power to share, we're making the world more transparent.",
-  },
-  {
-    attribution: "Mark Zuckerberg",
-    highlightKeywords: ["work", "become", "started"],
-    text: "Ideas don't come out fully formed. They only become clear as you work on them. You just have to get started.",
-  },
-  {
-    attribution: "Mark Zuckerberg",
-    highlightKeywords: ["purpose", "bigger"],
-    text: "Purpose is that sense that we are part of something bigger than ourselves.",
-  },
-  {
-    attribution: "Larry Page",
-    highlightKeywords: ["expected"],
-    text: "Always deliver more than expected.",
-  },
-  {
-    attribution: "Larry Page",
-    highlightKeywords: ["important", "changing", "working"],
-    text: "If you're changing the world, you're working on important things. You're excited to get up in the morning.",
-  },
-  {
-    attribution: "Larry Page",
-    highlightKeywords: ["change", "technology"],
-    text: "Especially in technology, we need revolutionary change, not incremental change.",
-  },
-  {
-    attribution: "Larry Page",
-    highlightKeywords: ["future", "time", "fundamentally"],
-    text: "Lots of companies don't succeed over time. What do they fundamentally do wrong? They usually miss the future.",
-  },
-  {
-    attribution: "Larry Page",
-    highlightKeywords: ["company", "develop"],
-    text: "You don't need to have a 100-person company to develop that idea.",
-  },
-  {
-    attribution: "Sergey Brin",
-    highlightKeywords: ["problems", "solving"],
-    text: "Solving big problems is easier than solving little problems.",
-  },
-  {
-    attribution: "Sergey Brin",
-    highlightKeywords: ["success", "failures"],
-    text: "The only way you are going to have success is to have lots of failures first.",
-  },
-  {
-    attribution: "Sergey Brin",
-    highlightKeywords: ["evil"],
-    text: "Don't be evil.",
-  },
-  {
-    attribution: "Sergey Brin",
-    highlightKeywords: ["google"],
-    text: "We want Google to be the third half of your brain.",
-  },
-  {
-    attribution: "Larry Page",
-    highlightKeywords: ["power", "invention", "struggled"],
-    text: "Invention is not enough. Tesla invented the electric power we use, but he struggled to get it out to people. You have to combine both things.",
-  },
-  {
-    attribution: "Marc Andreessen",
-    highlightKeywords: ["software"],
-    text: "Software is eating the world.",
-  },
-  {
-    attribution: "Marc Andreessen",
-    highlightKeywords: ["future", "create"],
-    text: "The best way to predict the future is to create it.",
-  },
-  {
-    attribution: "Marc Andreessen",
-    highlightKeywords: ["contrarian"],
-    text: "Be right and be contrarian.",
-  },
-  {
-    attribution: "Marc Andreessen",
-    highlightKeywords: ["time"],
-    text: "Everything is a product of its time.",
-  },
-  {
-    attribution: "Marc Andreessen",
-    highlightKeywords: ["execution"],
-    text: "Execution is everything.",
-  },
-  {
-    attribution: "Marc Andreessen",
-    highlightKeywords: ["energy", "passion", "drive"],
-    text: "The world is a very malleable place. If you know what you want, and you go for it with maximum energy and drive and passion, the world will yield to you.",
-  },
-  {
-    attribution: "Marc Andreessen",
-    highlightKeywords: ["care", "markets"],
-    text: "Markets that don't exist don't care how smart you are.",
-  },
-  {
-    attribution: "Marc Andreessen",
-    highlightKeywords: ["listen", "questions"],
-    text: "Don't listen to the person who has the answers; listen to the person who has the questions.",
-  },
-  {
-    attribution: "Marc Andreessen",
-    highlightKeywords: ["product"],
-    text: "Product/market fit is the only thing that matters.",
-  },
-  {
-    attribution: "Marc Andreessen",
-    highlightKeywords: ["know"],
-    text: "If you don't know what you're doing, it's very hard to do it.",
-  },
-  {
-    attribution: "Peter Thiel",
-    highlightKeywords: ["competition"],
-    text: "Competition is for losers.",
-  },
-  {
-    attribution: "Peter Thiel",
-    highlightKeywords: ["courage", "brilliant"],
-    text: "Brilliant thinking is rare, but courage is in even shorter supply than genius.",
-  },
-  {
-    attribution: "Peter Thiel",
-    highlightKeywords: ["business"],
-    text: "Every moment in business happens only once.",
-  },
-  {
-    attribution: "Peter Thiel",
-    highlightKeywords: ["innovation", "drive"],
-    text: "Monopolies are good for society because they drive innovation.",
-  },
-  {
-    attribution: "Peter Thiel",
-    highlightKeywords: ["build", "operating"],
-    text: "The next Bill Gates will not build an operating system.",
-  },
-  {
-    attribution: "Peter Thiel",
-    highlightKeywords: ["characters", "instead"],
-    text: "We wanted flying cars, instead we got 140 characters.",
-  },
-  {
-    attribution: "Peter Thiel",
-    highlightKeywords: ["life", "calculate"],
-    text: "If your goal is to never make a mistake in your life, you shouldn't over-calculate it.",
-  },
-  {
-    attribution: "Peter Thiel",
-    highlightKeywords: ["business", "entrepreneurs", "secret"],
-    text: "The best entrepreneurs know this: every great business is built around a secret that's hidden from the outside.",
-  },
-  {
-    attribution: "Peter Thiel",
-    highlightKeywords: ["technology", "miraculous"],
-    text: "Technology is miraculous because it allows us to do more with less.",
-  },
-  {
-    attribution: "Peter Thiel",
-    highlightKeywords: ["future", "build"],
-    text: "A startup is the largest group of people you can convince of a plan to build a different future.",
-  },
+
+  // ─── Paul Graham ─────────────────────────────────────────────────
   {
     attribution: "Paul Graham",
-    highlightKeywords: ["scale"],
+    highlightKeywords: ["scale", "don't"],
     text: "Do things that don't scale.",
   },
   {
     attribution: "Paul Graham",
-    highlightKeywords: ["better", "people"],
-    text: "It's better to make a few people really happy than to make a lot of people semi-happy.",
-  },
-  {
-    attribution: "Paul Graham",
-    highlightKeywords: ["future"],
+    highlightKeywords: ["future", "missing"],
     text: "Live in the future, then build what's missing.",
   },
   {
     attribution: "Paul Graham",
-    highlightKeywords: ["better", "startups"],
+    highlightKeywords: ["Startups", "different"],
     text: "Startups don't win by being better. They win by being different.",
   },
   {
     attribution: "Paul Graham",
-    highlightKeywords: ["startup", "ideas"],
-    text: "The way to get startup ideas is not to try to think of startup ideas.",
+    highlightKeywords: ["happy", "people"],
+    text: "It's better to make a few people really happy than to make a lot of people semi-happy.",
   },
   {
     attribution: "Paul Graham",
-    highlightKeywords: ["quality", "important"],
-    text: "Relentlessly resourceful is the most important quality for a founder.",
+    highlightKeywords: ["growth", "fit"],
+    text: "Growth is the only true indicator of product-market fit.",
   },
-  {
-    attribution: "Paul Graham",
-    highlightKeywords: ["business", "explain"],
-    text: "If you can't explain your business to a 10-year-old, you don't understand it yourself.",
-  },
-  {
-    attribution: "Paul Graham",
-    highlightKeywords: ["fail", "startups"],
-    text: "Most startups that fail, fail because they don't make something people want.",
-  },
-  {
-    attribution: "Paul Graham",
-    highlightKeywords: ["ignore"],
-    text: "Don't ignore an idea because it seems like a toy.",
-  },
-  {
-    attribution: "Paul Graham",
-    highlightKeywords: ["growth", "health"],
-    text: "Growth is the only indicator of a startup's health.",
-  },
-  {
-    attribution: "Larry Ellison",
-    highlightKeywords: ["success", "disadvantages"],
-    text: "I have had all the disadvantages required for success.",
-  },
-  {
-    attribution: "Larry Ellison",
-    highlightKeywords: ["unfortunately"],
-    text: "Winning is a habit. Unfortunately, so is losing.",
-  },
-  {
-    attribution: "Larry Ellison",
-    highlightKeywords: ["innovate", "prepared"],
-    text: "When you innovate, you’ve got to be prepared for everyone telling you you’re nuts.",
-  },
-  {
-    attribution: "Larry Ellison",
-    highlightKeywords: ["building"],
-    text: "Building a company is like building a family.",
-  },
-  {
-    attribution: "Larry Ellison",
-    highlightKeywords: ["addicted", "winning"],
-    text: "I'm addicted to winning. The more you win, the more you want to win.",
-  },
-  {
-    attribution: "Larry Ellison",
-    highlightKeywords: ["success", "failure"],
-    text: "Great achievers are driven, not so much by the pursuit of success, but by the fear of failure.",
-  },
-  {
-    attribution: "Larry Ellison",
-    highlightKeywords: ["wisdom", "success", "important"],
-    text: "The most important aspect of my personality as far as determining my success has been my questioning conventional wisdom.",
-  },
-  {
-    attribution: "Larry Ellison",
-    highlightKeywords: ["mind"],
-    text: "A computer is a bicycle for the mind.",
-  },
-  {
-    attribution: "Larry Ellison",
-    highlightKeywords: ["product", "good"],
-    text: "If an open source product gets good enough, we'll simply take it and put it into our product.",
-  },
-  {
-    attribution: "Larry Ellison",
-    highlightKeywords: ["everything"],
-    text: "Being first is everything.",
-  },
+
+  // ─── Sam Altman ──────────────────────────────────────────────────
   {
     attribution: "Sam Altman",
-    highlightKeywords: ["advantages", "companies"],
+    highlightKeywords: ["fast", "large"],
     text: "Move fast. Speed is one of your main advantages over large companies.",
   },
   {
     attribution: "Sam Altman",
-    highlightKeywords: ["build", "product"],
-    text: "The best way to build a great company is to build a great product.",
-  },
-  {
-    attribution: "Sam Altman",
-    highlightKeywords: ["persistence", "important"],
+    highlightKeywords: ["Persistence", "founder"],
     text: "Persistence is the most important trait in a founder.",
   },
   {
     attribution: "Sam Altman",
-    highlightKeywords: ["competitive"],
-    text: "Long-term thinking is a competitive advantage.",
-  },
-  {
-    attribution: "Sam Altman",
-    highlightKeywords: ["believe"],
+    highlightKeywords: ["Believe", "yourself"],
     text: "Believe in yourself, even when no one else does.",
   },
   {
     attribution: "Sam Altman",
-    highlightKeywords: ["feature"],
-    text: "Scale is a feature.",
+    highlightKeywords: ["Long-term", "advantage"],
+    text: "Long-term thinking is a competitive advantage.",
   },
   {
     attribution: "Sam Altman",
-    highlightKeywords: ["execution", "startup"],
-    text: "The hard part of a startup is not the idea, but the execution.",
-  },
-  {
-    attribution: "Sam Altman",
-    highlightKeywords: ["talker"],
-    text: "Be a doer, not a talker.",
-  },
-  {
-    attribution: "Sam Altman",
-    highlightKeywords: ["future"],
+    highlightKeywords: ["world", "future"],
     text: "The world wants to be pulled into the future.",
   },
   {
     attribution: "Sam Altman",
-    highlightKeywords: ["technology", "important"],
-    text: "AI will be the most important technology ever created.",
+    highlightKeywords: ["AI", "transformative"],
+    text: "AI will be the most transformative technology ever created.",
+  },
+
+  // ─── Mel Robbins ─────────────────────────────────────────────────
+  {
+    attribution: "Mel Robbins",
+    highlightKeywords: ["decision", "different"],
+    text: "You are one decision away from a completely different life.",
   },
   {
-    attribution: "Reed Hastings",
-    highlightKeywords: ["afraid"],
-    text: "Don't be afraid to fail, be afraid of not trying.",
+    attribution: "Mel Robbins",
+    highlightKeywords: ["Motivation", "garbage"],
+    text: "Motivation is garbage. You're never going to feel like it. Do it anyway.",
   },
   {
-    attribution: "Reed Hastings",
-    highlightKeywords: ["culture", "room"],
-    text: "Culture is what happens when the CEO isn't in the room.",
+    attribution: "Mel Robbins",
+    highlightKeywords: ["5 seconds", "brain"],
+    text: "If you have an impulse to act on a goal, move within 5 seconds or your brain will kill it.",
   },
   {
-    attribution: "Reed Hastings",
-    highlightKeywords: ["first"],
-    text: "Be big, be fast, and be first.",
+    attribution: "Mel Robbins",
+    highlightKeywords: ["Confidence", "action"],
+    text: "Confidence is a skill you build through action, not a feeling you wait for.",
   },
   {
-    attribution: "Reed Hastings",
-    highlightKeywords: ["culture", "based"],
-    text: "At Netflix, we don't have a rules-based culture, we have a values-based culture.",
+    attribution: "Mel Robbins",
+    highlightKeywords: ["waiting", "right time"],
+    text: "Stop waiting for the right time. The right time is now.",
+  },
+
+  // ─── Mark Manson ─────────────────────────────────────────────────
+  {
+    attribution: "Mark Manson",
+    highlightKeywords: ["struggle", "defined"],
+    text: "Who you are is defined by what you're willing to struggle for.",
   },
   {
-    attribution: "Reed Hastings",
-    highlightKeywords: ["future", "predict"],
-    text: "The best way to predict the future is to invent it.",
+    attribution: "Mark Manson",
+    highlightKeywords: ["Happiness", "problems"],
+    text: "Happiness comes from solving problems, not from the absence of them.",
   },
   {
-    attribution: "Reed Hastings",
-    highlightKeywords: ["failing", "taking"],
-    text: "If you're not failing, you're not taking enough risks.",
+    attribution: "Mark Manson",
+    highlightKeywords: ["wrong", "growth"],
+    text: "We don't go from wrong to right. We go from wrong to slightly less wrong. That's growth.",
   },
   {
-    attribution: "Reed Hastings",
-    highlightKeywords: ["growth"],
-    text: "Radical candor is essential for growth.",
+    attribution: "Mark Manson",
+    highlightKeywords: ["responsible", "circumstances"],
+    text: "We are responsible for everything in our lives, no matter the external circumstances.",
   },
   {
-    attribution: "Reed Hastings",
-    highlightKeywords: ["success"],
-    text: "Focus is the key to success.",
+    attribution: "Mark Manson",
+    highlightKeywords: ["something", "answers"],
+    text: "Don't just sit there. Do something. The answers will follow.",
+  },
+
+  // ─── James Clear ─────────────────────────────────────────────────
+  {
+    attribution: "James Clear",
+    highlightKeywords: ["action", "vote"],
+    text: "Every action you take is a vote for the type of person you wish to become.",
   },
   {
-    attribution: "Reed Hastings",
-    highlightKeywords: ["family"],
-    text: "We are a team, not a family.",
+    attribution: "James Clear",
+    highlightKeywords: ["goals", "systems"],
+    text: "You do not rise to the level of your goals. You fall to the level of your systems.",
   },
   {
-    attribution: "Reed Hastings",
-    highlightKeywords: ["innovation"],
-    text: "Innovation is a continuous process.",
+    attribution: "James Clear",
+    highlightKeywords: ["1%", "better"],
+    text: "Getting 1% better every day counts for a lot in the long run.",
   },
+  {
+    attribution: "James Clear",
+    highlightKeywords: ["Environment", "behavior"],
+    text: "Environment is the invisible hand that shapes human behavior.",
+  },
+  {
+    attribution: "James Clear",
+    highlightKeywords: ["change", "do"],
+    text: "The most practical way to change who you are is to change what you do.",
+  },
+  {
+    attribution: "James Clear",
+    highlightKeywords: ["rewarded", "repeated"],
+    text: "The cardinal rule of behavior change: what is rewarded is repeated.",
+  },
+  {
+    attribution: "James Clear",
+    highlightKeywords: ["daily habits", "transformations"],
+    text: "Success is the product of daily habits — not once-in-a-lifetime transformations.",
+  },
+
+  // ─── Simon Sinek ─────────────────────────────────────────────────
+  {
+    attribution: "Simon Sinek",
+    highlightKeywords: ["Start", "why"],
+    text: "Start with why.",
+  },
+  {
+    attribution: "Simon Sinek",
+    highlightKeywords: ["Leaders", "last"],
+    text: "Leaders eat last.",
+  },
+  {
+    attribution: "Simon Sinek",
+    highlightKeywords: ["buy", "why"],
+    text: "People don't buy what you do. They buy why you do it.",
+  },
+  {
+    attribution: "Simon Sinek",
+    highlightKeywords: ["trust", "team"],
+    text: "A team is not a group of people who work together. A team is a group of people who trust each other.",
+  },
+  {
+    attribution: "Simon Sinek",
+    highlightKeywords: ["goal", "keep playing"],
+    text: "The goal is not to win. The goal is to keep playing.",
+  },
+  {
+    attribution: "Simon Sinek",
+    highlightKeywords: ["Optimism", "power"],
+    text: "Optimism is not believing that things will get better. It's believing you have the power to make things better.",
+  },
+
+  // ─── Brené Brown ─────────────────────────────────────────────────
+  {
+    attribution: "Brené Brown",
+    highlightKeywords: ["Vulnerability", "courage"],
+    text: "Vulnerability is not weakness. It's the birthplace of courage.",
+  },
+  {
+    attribution: "Brené Brown",
+    highlightKeywords: ["Daring", "vulnerable"],
+    text: "Daring greatly means the courage to be vulnerable. It means to show up and be seen.",
+  },
+  {
+    attribution: "Brené Brown",
+    highlightKeywords: ["Shame", "silence"],
+    text: "Shame cannot survive being spoken. It needs silence, secrecy, and judgment to grow.",
+  },
+  {
+    attribution: "Brené Brown",
+    highlightKeywords: ["belonging", "yourself"],
+    text: "True belonging is the spiritual practice of believing in and belonging to yourself.",
+  },
+
+  // ─── Oprah Winfrey ───────────────────────────────────────────────
+  {
+    attribution: "Oprah Winfrey",
+    highlightKeywords: ["Passion", "energy"],
+    text: "Passion is energy. Feel the power that comes from focusing on what excites you.",
+  },
+  {
+    attribution: "Oprah Winfrey",
+    highlightKeywords: ["thankful", "more"],
+    text: "Be thankful for what you have; you'll end up having more.",
+  },
+  {
+    attribution: "Oprah Winfrey",
+    highlightKeywords: ["queen", "fail"],
+    text: "Think like a queen. A queen is not afraid to fail. Failure is another stepping stone to greatness.",
+  },
+  {
+    attribution: "Oprah Winfrey",
+    highlightKeywords: ["wounds", "wisdom"],
+    text: "Turn your wounds into wisdom.",
+  },
+  {
+    attribution: "Oprah Winfrey",
+    highlightKeywords: ["adventure", "dreams"],
+    text: "The biggest adventure you can take is to live the life of your dreams.",
+  },
+
+  // ─── Denzel Washington ──────────────────────────────────────────
+  {
+    attribution: "Denzel Washington",
+    highlightKeywords: ["fail", "passionate"],
+    text: "Fail big. You only live once, so do what you feel passionate about.",
+  },
+  {
+    attribution: "Denzel Washington",
+    highlightKeywords: ["Dreams", "goals"],
+    text: "Dreams without goals are just dreams. And ultimately they fuel disappointment. Have dreams. But have goals.",
+  },
+  {
+    attribution: "Denzel Washington",
+    highlightKeywords: ["Luck", "prepared"],
+    text: "Luck is when an opportunity comes along and you're prepared for it.",
+  },
+  {
+    attribution: "Denzel Washington",
+    highlightKeywords: ["commitment", "consistency"],
+    text: "Without commitment, you'll never start. But more importantly, without consistency, you'll never finish.",
+  },
+
+  // ─── Will Smith ──────────────────────────────────────────────────
+  {
+    attribution: "Will Smith",
+    highlightKeywords: ["treadmill", "afraid"],
+    text: "The only thing that I see that is distinctly different about me is: I'm not afraid to die on a treadmill.",
+  },
+  {
+    attribution: "Will Smith",
+    highlightKeywords: ["Talent", "Skill"],
+    text: "Talent you have naturally. Skill is only developed by hours and hours and hours of beating on your craft.",
+  },
+  {
+    attribution: "Will Smith",
+    highlightKeywords: ["realistic", "mediocrity"],
+    text: "Being realistic is the most commonly traveled road to mediocrity.",
+  },
+  {
+    attribution: "Will Smith",
+    highlightKeywords: ["control", "mind"],
+    text: "Stop letting people who do so little for you control so much of your mind, feelings, and emotions.",
+  },
+  {
+    attribution: "Will Smith",
+    highlightKeywords: ["Greatness", "special"],
+    text: "Greatness is not this wonderful, esoteric, elusive god-like feature that only the special among us will ever taste.",
+  },
+
+  // ─── Arnold Schwarzenegger ──────────────────────────────────────
+  {
+    attribution: "Arnold Schwarzenegger",
+    highlightKeywords: ["mind", "limit"],
+    text: "The mind is the limit. As long as the mind can envision that you can do something, you can do it.",
+  },
+  {
+    attribution: "Arnold Schwarzenegger",
+    highlightKeywords: ["reps", "great"],
+    text: "Reps, reps, reps. That's what separates good from great.",
+  },
+  {
+    attribution: "Arnold Schwarzenegger",
+    highlightKeywords: ["vision", "true"],
+    text: "Create a vision of who you want to be, and then live into that picture as if it were already true.",
+  },
+  {
+    attribution: "Arnold Schwarzenegger",
+    highlightKeywords: ["Strength", "struggles"],
+    text: "Strength does not come from winning. Your struggles develop your strengths.",
+  },
+
+  // ─── Tony Robbins ────────────────────────────────────────────────
+  {
+    attribution: "Tony Robbins",
+    highlightKeywords: ["state", "physiology"],
+    text: "Change your state. Everything begins with your physiology.",
+  },
+  {
+    attribution: "Tony Robbins",
+    highlightKeywords: ["impossible", "begin"],
+    text: "The only impossible journey is the one you never begin.",
+  },
+  {
+    attribution: "Tony Robbins",
+    highlightKeywords: ["meaning", "happens"],
+    text: "It's not what happens to us that determines our lives — it's the meaning we give to what happens.",
+  },
+  {
+    attribution: "Tony Robbins",
+    highlightKeywords: ["Progress", "happiness"],
+    text: "Progress equals happiness.",
+  },
+  {
+    attribution: "Tony Robbins",
+    highlightKeywords: ["focus", "energy"],
+    text: "Where focus goes, energy flows.",
+  },
+  {
+    attribution: "Tony Robbins",
+    highlightKeywords: ["standards", "know"],
+    text: "The only thing that changes your life is something you do, not something you know. Raise your standards.",
+  },
+
+  // ─── Gary Vaynerchuk ────────────────────────────────────────────
+  {
+    attribution: "Gary Vaynerchuk",
+    highlightKeywords: ["Self-awareness", "weaknesses"],
+    text: "Self-awareness is being able to accept your weaknesses while focusing all of your attention on your strengths.",
+  },
+  {
+    attribution: "Gary Vaynerchuk",
+    highlightKeywords: ["Skills", "Passion"],
+    text: "Skills are cheap. Passion is priceless.",
+  },
+  {
+    attribution: "Gary Vaynerchuk",
+    highlightKeywords: ["Hustle", "important"],
+    text: "Hustle is the most important word. Ever.",
+  },
+  {
+    attribution: "Gary Vaynerchuk",
+    highlightKeywords: ["Legacy", "currency"],
+    text: "Legacy is greater than currency.",
+  },
+  {
+    attribution: "Gary Vaynerchuk",
+    highlightKeywords: ["patient", "aggressive"],
+    text: "Be patient with results, but aggressive with your effort.",
+  },
+  {
+    attribution: "Gary Vaynerchuk",
+    highlightKeywords: ["underestimating", "Stop"],
+    text: "Stop underestimating yourself.",
+  },
+
+  // ─── Peter Attia ─────────────────────────────────────────────────
+  {
+    attribution: "Peter Attia",
+    highlightKeywords: ["marathon", "long"],
+    text: "Health is a marathon, not a sprint. You have to plan for the long game.",
+  },
+  {
+    attribution: "Peter Attia",
+    highlightKeywords: ["Exercise", "longevity"],
+    text: "Exercise is the most potent longevity drug we have.",
+  },
+  {
+    attribution: "Peter Attia",
+    highlightKeywords: ["manage", "measure"],
+    text: "You can't manage what you don't measure.",
+  },
+  {
+    attribution: "Peter Attia",
+    highlightKeywords: ["kick-ass", "100-year-old"],
+    text: "The goal is to be the most kick-ass 100-year-old you can be.",
+  },
+  {
+    attribution: "Peter Attia",
+    highlightKeywords: ["Mindset", "health"],
+    text: "Mindset is the variable that determines how you apply the science of health.",
+  },
+
+  // ─── Wim Hof ─────────────────────────────────────────────────────
+  {
+    attribution: "Wim Hof",
+    highlightKeywords: ["mind", "possible"],
+    text: "If you can learn how to use your mind, anything is possible.",
+  },
+  {
+    attribution: "Wim Hof",
+    highlightKeywords: ["cold", "teacher"],
+    text: "The cold is a merciless but righteous teacher.",
+  },
+  {
+    attribution: "Wim Hof",
+    highlightKeywords: ["afraid", "lived"],
+    text: "I'm not afraid to die. I'm afraid not to have lived.",
+  },
+  {
+    attribution: "Wim Hof",
+    highlightKeywords: ["Feeling", "understanding"],
+    text: "Feeling is understanding.",
+  },
+  {
+    attribution: "Wim Hof",
+    highlightKeywords: ["master", "mind"],
+    text: "You are the master of your own mind.",
+  },
+
+  // ─── Steven Bartlett ────────────────────────────────────────────
+  {
+    attribution: "Steven Bartlett",
+    highlightKeywords: ["tree", "now"],
+    text: "The best time to plant a tree was 20 years ago. The second best time is now.",
+  },
+  {
+    attribution: "Steven Bartlett",
+    highlightKeywords: ["schedule", "control"],
+    text: "If you don't control your schedule, your schedule will control you.",
+  },
+  {
+    attribution: "Steven Bartlett",
+    highlightKeywords: ["Discipline", "accomplishment"],
+    text: "Discipline is the bridge between goals and accomplishment.",
+  },
+  {
+    attribution: "Steven Bartlett",
+    highlightKeywords: ["Fail", "learn"],
+    text: "Fail fast, learn faster.",
+  },
+  {
+    attribution: "Steven Bartlett",
+    highlightKeywords: ["truth", "free"],
+    text: "The truth will set you free, but first it will piss you off.",
+  },
+  {
+    attribution: "Steven Bartlett",
+    highlightKeywords: ["impatient", "patient"],
+    text: "Be impatient with action, but patient with results.",
+  },
+
+  // ─── Ali Abdaal ──────────────────────────────────────────────────
+  {
+    attribution: "Ali Abdaal",
+    highlightKeywords: ["Productivity", "progress"],
+    text: "Productivity is about making progress on the things that matter, not just doing more things.",
+  },
+  {
+    attribution: "Ali Abdaal",
+    highlightKeywords: ["journey", "destination"],
+    text: "Enjoy the journey, because the destination is often just the beginning of another journey.",
+  },
+  {
+    attribution: "Ali Abdaal",
+    highlightKeywords: ["Consistency", "Showing up"],
+    text: "Consistency over intensity. Showing up every day is better than a marathon session once a week.",
+  },
+  {
+    attribution: "Ali Abdaal",
+    highlightKeywords: ["Success", "slow burn"],
+    text: "Success is a slow burn, not a quick flash.",
+  },
+  {
+    attribution: "Ali Abdaal",
+    highlightKeywords: ["perfection", "done"],
+    text: "Don't aim for perfection. Aim for done.",
+  },
+
+  // ─── Chris Williamson ────────────────────────────────────────────
+  {
+    attribution: "Chris Williamson",
+    highlightKeywords: ["Success", "byproduct"],
+    text: "Success is a byproduct of being the best version of yourself.",
+  },
+  {
+    attribution: "Chris Williamson",
+    highlightKeywords: ["wisdom", "information"],
+    text: "Seek wisdom, not just information.",
+  },
+  {
+    attribution: "Chris Williamson",
+    highlightKeywords: ["quality", "questions"],
+    text: "The quality of your life is the quality of your questions.",
+  },
+  {
+    attribution: "Chris Williamson",
+    highlightKeywords: ["curiosity", "compass"],
+    text: "Your curiosity is your compass.",
+  },
+  {
+    attribution: "Chris Williamson",
+    highlightKeywords: ["ego", "education"],
+    text: "Don't let your ego get in the way of your education.",
+  },
+
+  // ─── Nipsey Hussle ───────────────────────────────────────────────
+  {
+    attribution: "Nipsey Hussle",
+    highlightKeywords: ["marathon", "continues"],
+    text: "The marathon continues.",
+  },
+  {
+    attribution: "Nipsey Hussle",
+    highlightKeywords: ["authentically", "truth"],
+    text: "Most important thing is to be authentically you. Own your truth.",
+  },
+  {
+    attribution: "Nipsey Hussle",
+    highlightKeywords: ["process", "price"],
+    text: "The process is the price. Embrace it.",
+  },
+
+  // ─── Jay-Z ───────────────────────────────────────────────────────
+  {
+    attribution: "Jay-Z",
+    highlightKeywords: ["businessman", "business"],
+    text: "I'm not a businessman. I'm a business, man.",
+  },
+  {
+    attribution: "Jay-Z",
+    highlightKeywords: ["flawed", "masterpiece"],
+    text: "I'm a flawed character, but the work is a masterpiece.",
+  },
+  {
+    attribution: "Jay-Z",
+    highlightKeywords: ["past", "understand"],
+    text: "Identity is a prison you can never escape, but the way to redeem your past is not to run from it, but to try to understand it.",
+  },
+
+  // ─── Drake ───────────────────────────────────────────────────────
+  {
+    attribution: "Drake",
+    highlightKeywords: ["running", "facing"],
+    text: "I was running from my problems when I should have been facing them.",
+  },
+  {
+    attribution: "Drake",
+    highlightKeywords: ["work", "breaks"],
+    text: "When it comes to working hard and making it, you don't take breaks.",
+  },
+
+  // ─── Kendrick Lamar ──────────────────────────────────────────────
+  {
+    attribution: "Kendrick Lamar",
+    highlightKeywords: ["humble", "Sit down"],
+    text: "Sit down. Be humble.",
+  },
+  {
+    attribution: "Kendrick Lamar",
+    highlightKeywords: ["great", "obsess"],
+    text: "If you want to be great, you've got to be willing to obsess over the craft.",
+  },
+
+  // ─── Eminem ──────────────────────────────────────────────────────
+  {
+    attribution: "Eminem",
+    highlightKeywords: ["one shot", "opportunity"],
+    text: "If you had one shot, or one opportunity to seize everything you ever wanted in one moment, would you capture it, or just let it slip?",
+  },
+
+  // ─── Rocky Balboa (Rocky) ────────────────────────────────────────
+  {
+    attribution: "Rocky Balboa",
+    highlightKeywords: ["hit", "moving forward"],
+    text: "It ain't about how hard you hit. It's about how hard you can get hit and keep moving forward.",
+  },
+
+  // ─── Thomas Shelby (Peaky Blinders) ────────────────────────────
+  {
+    attribution: "Thomas Shelby",
+    highlightKeywords: ["suits", "burns down"],
+    text: "I don't pay for suits. My suits are on the house or the house burns down.",
+  },
+  {
+    attribution: "Thomas Shelby",
+    highlightKeywords: ["change", "want"],
+    text: "You can change what you do, but you can't change what you want.",
+  },
+  {
+    attribution: "Thomas Shelby",
+    highlightKeywords: ["Choices", "define"],
+    text: "Whiskey is good for the soul. Choices are what define us.",
+  },
+
+  // ─── Tony Stark / Iron Man ──────────────────────────────────────
+  {
+    attribution: "Tony Stark",
+    highlightKeywords: ["journey", "end"],
+    text: "Part of the journey is the end.",
+  },
+  {
+    attribution: "Tony Stark",
+    highlightKeywords: ["Iron Man", "am"],
+    text: "I am Iron Man.",
+  },
+
+  // ─── Sheryl Sandberg ─────────────────────────────────────────────
   {
     attribution: "Sheryl Sandberg",
-    highlightKeywords: ["perfect"],
-    text: "Done is better than perfect.",
-  },
-  {
-    attribution: "Sheryl Sandberg",
-    highlightKeywords: ["lean"],
+    highlightKeywords: ["Lean", "in"],
     text: "Lean in.",
   },
   {
     attribution: "Sheryl Sandberg",
-    highlightKeywords: ["presence", "leadership", "impact"],
+    highlightKeywords: ["Leadership", "presence"],
     text: "Leadership is about making others better as a result of your presence and making sure that impact lasts in your absence.",
   },
   {
     attribution: "Sheryl Sandberg",
-    highlightKeywords: ["bold"],
-    text: "Fortune favors the bold.",
-  },
-  {
-    attribution: "Sheryl Sandberg",
-    highlightKeywords: ["career", "important"],
-    text: "The most important career choice you'll make is who you marry.",
-  },
-  {
-    attribution: "Sheryl Sandberg",
-    highlightKeywords: ["motivation", "care", "working"],
-    text: "Motivation comes from working on things we care about. It also comes from working with people we care about.",
-  },
-  {
-    attribution: "Sheryl Sandberg",
-    highlightKeywords: ["seat", "offered"],
-    text: "If you're offered a seat on a rocket ship, don't ask what seat! Just get on.",
-  },
-  {
-    attribution: "Sheryl Sandberg",
-    highlightKeywords: ["change", "help"],
-    text: "We cannot change what we are not aware of, and once we are aware, we cannot help but change.",
-  },
-  {
-    attribution: "Sheryl Sandberg",
-    highlightKeywords: ["success", "failure"],
-    text: "Success is the ability to go from one failure to another with no loss of enthusiasm.",
-  },
-  {
-    attribution: "Sheryl Sandberg",
-    highlightKeywords: ["afraid"],
+    highlightKeywords: ["afraid", "do"],
     text: "What would you do if you weren't afraid?",
   },
   {
+    attribution: "Sheryl Sandberg",
+    highlightKeywords: ["seat", "rocket"],
+    text: "If you're offered a seat on a rocket ship, don't ask what seat. Just get on.",
+  },
+
+  // ─── Chimamanda Ngozi Adichie ───────────────────────────────────
+  {
+    attribution: "Chimamanda Ngozi Adichie",
+    highlightKeywords: ["single story", "incomplete"],
+    text: "The single story creates stereotypes, and the problem with stereotypes is not that they are untrue, but that they are incomplete.",
+  },
+  {
+    attribution: "Chimamanda Ngozi Adichie",
+    highlightKeywords: ["Stories", "empower"],
+    text: "Stories matter. Many stories matter. Stories have been used to dispossess and to malign, but stories can also be used to empower and humanize.",
+  },
+
+  // ─── Satya Nadella ───────────────────────────────────────────────
+  {
+    attribution: "Satya Nadella",
+    highlightKeywords: ["growth mindset", "practice"],
+    text: "A growth mindset is not something you have. It's something you practice every day.",
+  },
+  {
+    attribution: "Satya Nadella",
+    highlightKeywords: ["Empathy", "leadership"],
+    text: "Empathy is one of the most important skills in leadership and in life.",
+  },
+  {
+    attribution: "Satya Nadella",
+    highlightKeywords: ["learn-it-all", "know-it-all"],
+    text: "Don't be a 'know-it-all.' Be a 'learn-it-all.'",
+  },
+
+  // ─── Reed Hastings ───────────────────────────────────────────────
+  {
+    attribution: "Reed Hastings",
+    highlightKeywords: ["afraid", "trying"],
+    text: "Don't be afraid to fail. Be afraid of not trying.",
+  },
+  {
+    attribution: "Reed Hastings",
+    highlightKeywords: ["failing", "risks"],
+    text: "If you're not failing, you're not taking enough risks.",
+  },
+  {
+    attribution: "Reed Hastings",
+    highlightKeywords: ["Culture", "room"],
+    text: "Culture is what happens when the CEO isn't in the room.",
+  },
+
+  // ─── Marc Andreessen ────────────────────────────────────────────
+  {
+    attribution: "Marc Andreessen",
+    highlightKeywords: ["Software", "eating"],
+    text: "Software is eating the world.",
+  },
+  {
+    attribution: "Marc Andreessen",
+    highlightKeywords: ["Execution", "everything"],
+    text: "Execution is everything.",
+  },
+  {
+    attribution: "Marc Andreessen",
+    highlightKeywords: ["product", "market fit"],
+    text: "Product/market fit is the only thing that matters.",
+  },
+  {
+    attribution: "Marc Andreessen",
+    highlightKeywords: ["energy", "passion"],
+    text: "The world is a very malleable place. If you go for it with maximum energy and drive and passion, the world will yield to you.",
+  },
+  {
+    attribution: "Marc Andreessen",
+    highlightKeywords: ["right", "contrarian"],
+    text: "Be right and be contrarian.",
+  },
+
+  // ─── Peter Thiel ────────────────────────────────────────────────
+  {
+    attribution: "Peter Thiel",
+    highlightKeywords: ["Competition", "losers"],
+    text: "Competition is for losers.",
+  },
+  {
+    attribution: "Peter Thiel",
+    highlightKeywords: ["courage", "genius"],
+    text: "Brilliant thinking is rare, but courage is in even shorter supply than genius.",
+  },
+  {
+    attribution: "Peter Thiel",
+    highlightKeywords: ["secret", "business"],
+    text: "Every great business is built around a secret that's hidden from the outside.",
+  },
+  {
+    attribution: "Peter Thiel",
+    highlightKeywords: ["zero", "one"],
+    text: "Going from zero to one is the hardest thing. Everything after that is repetition.",
+  },
+
+  // ─── Jack Dorsey ────────────────────────────────────────────────
+  {
     attribution: "Jack Dorsey",
-    highlightKeywords: ["unexpected", "possible"],
-    text: "Expect the unexpected. And whenever possible, be the unexpected.",
+    highlightKeywords: ["Simplicity", "sophistication"],
+    text: "Simplicity is the ultimate sophistication.",
   },
   {
     attribution: "Jack Dorsey",
-    highlightKeywords: ["perfect", "details"],
-    text: "Make every detail perfect and limit the number of details to perfect.",
-  },
-  {
-    attribution: "Jack Dorsey",
-    highlightKeywords: ["success"],
-    text: "Success is never accidental.",
-  },
-  {
-    attribution: "Jack Dorsey",
-    highlightKeywords: ["attitude"],
-    text: "A founder is not a job, it's a role, an attitude.",
-  },
-  {
-    attribution: "Jack Dorsey",
-    highlightKeywords: ["product", "build"],
-    text: "The best way to show that a product is viable is to build it.",
-  },
-  {
-    attribution: "Jack Dorsey",
-    highlightKeywords: ["entrepreneur", "genius"],
-    text: "You don't have to be a genius to be an entrepreneur.",
-  },
-  {
-    attribution: "Jack Dorsey",
-    highlightKeywords: ["build"],
-    text: "Build what you want to see in the world.",
-  },
-  {
-    attribution: "Jack Dorsey",
-    highlightKeywords: ["important"],
+    highlightKeywords: ["important", "start"],
     text: "The most important thing is to just start.",
   },
   {
     attribution: "Jack Dorsey",
-    highlightKeywords: ["iterate"],
-    text: "Iterate, iterate, iterate.",
+    highlightKeywords: ["Build", "world"],
+    text: "Build what you want to see in the world.",
+  },
+
+  // ─── Epictetus ──────────────────────────────────────────────────
+  {
+    attribution: "Epictetus",
+    highlightKeywords: ["power", "happens"],
+    text: "Make the best use of what is in your power, and take the rest as it happens.",
   },
   {
-    attribution: "Jack Dorsey",
-    highlightKeywords: ["simplicity"],
-    text: "Simplicity is the ultimate sophistication.",
+    attribution: "Epictetus",
+    highlightKeywords: ["good", "yourselves"],
+    text: "Seek not the good in external things; seek it in yourselves.",
   },
   {
-    attribution: "Michael Dell",
-    highlightKeywords: ["dream", "successful", "visionary"],
-    text: "You don't have to be a genius or a visionary or even a college graduate to be successful. You just need a framework and a dream.",
+    attribution: "Epictetus",
+    highlightKeywords: ["react", "matters"],
+    text: "It's not what happens to you, but how you react to it that matters.",
+  },
+
+  // ─── Seneca ─────────────────────────────────────────────────────
+  {
+    attribution: "Seneca",
+    highlightKeywords: ["Begin", "live"],
+    text: "Begin at once to live, and count each separate day as a separate life.",
   },
   {
-    attribution: "Michael Dell",
-    highlightKeywords: ["execution"],
-    text: "Ideas are a commodity. Execution of them is not.",
+    attribution: "Seneca",
+    highlightKeywords: ["Luck", "preparation"],
+    text: "Luck is what happens when preparation meets opportunity.",
   },
   {
-    attribution: "Michael Dell",
-    highlightKeywords: ["celebrate"],
-    text: "Celebrate for a nanosecond, then move on.",
+    attribution: "Seneca",
+    highlightKeywords: ["time", "lose"],
+    text: "It is not that we have so little time but that we lose so much.",
   },
   {
-    attribution: "Michael Dell",
-    highlightKeywords: ["happen", "fear"],
-    text: "The very thing you fear could be the best thing to ever happen to you.",
+    attribution: "Seneca",
+    highlightKeywords: ["postponing", "life"],
+    text: "While we are postponing, life speeds by.",
   },
   {
-    attribution: "Michael Dell",
-    highlightKeywords: ["success"],
-    text: "Commitment is the key to success.",
+    attribution: "Seneca",
+    highlightKeywords: ["imagination", "reality"],
+    text: "We suffer more in imagination than in reality.",
+  },
+
+  // ─── Rumi ───────────────────────────────────────────────────────
+  {
+    attribution: "Rumi",
+    highlightKeywords: ["wound", "Light"],
+    text: "The wound is the place where the Light enters you.",
   },
   {
-    attribution: "Michael Dell",
-    highlightKeywords: ["afraid"],
-    text: "Don't be afraid to take risks.",
+    attribution: "Rumi",
+    highlightKeywords: ["clever", "wise"],
+    text: "Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing myself.",
   },
   {
-    attribution: "Michael Dell",
-    highlightKeywords: ["customer", "feedback"],
-    text: "Customer feedback is the most valuable asset a company can have.",
+    attribution: "Rumi",
+    highlightKeywords: ["words", "rain"],
+    text: "Raise your words, not voice. It is rain that grows flowers, not thunder.",
   },
   {
-    attribution: "Michael Dell",
-    highlightKeywords: ["success", "impact"],
-    text: "Success is about making an impact, not just making money.",
+    attribution: "Rumi",
+    highlightKeywords: ["seek", "seeking"],
+    text: "What you seek is seeking you.",
   },
   {
-    attribution: "Michael Dell",
-    highlightKeywords: ["learning"],
-    text: "Always be learning.",
+    attribution: "Rumi",
+    highlightKeywords: ["love", "do"],
+    text: "Let the beauty of what you love be what you do.",
+  },
+
+  // ─── Eckhart Tolle ───────────────────────────────────────────────
+  {
+    attribution: "Eckhart Tolle",
+    highlightKeywords: ["present moment", "door"],
+    text: "The present moment is the only moment available to us, and it is the door to all moments.",
   },
   {
-    attribution: "Michael Dell",
-    highlightKeywords: ["room", "smartest"],
-    text: "If you're the smartest person in the room, you're in the wrong room.",
+    attribution: "Eckhart Tolle",
+    highlightKeywords: ["resist", "persists"],
+    text: "Whatever you fight, you strengthen. What you resist, persists.",
+  },
+  {
+    attribution: "Eckhart Tolle",
+    highlightKeywords: ["power", "moment"],
+    text: "The power is in this moment. The past is just a memory and the future is just a thought.",
+  },
+
+  // ─── Viktor Frankl ───────────────────────────────────────────────
+  {
+    attribution: "Viktor Frankl",
+    highlightKeywords: ["change", "situation"],
+    text: "When we are no longer able to change a situation, we are challenged to change ourselves.",
+  },
+  {
+    attribution: "Viktor Frankl",
+    highlightKeywords: ["attitude", "freedoms"],
+    text: "Everything can be taken from a man but one thing: the last of the human freedoms — to choose one's attitude in any given set of circumstances.",
+  },
+  {
+    attribution: "Viktor Frankl",
+    highlightKeywords: ["why", "how"],
+    text: "He who has a why to live can bear almost any how.",
+  },
+  {
+    attribution: "Viktor Frankl",
+    highlightKeywords: ["love", "grasp"],
+    text: "Love is the only way to grasp another human being in the innermost core of his personality.",
+  },
+
+  // ─── Albert Einstein ─────────────────────────────────────────────
+  {
+    attribution: "Albert Einstein",
+    highlightKeywords: ["Imagination", "knowledge"],
+    text: "Imagination is more important than knowledge.",
+  },
+  {
+    attribution: "Albert Einstein",
+    highlightKeywords: ["problems", "thinking"],
+    text: "We cannot solve our problems with the same thinking we used when we created them.",
+  },
+  {
+    attribution: "Albert Einstein",
+    highlightKeywords: ["curious", "talent"],
+    text: "I have no special talent. I am only passionately curious.",
+  },
+  {
+    attribution: "Albert Einstein",
+    highlightKeywords: ["simply", "understand"],
+    text: "If you can't explain it simply, you don't understand it well enough.",
+  },
+
+  // ─── Winston Churchill ──────────────────────────────────────────
+  {
+    attribution: "Winston Churchill",
+    highlightKeywords: ["Success", "Failure"],
+    text: "Success is not final. Failure is not fatal. It is the courage to continue that counts.",
+  },
+  {
+    attribution: "Winston Churchill",
+    highlightKeywords: ["Kites", "wind"],
+    text: "Kites rise highest against the wind, not with it.",
+  },
+  {
+    attribution: "Winston Churchill",
+    highlightKeywords: ["History", "kind"],
+    text: "History will be kind to me for I intend to write it.",
+  },
+
+  // ─── Nelson Mandela ──────────────────────────────────────────────
+  {
+    attribution: "Nelson Mandela",
+    highlightKeywords: ["impossible", "done"],
+    text: "It always seems impossible until it's done.",
+  },
+  {
+    attribution: "Nelson Mandela",
+    highlightKeywords: ["Education", "world"],
+    text: "Education is the most powerful weapon which you can use to change the world.",
+  },
+  {
+    attribution: "Nelson Mandela",
+    highlightKeywords: ["Courage", "triumph"],
+    text: "Courage is not the absence of fear, but the triumph over it.",
+  },
+
+  // ─── Theodore Roosevelt ─────────────────────────────────────────
+  {
+    attribution: "Theodore Roosevelt",
+    highlightKeywords: ["critic", "arena"],
+    text: "It is not the critic who counts. The credit belongs to the man who is actually in the arena.",
+  },
+  {
+    attribution: "Theodore Roosevelt",
+    highlightKeywords: ["can", "have", "where"],
+    text: "Do what you can, with what you have, where you are.",
+  },
+  {
+    attribution: "Theodore Roosevelt",
+    highlightKeywords: ["Believe", "halfway"],
+    text: "Believe you can and you're halfway there.",
+  },
+
+  // ─── Ralph Waldo Emerson ─────────────────────────────────────────
+  {
+    attribution: "Ralph Waldo Emerson",
+    highlightKeywords: ["great", "enthusiasm"],
+    text: "Nothing great was ever achieved without enthusiasm.",
+  },
+  {
+    attribution: "Ralph Waldo Emerson",
+    highlightKeywords: ["Trust yourself", "heart"],
+    text: "Trust yourself. Every heart vibrates to that iron string.",
+  },
+  {
+    attribution: "Ralph Waldo Emerson",
+    highlightKeywords: ["laugh", "succeeded"],
+    text: "To laugh often and love much... to know that even one life has breathed easier because you lived. This is to have succeeded.",
+  },
+
+  // ─── Richard Feynman ─────────────────────────────────────────────
+  {
+    attribution: "Richard Feynman",
+    highlightKeywords: ["interests", "undisciplined"],
+    text: "Study hard what interests you the most in the most undisciplined, irreverent, and original manner possible.",
+  },
+  {
+    attribution: "Richard Feynman",
+    highlightKeywords: ["questions", "answers"],
+    text: "I would rather have questions that can't be answered than answers that can't be questioned.",
+  },
+
+  // ─── Nikola Tesla ────────────────────────────────────────────────
+  {
+    attribution: "Nikola Tesla",
+    highlightKeywords: ["present", "future"],
+    text: "The present is theirs; the future, for which I really worked, is mine.",
+  },
+  {
+    attribution: "Nikola Tesla",
+    highlightKeywords: ["alone", "ideas"],
+    text: "Be alone, that is the secret of invention; be alone, that is when ideas are born.",
+  },
+
+  // ─── Miyamoto Musashi ────────────────────────────────────────────
+  {
+    attribution: "Miyamoto Musashi",
+    highlightKeywords: ["yesterday", "victory"],
+    text: "Today is victory over yourself of yesterday; tomorrow is your victory over lesser men.",
+  },
+  {
+    attribution: "Miyamoto Musashi",
+    highlightKeywords: ["lightly", "deeply"],
+    text: "Think lightly of yourself and deeply of the world.",
+  },
+  {
+    attribution: "Miyamoto Musashi",
+    highlightKeywords: ["Perceive", "seen"],
+    text: "Perceive that which cannot be seen with the eye.",
+  },
+  {
+    attribution: "Miyamoto Musashi",
+    highlightKeywords: ["Accept", "way it is"],
+    text: "Accept everything just the way it is.",
+  },
+
+  // ─── Sun Tzu ─────────────────────────────────────────────────────
+  {
+    attribution: "Sun Tzu",
+    highlightKeywords: ["yourself", "battles"],
+    text: "Know yourself and you will win all battles.",
+  },
+  {
+    attribution: "Sun Tzu",
+    highlightKeywords: ["chaos", "opportunity"],
+    text: "In the midst of chaos, there is also opportunity.",
+  },
+  {
+    attribution: "Sun Tzu",
+    highlightKeywords: ["thunderbolt", "plans"],
+    text: "Let your plans be dark and impenetrable as night, and when you move, fall like a thunderbolt.",
+  },
+  {
+    attribution: "Sun Tzu",
+    highlightKeywords: ["battle", "fought"],
+    text: "Every battle is won before it is ever fought.",
+  },
+
+  // ─── Mahatma Gandhi ──────────────────────────────────────────────
+  {
+    attribution: "Mahatma Gandhi",
+    highlightKeywords: ["change", "world"],
+    text: "Be the change you wish to see in the world.",
+  },
+  {
+    attribution: "Mahatma Gandhi",
+    highlightKeywords: ["Strength", "will"],
+    text: "Strength does not come from physical capacity. It comes from an indomitable will.",
+  },
+  {
+    attribution: "Mahatma Gandhi",
+    highlightKeywords: ["ignore", "win"],
+    text: "First they ignore you, then they laugh at you, then they fight you, then you win.",
+  },
+
+  // ─── Swami Vivekananda ──────────────────────────────────────────
+  {
+    attribution: "Swami Vivekananda",
+    highlightKeywords: ["Arise", "awake"],
+    text: "Arise, awake, and stop not till the goal is reached.",
+  },
+  {
+    attribution: "Swami Vivekananda",
+    highlightKeywords: ["power", "anything"],
+    text: "All power is within you. You can do anything and everything.",
+  },
+  {
+    attribution: "Swami Vivekananda",
+    highlightKeywords: ["sin", "weak"],
+    text: "The greatest sin is to think yourself weak.",
+  },
+  {
+    attribution: "Swami Vivekananda",
+    highlightKeywords: ["idea", "life"],
+    text: "Take up one idea. Make that one idea your life — think of it, dream of it, live on that idea. Let the brain, muscles, nerves, every part of your body be full of that idea.",
+  },
+
+  // ─── APJ Abdul Kalam ────────────────────────────────────────────
+  {
+    attribution: "APJ Abdul Kalam",
+    highlightKeywords: ["Dream", "sleep"],
+    text: "Dream is not that which you see while sleeping. It is something that does not let you sleep.",
+  },
+  {
+    attribution: "APJ Abdul Kalam",
+    highlightKeywords: ["victory", "fail"],
+    text: "Don't take rest after your first victory because if you fail in second, more lips are waiting to say that your first victory was just luck.",
+  },
+  {
+    attribution: "APJ Abdul Kalam",
+    highlightKeywords: ["Excellence", "accident"],
+    text: "Excellence is a continuous process and not an accident.",
+  },
+
+  // ─── Ratan Tata ──────────────────────────────────────────────────
+  {
+    attribution: "Ratan Tata",
+    highlightKeywords: ["decisions", "right"],
+    text: "I don't believe in taking right decisions. I take decisions and then make them right.",
+  },
+  {
+    attribution: "Ratan Tata",
+    highlightKeywords: ["destroy", "mindset"],
+    text: "None can destroy iron, but its own rust can. Likewise, none can destroy a person, but his own mindset can.",
+  },
+  {
+    attribution: "Ratan Tata",
+    highlightKeywords: ["ECG", "alive"],
+    text: "Ups and downs in life are very important to keep us going, because a straight line even in an ECG means we are not alive.",
+  },
+
+  // ─── Shah Rukh Khan ──────────────────────────────────────────────
+  {
+    attribution: "Shah Rukh Khan",
+    highlightKeywords: ["Success", "Failure"],
+    text: "Success is not a good teacher. Failure makes you humble.",
+  },
+  {
+    attribution: "Shah Rukh Khan",
+    highlightKeywords: ["dream", "complete"],
+    text: "I always say that once you dream, you have to complete it.",
+  },
+  {
+    attribution: "Shah Rukh Khan",
+    highlightKeywords: ["love", "matters"],
+    text: "If you succeed at love, nothing else in the world matters. If you fail at love, nothing else in the world matters.",
+  },
+
+  // ─── Roger Federer ───────────────────────────────────────────────
+  {
+    attribution: "Roger Federer",
+    highlightKeywords: ["Effortless", "myth"],
+    text: "Effortless is a myth. There is always work behind the work.",
+  },
+  {
+    attribution: "Roger Federer",
+    highlightKeywords: ["fight", "dream"],
+    text: "You have to fight to reach your dream. You have to sacrifice and work hard for it.",
+  },
+  {
+    attribution: "Roger Federer",
+    highlightKeywords: ["match", "hard"],
+    text: "In the end, I want to look back and know I played each match as hard as I could.",
+  },
+
+  // ─── Novak Djokovic ──────────────────────────────────────────────
+  {
+    attribution: "Novak Djokovic",
+    highlightKeywords: ["victory", "battle"],
+    text: "Believe in your victory before the battle has even begun.",
+  },
+  {
+    attribution: "Novak Djokovic",
+    highlightKeywords: ["mind", "body"],
+    text: "The mind is the most important part of the game. When the mind is right, the body follows.",
+  },
+
+  // ─── Sachin Tendulkar ────────────────────────────────────────────
+  {
+    attribution: "Sachin Tendulkar",
+    highlightKeywords: ["passion", "break"],
+    text: "You can't take a break when it comes to following your passion.",
+  },
+  {
+    attribution: "Sachin Tendulkar",
+    highlightKeywords: ["better", "yesterday"],
+    text: "Don't focus on being the best. Focus on being better than you were yesterday.",
+  },
+
+  // ─── MS Dhoni ────────────────────────────────────────────────────
+  {
+    attribution: "MS Dhoni",
+    highlightKeywords: ["calm", "last ball"],
+    text: "Stay calm, stay focused. The game is never over until the last ball.",
+  },
+  {
+    attribution: "MS Dhoni",
+    highlightKeywords: ["trust", "process"],
+    text: "You have to trust the process. Results will follow.",
+  },
+
+  // ─── Virat Kohli ────────────────────────────────────────────────
+  {
+    attribution: "Virat Kohli",
+    highlightKeywords: ["Self-belief", "success"],
+    text: "Self-belief and hard work will always earn you success.",
+  },
+  {
+    attribution: "Virat Kohli",
+    highlightKeywords: ["pushing", "testing"],
+    text: "I want to keep pushing myself. I want to keep testing myself.",
+  },
+
+  // ─── Shonda Rhimes ──────────────────────────────────────────────
+  {
+    attribution: "Shonda Rhimes",
+    highlightKeywords: ["yes", "everything"],
+    text: "Saying yes changes everything. Saying no keeps things exactly the same.",
+  },
+  {
+    attribution: "Shonda Rhimes",
+    highlightKeywords: ["lines", "crossing"],
+    text: "You can waste your lives drawing lines. Or you can live your life crossing them.",
+  },
+
+  // ─── Taylor Swift ────────────────────────────────────────────────
+  {
+    attribution: "Taylor Swift",
+    highlightKeywords: ["fearless", "soul"],
+    text: "Be fearless in the pursuit of what sets your soul on fire.",
+  },
+  {
+    attribution: "Taylor Swift",
+    highlightKeywords: ["good", "gift"],
+    text: "No matter what happens in life, be good to people. Being good is a gift everyone can afford to give.",
+  },
+
+  // ─── Beyoncé ─────────────────────────────────────────────────────
+  {
+    attribution: "Beyoncé",
+    highlightKeywords: ["Power", "dedication"],
+    text: "Power means hard work, dedication, and sacrifice.",
+  },
+  {
+    attribution: "Beyoncé",
+    highlightKeywords: ["self-worth", "determined"],
+    text: "Your self-worth is determined by you. You don't have to depend on someone telling you who you are.",
+  },
+  {
+    attribution: "Beyoncé",
+    highlightKeywords: ["bet", "myself"],
+    text: "I don't like to gamble, but if there's one thing I'm willing to bet on, it's myself.",
+  },
+
+  // ─── Lady Gaga ───────────────────────────────────────────────────
+  {
+    attribution: "Lady Gaga",
+    highlightKeywords: ["shine", "blinded"],
+    text: "Do not allow people to dim your shine because they are blinded by it.",
+  },
+  {
+    attribution: "Lady Gaga",
+    highlightKeywords: ["star", "lives"],
+    text: "A star is not something that flashes in the night. A star lives every hour of every day.",
+  },
+
+  // ─── Chadwick Boseman ───────────────────────────────────────────
+  {
+    attribution: "Chadwick Boseman",
+    highlightKeywords: ["demons", "truth"],
+    text: "Outrun your demons. But also — outrun your angels. The truth is in the running.",
+  },
+  {
+    attribution: "Chadwick Boseman",
+    highlightKeywords: ["Purpose", "reason"],
+    text: "Purpose is the essential element of you. It is the reason you are on this planet at this particular time in history.",
+  },
+
+  // ─── Keanu Reeves ────────────────────────────────────────────────
+  {
+    attribution: "Keanu Reeves",
+    highlightKeywords: ["Grief", "ends"],
+    text: "Grief changes shape, but it never ends.",
+  },
+  {
+    attribution: "Keanu Reeves",
+    highlightKeywords: ["attention", "long way"],
+    text: "The simple act of paying attention can take you a long way.",
+  },
+
+  // ─── Dwayne Johnson ─────────────────────────────────────────────
+  {
+    attribution: "Dwayne Johnson",
+    highlightKeywords: ["consistency", "success"],
+    text: "Success isn't always about greatness. It's about consistency. Consistent hard work leads to success.",
+  },
+  {
+    attribution: "Dwayne Johnson",
+    highlightKeywords: ["sun", "moon"],
+    text: "When the sun goes down and the moon comes up, I start working. I never stop.",
+  },
+  {
+    attribution: "Dwayne Johnson",
+    highlightKeywords: ["iron", "lies"],
+    text: "The iron never lies to you. It always will be the same. That's something I came to love.",
+  },
+  {
+    attribution: "Dwayne Johnson",
+    highlightKeywords: ["hardest", "room"],
+    text: "Be the hardest worker in the room.",
   },
 ];
