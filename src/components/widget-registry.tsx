@@ -10,7 +10,12 @@ import { TodoList } from "@/components/todo-list/todo-list-widget";
 import type { WidgetSettings } from "@/types/widget-settings";
 
 export type WidgetId = "tasks" | "quick-links" | "calendar";
-export type WidgetRenderVariant = "default" | "expanded" | "full";
+export type WidgetRenderVariant =
+  | "default"
+  | "expanded"
+  | "full"
+  | "compact-split"
+  | "compact-full";
 
 type WidgetSettingKey = "showTasks" | "showQuickLinks" | "showCalendar";
 
@@ -36,12 +41,20 @@ const APP_WIDGET_RENDERERS: Record<
     return <TodoList />;
   },
   "quick-links": (variant) => {
+    if (variant === "compact-split") {
+      return <QuickLinks compactCards compactColumns={3} fullSize />;
+    }
+
+    if (variant === "compact-full") {
+      return <QuickLinks compactCards compactColumns={4} fullSize />;
+    }
+
     if (variant === "full") {
       return <QuickLinks expanded fullSize />;
     }
 
     if (variant === "expanded") {
-      return <QuickLinks expanded />;
+      return <QuickLinks displayMode="icon-hover" expanded />;
     }
 
     return <QuickLinks />;

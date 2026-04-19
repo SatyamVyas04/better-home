@@ -29,6 +29,7 @@ import { useQuickLinksImportController } from "@/hooks/use-quick-links-import-co
 import { useQuickLinksPreviewController } from "@/hooks/use-quick-links-preview-controller";
 import type {
   QuickLink,
+  QuickLinksDisplayMode,
   QuickLinksProps,
   QuickLinksSortMode,
 } from "@/types/quick-links";
@@ -46,6 +47,9 @@ const getQuickLinksCardClasses = (expanded: boolean, fullSize: boolean) => {
 };
 
 export function QuickLinks({
+  compactCards = false,
+  compactColumns,
+  displayMode,
   expanded = false,
   fullSize = false,
 }: QuickLinksProps) {
@@ -79,6 +83,17 @@ export function QuickLinks({
     stageResolvedTitlePreview: previewController.stageResolvedTitlePreview,
   });
 
+  let resolvedDisplayMode: QuickLinksDisplayMode = displayMode || "icon-hover";
+
+  if (!displayMode) {
+    if (compactCards) {
+      resolvedDisplayMode = "compact-cards";
+    } else if (expanded) {
+      resolvedDisplayMode = "list";
+    }
+  }
+  const isFloatingPreviewEnabled = resolvedDisplayMode === "icon-hover";
+
   return (
     <>
       <Dialog
@@ -94,11 +109,18 @@ export function QuickLinks({
                 </CardTitle>
               </CardHeader>
               <CardContent
-                className={`flex flex-col gap-1.5 px-3 pt-1 ${expanded || fullSize ? "min-h-0 flex-1" : ""}`}
+                className={`flex flex-col gap-1.5 px-3 pt-1 ${expanded || fullSize || resolvedDisplayMode === "compact-cards" ? "min-h-0 flex-1" : ""}`}
               >
                 <QuickLinksList
+                  compactColumns={compactColumns}
                   displayedLinks={previewController.displayedLinks}
-                  expanded={expanded}
+                  displayMode={resolvedDisplayMode}
+                  ensureLinkPreview={previewController.ensureLinkPreview}
+                  failedPreviewImageUrls={
+                    previewController.failedPreviewImageUrls
+                  }
+                  getComparableUrl={previewController.getComparableUrl}
+                  loadingPreviewUrls={previewController.loadingPreviewUrls}
                   onCloseFloatingPreview={
                     previewController.closeFloatingPreview
                   }
@@ -108,6 +130,7 @@ export function QuickLinks({
                   onScheduleFloatingPreviewClose={
                     previewController.scheduleFloatingPreviewClose
                   }
+                  previewCache={previewController.previewCache}
                 />
 
                 <QuickLinksAddFlow controller={addFlowController} />
@@ -257,7 +280,7 @@ export function QuickLinks({
         activePreviewUserTitleText={
           previewController.activePreviewUserTitleText
         }
-        expanded={expanded}
+        floatingPreviewEnabled={isFloatingPreviewEnabled}
         hasActivePreviewImage={previewController.hasActivePreviewImage}
         isActivePreviewImageMarkedFailed={
           previewController.isActivePreviewImageMarkedFailed

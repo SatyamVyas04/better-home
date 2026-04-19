@@ -29,6 +29,7 @@ export interface UseQuickLinksPreviewControllerResult {
   deleteLink: (id: string) => void;
   displayedLinks: QuickLink[];
   ensureLinkPreview: (url: string) => void;
+  failedPreviewImageUrls: Record<string, true>;
   getComparableUrl: (url: string) => string;
   getResolvedFavicon: (url: string) => string;
   hasActivePreviewImage: boolean;
@@ -36,6 +37,7 @@ export interface UseQuickLinksPreviewControllerResult {
   hasPreviewCacheEntries: boolean;
   isActivePreviewImageMarkedFailed: boolean;
   isActivePreviewLoading: boolean;
+  loadingPreviewUrls: string[];
   moveFloatingPreview: (x: number, y: number) => void;
   openFloatingPreview: (
     link: QuickLink,
@@ -48,6 +50,7 @@ export interface UseQuickLinksPreviewControllerResult {
     x: number;
     y: number;
   };
+  previewCache: Record<string, LinkPreviewCacheEntry>;
   scheduleFloatingPreviewClose: () => void;
   setSortMode: (nextSortMode: QuickLinksSortMode) => void;
   sortMode: QuickLinksSortMode;

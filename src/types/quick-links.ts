@@ -1,5 +1,11 @@
 import type * as React from "react";
-import type { LinkPreviewPlatform } from "@/lib/link-preview";
+import type {
+  LinkPreviewCacheEntry,
+  LinkPreviewPlatform,
+} from "@/lib/link-preview";
+
+export type QuickLinksDisplayMode = "list" | "icon-hover" | "compact-cards";
+export type QuickLinksCompactColumns = 2 | 3 | 4;
 
 export interface ChromeBookmarkNode {
   id: string;
@@ -9,6 +15,9 @@ export interface ChromeBookmarkNode {
 }
 
 export interface QuickLinksProps {
+  compactCards?: boolean;
+  compactColumns?: QuickLinksCompactColumns;
+  displayMode?: QuickLinksDisplayMode;
   expanded?: boolean;
   fullSize?: boolean;
 }
@@ -62,8 +71,13 @@ export interface OpenFloatingPreviewOptions {
 }
 
 export interface QuickLinksListProps {
+  compactColumns?: QuickLinksCompactColumns;
+  displayMode: QuickLinksDisplayMode;
   displayedLinks: QuickLink[];
-  expanded: boolean;
+  ensureLinkPreview: (url: string) => void;
+  failedPreviewImageUrls: Record<string, true>;
+  getComparableUrl: (url: string) => string;
+  loadingPreviewUrls: string[];
   onCloseFloatingPreview: () => void;
   onDeleteLink: (id: string) => void;
   onMoveFloatingPreview: (x: number, y: number) => void;
@@ -74,6 +88,7 @@ export interface QuickLinksListProps {
     options?: OpenFloatingPreviewOptions
   ) => void;
   onScheduleFloatingPreviewClose: () => void;
+  previewCache: Record<string, LinkPreviewCacheEntry>;
 }
 
 export interface QuickLinksPreviewCardProps {
@@ -84,7 +99,7 @@ export interface QuickLinksPreviewCardProps {
   activePreviewMetadataTitleText: string;
   activePreviewPlatform: LinkPreviewPlatform;
   activePreviewUserTitleText: string;
-  expanded: boolean;
+  floatingPreviewEnabled: boolean;
   hasActivePreviewImage: boolean;
   isActivePreviewImageMarkedFailed: boolean;
   isActivePreviewLoading: boolean;

@@ -229,7 +229,7 @@ function App() {
     ),
     links: (
       <div className="flex min-h-0 flex-1">
-        {renderWidget("quick-links", "full")}
+        {renderWidget("quick-links", "compact-full")}
       </div>
     ),
     calendar: (
@@ -241,7 +241,7 @@ function App() {
           {renderWidget("tasks", "full")}
         </div>
         <div className="flex min-h-0 flex-1">
-          {renderWidget("quick-links", "full")}
+          {renderWidget("quick-links", "compact-split")}
         </div>
       </div>
     ),

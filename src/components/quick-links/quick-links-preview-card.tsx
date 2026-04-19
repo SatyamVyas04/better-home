@@ -19,7 +19,7 @@ export function QuickLinksPreviewCard({
   activePreviewMetadataTitleText,
   activePreviewPlatform,
   activePreviewUserTitleText,
-  expanded,
+  floatingPreviewEnabled,
   hasActivePreviewImage,
   isActivePreviewImageMarkedFailed,
   isActivePreviewLoading,
@@ -28,7 +28,7 @@ export function QuickLinksPreviewCard({
 }: QuickLinksPreviewCardProps) {
   return (
     <AnimatePresence>
-      {!expanded && activePreviewLink ? (
+      {floatingPreviewEnabled && activePreviewLink ? (
         <motion.div
           animate={{
             opacity: 1,
