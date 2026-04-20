@@ -7,6 +7,7 @@ import {
 import { useEffect } from "react";
 import { FooterQuote, QuotesProvider } from "@/components/quotes/quotes-widget";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner";
 import {
   Tooltip,
   TooltipContent,
@@ -16,6 +17,7 @@ import {
 import { renderWidget } from "@/components/widget-registry";
 import { BackupWidget } from "@/features/backup/backup-widget";
 import { ThemeProvider } from "@/features/theme/theme-provider";
+import { useEngagementNotifications } from "@/hooks/use-engagement-notifications";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useStorageMigration } from "@/hooks/use-storage-migration";
 import {
@@ -102,6 +104,10 @@ function App() {
   );
   const settings = normalizeWidgetSettings(storedSettings);
   const { status: migrationStatus, retryMigration } = useStorageMigration();
+
+  useEngagementNotifications({
+    isReady: migrationStatus.state === "ready",
+  });
 
   useEffect(() => {
     setSessionActionTrackingEnabled(true);
@@ -380,6 +386,7 @@ function App() {
           </TooltipProvider>
         </footer>
       </div>
+      <Toaster />
     </ThemeProvider>
   );
 }

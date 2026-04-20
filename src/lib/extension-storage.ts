@@ -1,4 +1,9 @@
-import { STORAGE_MIGRATION_KEY, USER_STORAGE_KEYS } from "@/lib/storage-keys";
+import {
+  CHANGELOG_LAST_SEEN_VERSION_KEY,
+  FEEDBACK_PROMPT_STATE_KEY,
+  STORAGE_MIGRATION_KEY,
+  USER_STORAGE_KEYS,
+} from "@/lib/storage-keys";
 
 interface ChromeStorageChange {
   newValue?: unknown;
@@ -45,6 +50,12 @@ export interface StorageMigrationState {
   lastAttemptAt: string;
   completedAt?: string;
   error?: string;
+}
+
+export interface FeedbackPromptState {
+  cadence?: "new" | "regular";
+  lastPromptedAt: string;
+  lastAction?: "dismissed" | "opened-feedback" | "opened-review";
 }
 
 let cachedMigrationState: StorageMigrationState | null = null;
@@ -363,6 +374,49 @@ function parseMigrationState(
   }
 }
 
+function parseFeedbackPromptState(
+  rawValue: string | null
+): FeedbackPromptState | null {
+  if (!rawValue) {
+    return null;
+  }
+
+  try {
+    const parsedValue = JSON.parse(rawValue) as unknown;
+
+    if (!isRecord(parsedValue)) {
+      return null;
+    }
+
+    const { lastPromptedAt, lastAction, cadence } = parsedValue;
+
+    if (typeof lastPromptedAt !== "string") {
+      return null;
+    }
+
+    if (
+      lastAction !== undefined &&
+      lastAction !== "dismissed" &&
+      lastAction !== "opened-feedback" &&
+      lastAction !== "opened-review"
+    ) {
+      return null;
+    }
+
+    if (cadence !== undefined && cadence !== "new" && cadence !== "regular") {
+      return null;
+    }
+
+    return {
+      cadence,
+      lastPromptedAt,
+      lastAction,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function persistMigrationState(
   state: StorageMigrationState
 ): Promise<void> {
@@ -458,6 +512,34 @@ export async function ensureStorageMigration(): Promise<StorageMigrationState> {
 
     return nextState;
   }
+}
+
+export async function readChangelogLastSeenVersion(): Promise<string | null> {
+  const rawValue = await readAppStorageRaw(CHANGELOG_LAST_SEEN_VERSION_KEY);
+
+  if (typeof rawValue !== "string") {
+    return null;
+  }
+
+  const normalizedValue = rawValue.trim();
+  return normalizedValue.length > 0 ? normalizedValue : null;
+}
+
+export async function persistChangelogLastSeenVersion(
+  version: string
+): Promise<void> {
+  await writeAppStorageRaw(CHANGELOG_LAST_SEEN_VERSION_KEY, version);
+}
+
+export async function readFeedbackPromptState(): Promise<FeedbackPromptState | null> {
+  const rawValue = await readAppStorageRaw(FEEDBACK_PROMPT_STATE_KEY);
+  return parseFeedbackPromptState(rawValue);
+}
+
+export async function persistFeedbackPromptState(
+  state: FeedbackPromptState
+): Promise<void> {
+  await writeAppStorageRaw(FEEDBACK_PROMPT_STATE_KEY, JSON.stringify(state));
 }
 
 export async function readAppStorageRaw(key: string): Promise<string | null> {

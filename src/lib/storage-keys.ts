@@ -34,6 +34,9 @@ export const USER_INTENT_STORAGE_KEYS = [
 ] as const;
 
 export const STORAGE_MIGRATION_KEY = "better-home-storage-migration";
+export const CHANGELOG_LAST_SEEN_VERSION_KEY =
+  "better-home-changelog-last-seen-version";
+export const FEEDBACK_PROMPT_STATE_KEY = "better-home-feedback-prompt-state";
 
 export const STORAGE_KEY_PREFIXES = ["better-home-", "mood-calendar-"] as const;
 
@@ -51,6 +54,8 @@ export const KNOWN_APP_STORAGE_KEYS = [
   SESSION_CHECKPOINTS_KEY,
   SESSION_RESTORE_UNDO_KEY,
   STORAGE_MIGRATION_KEY,
+  CHANGELOG_LAST_SEEN_VERSION_KEY,
+  FEEDBACK_PROMPT_STATE_KEY,
 ] as const;
 
 export const CLEARABLE_CACHE_STORAGE_KEYS = [
