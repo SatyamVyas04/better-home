@@ -15,7 +15,8 @@ const CHANGELOG_TOAST_ID = `better-home-changelog-${APP_VERSION}`;
 const FEEDBACK_TOAST_ID = "better-home-feedback-review";
 const WELCOME_TOAST_ID = "better-home-welcome";
 const NEW_USER_FEEDBACK_PROMPT_INTERVAL_MS = 1000 * 60 * 60 * 24;
-const REGULAR_FEEDBACK_PROMPT_INTERVAL_MS = 1000 * 60 * 60 * 24 * 14;
+const REGULAR_FEEDBACK_PROMPT_INTERVAL_MS = 1000 * 60 * 60 * 24 * 3;
+const REVIEW_COMPLETED_FEEDBACK_PROMPT_INTERVAL_MS = 1000 * 60 * 60 * 24 * 14;
 const FEEDBACK_TOAST_AFTER_CHANGELOG_DELAY_MS = 4000;
 const FEEDBACK_REVIEW_URL =
   "https://chromewebstore.google.com/detail/better-home/mfjbpiocndfighipkbgoepkikcjkfldi/reviews";
@@ -115,7 +116,8 @@ async function maybeShowChangelogToast(): Promise<boolean> {
 function shouldShowFeedbackPrompt(
   lastPromptedAt: string,
   currentTimestamp: number,
-  cadence: "new" | "regular"
+  cadence: "new" | "regular",
+  lastAction: "dismissed" | "opened-feedback" | "opened-review" | undefined
 ): boolean {
   const lastPromptedTimestamp = Date.parse(lastPromptedAt);
 
@@ -123,10 +125,13 @@ function shouldShowFeedbackPrompt(
     return false;
   }
 
-  const cadenceIntervalMs =
-    cadence === "new"
-      ? NEW_USER_FEEDBACK_PROMPT_INTERVAL_MS
-      : REGULAR_FEEDBACK_PROMPT_INTERVAL_MS;
+  let cadenceIntervalMs = REGULAR_FEEDBACK_PROMPT_INTERVAL_MS;
+
+  if (cadence === "new") {
+    cadenceIntervalMs = NEW_USER_FEEDBACK_PROMPT_INTERVAL_MS;
+  } else if (lastAction === "opened-review") {
+    cadenceIntervalMs = REVIEW_COMPLETED_FEEDBACK_PROMPT_INTERVAL_MS;
+  }
 
   return currentTimestamp - lastPromptedTimestamp >= cadenceIntervalMs;
 }
@@ -221,6 +226,7 @@ async function maybeShowFeedbackPrompt(
 
   const lastAction = existingState.lastAction;
   const cadence = existingState.cadence ?? "regular";
+  const hasOpenedReviewBefore = lastAction === "opened-review";
 
   if (
     !(
@@ -228,7 +234,8 @@ async function maybeShowFeedbackPrompt(
       shouldShowFeedbackPrompt(
         existingState.lastPromptedAt,
         currentTimestamp,
-        cadence
+        cadence,
+        lastAction
       )
     )
   ) {
@@ -237,7 +244,7 @@ async function maybeShowFeedbackPrompt(
 
   await persistFeedbackPromptState({
     cadence: "regular",
-    lastAction: "dismissed",
+    lastAction: hasOpenedReviewBefore ? "opened-review" : "dismissed",
     lastPromptedAt: nowIso,
   });
 
@@ -251,18 +258,26 @@ async function maybeShowFeedbackPrompt(
           mascotAlt={promptVariant.mascotAlt}
           mascotSrc={promptVariant.mascotSrc}
           onPrimaryAction={() => {
+            const nextAction = hasOpenedReviewBefore
+              ? "opened-review"
+              : promptVariant.actionType;
+
             persistFeedbackPromptState({
               cadence: "regular",
-              lastAction: promptVariant.actionType,
+              lastAction: nextAction,
               lastPromptedAt: new Date().toISOString(),
             }).catch(() => null);
             openExternalLink(promptVariant.url);
             toast.dismiss(toastId);
           }}
           onSecondaryAction={() => {
+            const nextAction = hasOpenedReviewBefore
+              ? "opened-review"
+              : "dismissed";
+
             persistFeedbackPromptState({
               cadence: "regular",
-              lastAction: "dismissed",
+              lastAction: nextAction,
               lastPromptedAt: new Date().toISOString(),
             }).catch(() => null);
             toast.dismiss(toastId);

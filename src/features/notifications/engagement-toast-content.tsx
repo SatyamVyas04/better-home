@@ -24,7 +24,7 @@ export function EngagementToastContent({
   return (
     <div
       aria-live="polite"
-      className="relative w-[min(360px,calc(100vw-2.25rem))] overflow-visible px-1 py-0.5"
+      className="relative w-[min(360px,calc(100vw-2.25rem))] overflow-visible px-1 py-1"
     >
       {mascotSrc ? (
         <div className="pointer-events-none absolute -top-2 -left-20 z-10 flex items-start">
@@ -39,25 +39,16 @@ export function EngagementToastContent({
       ) : null}
 
       <div className="min-w-0 pl-4">
-        <p className="font-medium text-[12px] text-foreground leading-snug">
+        <p className="font-semibold text-[12.5px] text-foreground leading-tight tracking-[-0.01em]">
           {title}
         </p>
-        <p className="mt-1 whitespace-pre-line text-[11px] text-muted-foreground leading-relaxed">
+        <p className="mt-1.5 whitespace-pre-line text-[11.5px] text-muted-foreground leading-relaxed">
           {description}
         </p>
-        <div className="mt-2.5 flex flex-wrap items-center justify-end gap-1.5">
-          <Button
-            className="h-6 px-2 text-[10px]"
-            onClick={onPrimaryAction}
-            size="xs"
-            type="button"
-            variant="default"
-          >
-            {primaryActionLabel}
-          </Button>
+        <div className="mt-3 flex items-center justify-end gap-2">
           {secondaryActionLabel && onSecondaryAction ? (
             <Button
-              className="h-6 px-2 text-[10px]"
+              className="h-7 px-3 font-medium text-[11px]"
               onClick={onSecondaryAction}
               size="xs"
               type="button"
@@ -66,6 +57,15 @@ export function EngagementToastContent({
               {secondaryActionLabel}
             </Button>
           ) : null}
+          <Button
+            className="h-7 px-3 font-medium text-[11px]"
+            onClick={onPrimaryAction}
+            size="xs"
+            type="button"
+            variant="default"
+          >
+            {primaryActionLabel}
+          </Button>
         </div>
       </div>
     </div>
