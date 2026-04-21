@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.9.0](https://github.com/SatyamVyas04/better-home/compare/v1.8.0...v1.9.0) (2026-04-21)
+
+### Features
+
+* add engagement notifications and changelog handling ([864c16f](https://github.com/SatyamVyas04/better-home/commit/864c16f60806a24ccd2a2117647490889f1a2253))
+* add mascots for engagement notifications and update toast visuals ([056d461](https://github.com/SatyamVyas04/better-home/commit/056d46142c8499eaaf57a79b676cbc0bcbc8c47b))
+* refine compact and mobile views ([0cef03d](https://github.com/SatyamVyas04/better-home/commit/0cef03da4043415cc7630d01c44f156e254e769e))
+
+### Bug Fixes
+
+* added better quotes, for the quotes widget ([f36370e](https://github.com/SatyamVyas04/better-home/commit/f36370ed6f86225bc3655d335818a035c9e5066b))
+* enhance engagement notifications with improved feedback prompt handling and UI adjustments ([0a698be](https://github.com/SatyamVyas04/better-home/commit/0a698bee55f1b6f3e9d3240b59e12c54578b12b2))
+
 ## [1.8.0](https://github.com/SatyamVyas04/better-home/compare/v1.7.4...v1.8.0) (2026-04-17)
 
 ### Features
