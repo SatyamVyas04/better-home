@@ -1,11 +1,4 @@
-import {
-  IconClockExclamation,
-  IconHeart,
-  IconHome,
-  IconMessageReport,
-  IconRefresh,
-} from "@tabler/icons-react";
-import { type ReactNode, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { EngagementToastContent } from "@/features/notifications/engagement-toast-content";
 import { readLatestChangelogSummary } from "@/lib/changelog-summary";
@@ -29,6 +22,11 @@ const FEEDBACK_REVIEW_URL =
 const FEEDBACK_REPO_URL = "https://github.com/SatyamVyas04/better-home/issues";
 const FALLBACK_CHANGELOG_URL =
   "https://github.com/SatyamVyas04/better-home/blob/main/CHANGELOG.md";
+const MASCOT_WELCOME_SRC = "/mascots/mascot-welcome.png";
+const MASCOT_UPDATE_SRC = "/mascots/mascot-update.png";
+const MASCOT_REVIEW_SRC = "/mascots/mascot-review.png";
+const MASCOT_FEEDBACK_SRC = "/mascots/mascot-feedback.png";
+const MASCOT_ERROR_SRC = "/mascots/mascot-error.png";
 
 interface UseEngagementNotificationsOptions {
   isReady: boolean;
@@ -38,9 +36,10 @@ interface FeedbackPromptVariant {
   actionType: "opened-feedback" | "opened-review";
   ctaLabel: string;
   description: string;
+  mascotAlt: string;
+  mascotSrc: string;
   title: string;
   url: string;
-  visual: ReactNode;
 }
 
 interface MaybeShowFeedbackPromptOptions {
@@ -76,15 +75,21 @@ async function maybeShowChangelogToast(): Promise<boolean> {
   const releaseDateText = changelogSummary?.releaseDate
     ? ` (${changelogSummary.releaseDate})`
     : "";
-  const highlightsText = changelogSummary
-    ? changelogSummary.highlights.join(". ")
+  const changelogDescription = changelogSummary
+    ? changelogSummary.highlights
+        .map((highlight) => {
+          return `• ${highlight}`;
+        })
+        .join("\n")
     : "small improvements and bug fixes are now live";
 
   toast.custom(
     (toastId) => {
       return (
         <EngagementToastContent
-          description={`${highlightsText}.`}
+          description={changelogDescription}
+          mascotAlt="update mascot"
+          mascotSrc={MASCOT_UPDATE_SRC}
           onPrimaryAction={() => {
             openExternalLink(changelogUrl);
             toast.dismiss(toastId);
@@ -95,11 +100,6 @@ async function maybeShowChangelogToast(): Promise<boolean> {
           primaryActionLabel="view changelog"
           secondaryActionLabel="close"
           title={`updated to v${APP_VERSION}${releaseDateText}`}
-          visual={
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary">
-              <IconRefresh className="size-4" />
-            </div>
-          }
         />
       );
     },
@@ -149,16 +149,13 @@ async function maybeShowWelcomeToast(): Promise<boolean> {
       return (
         <EngagementToastContent
           description="start with your daily essentials in one place: tasks, quick links, and mood tracking."
+          mascotAlt="welcome mascot"
+          mascotSrc={MASCOT_WELCOME_SRC}
           onPrimaryAction={() => {
             toast.dismiss(toastId);
           }}
           primaryActionLabel="let's go"
           title="welcome to better-home"
-          visual={
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary">
-              <IconHome className="size-4" />
-            </div>
-          }
         />
       );
     },
@@ -180,13 +177,10 @@ function resolveFeedbackPromptVariant(
       ctaLabel: "share feedback",
       description:
         "thanks for supporting us. if you spot anything we can improve, tell us on github.",
+      mascotAlt: "feedback mascot",
+      mascotSrc: MASCOT_FEEDBACK_SRC,
       title: "got ideas for better-home?",
       url: FEEDBACK_REPO_URL,
-      visual: (
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400">
-          <IconMessageReport className="size-4" />
-        </div>
-      ),
     };
   }
 
@@ -195,13 +189,10 @@ function resolveFeedbackPromptVariant(
     ctaLabel: "leave a review",
     description:
       "your review helps this little project grow and keeps the updates coming.",
+    mascotAlt: "review mascot",
+    mascotSrc: MASCOT_REVIEW_SRC,
     title: "could you share a quick review?",
     url: FEEDBACK_REVIEW_URL,
-    visual: (
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-rose-500/35 bg-rose-500/10 text-rose-500">
-        <IconHeart className="size-4" />
-      </div>
-    ),
   };
 }
 
@@ -257,6 +248,8 @@ async function maybeShowFeedbackPrompt(
       return (
         <EngagementToastContent
           description={promptVariant.description}
+          mascotAlt={promptVariant.mascotAlt}
+          mascotSrc={promptVariant.mascotSrc}
           onPrimaryAction={() => {
             persistFeedbackPromptState({
               cadence: "regular",
@@ -277,7 +270,6 @@ async function maybeShowFeedbackPrompt(
           primaryActionLabel={promptVariant.ctaLabel}
           secondaryActionLabel="maybe later"
           title={promptVariant.title}
-          visual={promptVariant.visual}
         />
       );
     },
@@ -328,16 +320,13 @@ export function useEngagementNotifications({
           return (
             <EngagementToastContent
               description="we hit a small snag while preparing updates."
+              mascotAlt="error mascot"
+              mascotSrc={MASCOT_ERROR_SRC}
               onPrimaryAction={() => {
                 toast.dismiss(toastId);
               }}
               primaryActionLabel="close"
               title="notifications need a retry"
-              visual={
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-amber-500/35 bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                  <IconClockExclamation className="size-4" />
-                </div>
-              }
             />
           );
         },
