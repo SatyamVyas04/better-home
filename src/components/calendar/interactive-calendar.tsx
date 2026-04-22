@@ -1,10 +1,11 @@
 import {
+  Icon123,
+  IconCalendarMonth,
   IconCaretLeftFilled,
   IconCaretRightFilled,
-  IconMenu2,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,23 +14,52 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCalendarData } from "@/hooks/use-calendar-data";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { MOOD_COLORS } from "@/lib/calendar-constants";
-import { MONTH_GAP, MONTHS_2026, QUADRIMESTERS } from "@/lib/calendar-utils";
+import {
+  CALENDAR_END_YEAR,
+  CALENDAR_START_YEAR,
+  getMonthsForYear,
+  MONTH_GAP,
+  QUADRIMESTERS,
+} from "@/lib/calendar-utils";
 import { runTrackedUserAction } from "@/lib/session-history";
 import { cn } from "@/lib/utils";
 import type { InteractiveCalendarProps } from "@/types/calendar";
 import { MonthGrid } from "./month-grid";
 
+const YEAR_OPTIONS = Array.from(
+  { length: CALENDAR_END_YEAR - CALENDAR_START_YEAR + 1 },
+  (_, index) => {
+    const year = CALENDAR_START_YEAR + index;
+    return {
+      label: String(year),
+      value: year,
+    };
+  }
+);
+
 export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
   const { getEntryForDate, handleSaveEntry } = useCalendarData();
+  const [currentYear, setCurrentYear] = useState(() => {
+    const now = new Date().getFullYear();
+    return Math.min(Math.max(now, CALENDAR_START_YEAR), CALENDAR_END_YEAR);
+  });
   const [currentQuadrimester, setCurrentQuadrimester] = useState(0);
   const [showAllYear, setShowAllYear] = useState(false);
   const [showNumbers, setShowNumbers] = useLocalStorage(
     "mood-calendar-show-numbers",
     true
   );
+  const monthsForYear = getMonthsForYear(currentYear);
 
   const getFillColor = useCallback(
     (dateKey: string): string => {
@@ -42,117 +72,150 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
     [getEntryForDate]
   );
 
-  const currentMonths = useMemo(
-    () =>
-      showAllYear
-        ? MONTHS_2026.map((_, i) => i)
-        : QUADRIMESTERS[currentQuadrimester].months,
-    [currentQuadrimester, showAllYear]
-  );
+  const currentMonths = showAllYear
+    ? monthsForYear.map((_, i) => i)
+    : QUADRIMESTERS[currentQuadrimester].months;
 
   const handlePrevQuadrimester = () => {
-    setCurrentQuadrimester((prev) => (prev > 0 ? prev - 1 : 2));
+    setCurrentQuadrimester((prev) =>
+      prev > 0 ? prev - 1 : QUADRIMESTERS.length - 1
+    );
   };
 
   const handleNextQuadrimester = () => {
-    setCurrentQuadrimester((prev) => (prev < 2 ? prev + 1 : 0));
+    setCurrentQuadrimester((prev) =>
+      prev < QUADRIMESTERS.length - 1 ? prev + 1 : 0
+    );
   };
 
   return (
     <div className={cn("flex min-h-0 flex-1 gap-2", className)}>
-      <Card className="flex min-h-0 flex-1 flex-col gap-0 border-border/50 py-2">
-        <CardHeader className="flex flex-row items-center justify-between px-3 pb-1">
-          <CardTitle className="font-medium text-xs lowercase">
-            mood calendar 2026
-          </CardTitle>
-          <div className="flex items-center gap-1">
-            <Button
-              aria-label={
-                showNumbers ? "Hide date numbers" : "Show date numbers"
-              }
-              className="size-6 p-0"
-              onClick={() => {
-                runTrackedUserAction("toggle calendar numbers", () => {
-                  setShowNumbers(!showNumbers);
-                });
-              }}
-              size="sm"
-              title={showNumbers ? "Hide numbers" : "Show numbers"}
-              variant={showNumbers ? "default" : "outline"}
-            >
-              <IconMenu2 className="size-4" />
-            </Button>
-            <Button
-              className="h-6 transform-gpu px-2 text-xs will-change-auto"
-              onClick={() => setShowAllYear(!showAllYear)}
-              size="sm"
-              variant={showAllYear ? "default" : "outline"}
-            >
-              {showAllYear ? "quadrimester" : "full year"}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="flex min-h-0 flex-1 overflow-auto px-3 py-1.5">
-          <AnimatePresence mode="wait">
-            <motion.div
-              animate={{ filter: "blur(0px)", opacity: 1 }}
-              className={cn(
-                "m-auto flex h-full w-full flex-col place-content-center items-center justify-start gap-4 lg:grid lg:justify-center lg:gap-2",
-                showAllYear
-                  ? "grid h-[250%] grid-cols-2 grid-rows-6 lg:h-full lg:grid-cols-4 lg:grid-rows-3"
-                  : "wide-mode grid-cols-1 grid-rows-4 gap-y- gap-x-8 lg:grid-cols-2 lg:grid-rows-2"
-              )}
-              exit={{ filter: "blur(4px)", opacity: 0 }}
-              initial={{ filter: "blur(4px)", opacity: 0 }}
-              key={showAllYear ? "full-year" : `quad-${currentQuadrimester}`}
-              style={{ gap: showAllYear ? `${MONTH_GAP}px` : undefined }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-            >
-              {currentMonths.map((monthIndex, i) => {
-                const month = MONTHS_2026[monthIndex];
-                return (
-                  <MonthGrid
-                    animationDelay={i * 0.05}
-                    getEntryForDate={getEntryForDate}
-                    getFillColor={getFillColor}
-                    handleSaveEntry={handleSaveEntry}
-                    key={month.name}
-                    month={month}
-                    monthIndex={monthIndex}
-                    showAllYear={showAllYear}
-                    showNumbers={showNumbers}
-                  />
-                );
-              })}
-            </motion.div>
-          </AnimatePresence>
-        </CardContent>
-        <CardFooter className="flex items-center justify-end px-4 pt-2">
-          {!showAllYear && (
+      <Card className="relative flex min-h-0 flex-1 flex-col gap-0 border-border/50 p-0">
+        <CardHeader className="px-3 py-2">
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle className="font-medium text-xs lowercase">
+              mood calendar
+            </CardTitle>
             <div className="flex items-center gap-1">
               <Button
+                aria-label={
+                  showNumbers ? "Hide date numbers" : "Show date numbers"
+                }
+                className="h-8 w-8"
+                onClick={() => {
+                  runTrackedUserAction("toggle calendar numbers", () => {
+                    setShowNumbers(!showNumbers);
+                  });
+                }}
+                size="icon-sm"
+                title={showNumbers ? "Hide numbers" : "Show numbers"}
+                variant={showNumbers ? "default" : "outline"}
+              >
+                <Icon123 className="size-3.5" />
+              </Button>
+              <Button
+                aria-label={
+                  showAllYear ? "Show quadrimester" : "Show full year"
+                }
+                className="h-8 w-8"
+                onClick={() => setShowAllYear(!showAllYear)}
+                size="icon-sm"
+                title={showAllYear ? "Show quadrimester" : "Show full year"}
+                variant={showAllYear ? "default" : "outline"}
+              >
+                <IconCalendarMonth className="size-3.5" />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 px-3">
+          <div className="flex min-h-0 flex-1 items-center overflow-auto">
+            <div className="mx-auto min-h-fit w-full py-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  animate={{ filter: "blur(0px)", opacity: 1 }}
+                  className={cn(
+                    "mx-auto flex w-full flex-col items-center justify-start gap-6 pb-1 lg:grid lg:justify-center",
+                    showAllYear
+                      ? "grid-cols-2 grid-rows-6 lg:grid-cols-4 lg:grid-rows-3"
+                      : "grid-cols-1 gap-y-6 lg:grid-cols-2 lg:grid-rows-2 lg:gap-x-8"
+                  )}
+                  exit={{ filter: "blur(4px)", opacity: 0 }}
+                  initial={{ filter: "blur(4px)", opacity: 0 }}
+                  key={`${currentYear}-${showAllYear ? "full-year" : `quad-${currentQuadrimester}`}`}
+                  style={{ gap: showAllYear ? `${MONTH_GAP}px` : undefined }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  {currentMonths.map((monthIndex, i) => {
+                    const month = monthsForYear[monthIndex];
+                    return (
+                      <MonthGrid
+                        animationDelay={i * 0.05}
+                        getEntryForDate={getEntryForDate}
+                        getFillColor={getFillColor}
+                        handleSaveEntry={handleSaveEntry}
+                        key={`${currentYear}-${month.name}`}
+                        month={month}
+                        monthIndex={monthIndex}
+                        showAllYear={showAllYear}
+                        showNumbers={showNumbers}
+                        year={currentYear}
+                      />
+                    );
+                  })}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </CardContent>
+
+        <CardFooter className="absolute right-2 bottom-2 flex items-center justify-end gap-1 p-0">
+          {!showAllYear && (
+            <div className="flex items-center gap-0.5">
+              <Button
                 aria-label="Previous quadrimester"
-                className="size-6 p-0"
+                className="size-7 p-0"
                 onClick={handlePrevQuadrimester}
-                size="sm"
+                size="icon-sm"
                 variant="ghost"
               >
-                <IconCaretLeftFilled className="size-4" />
+                <IconCaretLeftFilled className="size-3.5" />
               </Button>
-              <span className="min-w-16 text-center font-medium text-muted-foreground text-xs">
+              <span className="min-w-16 text-center font-medium text-[10px] text-muted-foreground lowercase">
                 {QUADRIMESTERS[currentQuadrimester].label}
               </span>
               <Button
                 aria-label="Next quadrimester"
-                className="size-6 p-0"
+                className="size-7 p-0"
                 onClick={handleNextQuadrimester}
-                size="sm"
+                size="icon-sm"
                 variant="ghost"
               >
-                <IconCaretRightFilled className="size-4" />
+                <IconCaretRightFilled className="size-3.5" />
               </Button>
             </div>
           )}
+
+          <Select
+            onValueChange={(val: string) => setCurrentYear(Number(val))}
+            value={String(currentYear)}
+          >
+            <SelectTrigger className="h-7 w-16 border-none bg-accent/50 px-1.5 font-medium text-[10px] lowercase tabular-nums hover:bg-accent focus:ring-0">
+              <SelectValue placeholder="year" />
+            </SelectTrigger>
+            <SelectContent className="min-w-20">
+              {YEAR_OPTIONS.map((opt) => (
+                <SelectItem
+                  className="text-[10px] lowercase"
+                  key={opt.value}
+                  value={String(opt.value)}
+                >
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </CardFooter>
       </Card>
     </div>

@@ -41,6 +41,7 @@ export interface MonthGridProps {
     startDay: number;
   };
   monthIndex: number;
+  year: number;
   getEntryForDate: (dateKey: string) => DayEntry;
   getFillColor: (dateKey: string) => string;
   handleSaveEntry: (dateKey: string, entry: DayEntry) => void;

@@ -124,12 +124,12 @@ export function DatePopover({
         </Tooltip>
       </TooltipProvider>
       <PopoverContent
-        className="w-72 bg-card/50 backdrop-blur-lg"
+        className="w-72 bg-card/50 p-3 backdrop-blur-lg"
         side="right"
         sideOffset={12}
       >
-        <div className="space-y-4 text-center">
-          <div className="space-y-0.5">
+        <div className="space-y-3 text-center">
+          <div className="space-y-1">
             <h4 className="font-medium text-foreground text-sm">
               {displayDate}
             </h4>

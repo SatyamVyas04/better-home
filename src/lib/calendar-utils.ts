@@ -8,20 +8,38 @@ export function getContrastColor(moodKey: string): string {
 
 export const DAY_LABELS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
-export const MONTHS_2026 = [
-  { name: "JANUARY", days: 31, startDay: 3 },
-  { name: "FEBRUARY", days: 28, startDay: 6 },
-  { name: "MARCH", days: 31, startDay: 6 },
-  { name: "APRIL", days: 30, startDay: 2 },
-  { name: "MAY", days: 31, startDay: 4 },
-  { name: "JUNE", days: 30, startDay: 0 },
-  { name: "JULY", days: 31, startDay: 2 },
-  { name: "AUGUST", days: 31, startDay: 5 },
-  { name: "SEPTEMBER", days: 30, startDay: 1 },
-  { name: "OCTOBER", days: 31, startDay: 3 },
-  { name: "NOVEMBER", days: 30, startDay: 6 },
-  { name: "DECEMBER", days: 31, startDay: 1 },
-];
+export const CALENDAR_START_YEAR = 2026;
+export const CALENDAR_END_YEAR = 2030;
+
+const MONTH_NAMES = [
+  "JANUARY",
+  "FEBRUARY",
+  "MARCH",
+  "APRIL",
+  "MAY",
+  "JUNE",
+  "JULY",
+  "AUGUST",
+  "SEPTEMBER",
+  "OCTOBER",
+  "NOVEMBER",
+  "DECEMBER",
+] as const;
+
+export function getMonthsForYear(
+  year: number
+): { name: string; days: number; startDay: number }[] {
+  return MONTH_NAMES.map((name, monthIndex) => {
+    const days = new Date(year, monthIndex + 1, 0).getDate();
+    const firstDay = new Date(year, monthIndex, 1).getDay();
+
+    return {
+      name,
+      days,
+      startDay: (firstDay + 6) % 7,
+    };
+  });
+}
 
 export const QUADRIMESTERS = [
   { label: "Jan - Apr", months: [0, 1, 2, 3] },

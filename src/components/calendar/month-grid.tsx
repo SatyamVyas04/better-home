@@ -23,6 +23,7 @@ import { DatePopover } from "./date-popover";
 export function MonthGrid({
   month,
   monthIndex,
+  year,
   getEntryForDate,
   getFillColor,
   handleSaveEntry,
@@ -71,14 +72,14 @@ export function MonthGrid({
       }}
     >
       <svg
-        aria-label={`${month.name} 2026 Mood Calendar`}
+        aria-label={`${month.name} ${year} Mood Calendar`}
         className="h-full"
         height={svgHeight + (showAllYear ? 10 : 20)}
         viewBox={`0 0 ${svgWidth} ${svgHeight + (showAllYear ? 10 : 20)}`}
         width={svgWidth}
         xmlns="http://www.w3.org/2000/svg"
       >
-        <title>{`${month.name} 2026 Mood Calendar`}</title>
+        <title>{`${month.name} ${year} Mood Calendar`}</title>
         <g>
           {DAY_LABELS.map((label, i) => (
             <text
@@ -99,14 +100,14 @@ export function MonthGrid({
         {monthData.map((cell) => {
           const x = dayLabelWidth + cell.week * (cellSize + cellGap);
           const y = cell.dayOfWeek * (cellSize + cellGap);
-          const dateKey = getDateKey(2026, monthIndex + 1, cell.day);
+          const dateKey = getDateKey(year, monthIndex + 1, cell.day);
           const entry = getEntryForDate(dateKey);
           const fillColor = getFillColor(dateKey);
           const displayDate = dateFormatter.format(
-            new Date(2026, monthIndex, cell.day)
+            new Date(year, monthIndex, cell.day)
           );
           const isToday =
-            today.getFullYear() === 2026 &&
+            today.getFullYear() === year &&
             today.getMonth() === monthIndex &&
             today.getDate() === cell.day;
           let dayNumberColor = "var(--muted-foreground)";
@@ -173,7 +174,7 @@ export function MonthGrid({
 
         <text
           dominantBaseline="middle"
-          fill="#ffffff"
+          fill="var(--muted-foreground)"
           fontFamily="DMMono, monospace"
           fontSize={showAllYear ? 10 : 14}
           fontWeight="500"

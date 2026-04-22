@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { MOOD_COLORS, type MoodType } from "@/lib/calendar-constants";
 import { getContrastColor } from "@/lib/calendar-utils";
 import { cn } from "@/lib/utils";
@@ -16,19 +17,20 @@ export function MoodSelector({
   return (
     <div className="space-y-2">
       <div className="flex flex-col items-center gap-3 py-1">
-        <div className="flex gap-2.5">
+        <div className="flex gap-1.5">
           {Object.entries(MOOD_COLORS).map(([key, { color, label }]) => (
-            <button
+            <Button
               aria-label={label}
               aria-pressed={selectedMood === key}
               className={cn(
-                "size-6 rounded-full transition-transform duration-200 ease-out hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                "size-6 rounded-full border border-border/30 p-0 transition-transform duration-200 ease-out hover:scale-110",
                 selectedMood === key && "scale-110"
               )}
               key={key}
               onClick={() => onSelectMood(key as MoodType)}
               onMouseEnter={() => setHoveredMood(key as MoodType)}
               onMouseLeave={() => setHoveredMood(null)}
+              size="icon-sm"
               style={{
                 backgroundColor: color,
                 boxShadow:
@@ -37,9 +39,10 @@ export function MoodSelector({
                     : undefined,
               }}
               type="button"
+              variant="ghost"
             >
               <span className="sr-only">{label}</span>
-            </button>
+            </Button>
           ))}
         </div>
 
