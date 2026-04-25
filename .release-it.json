@@ -13,7 +13,7 @@
     "publish": false
   },
   "hooks": {
-    "after:bump": "node scripts/sync-manifest.js && git add popup.html public/manifest.json src/lib/extension-storage.ts && node scripts/release-package.js"
+    "after:changelog": "node scripts/sync-manifest.js && git add popup.html public/manifest.json src/lib/extension-storage.ts && node scripts/release-package.js"
   },
   "plugins": {
     "@release-it/conventional-changelog": {
