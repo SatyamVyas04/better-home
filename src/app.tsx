@@ -343,7 +343,7 @@ function App() {
                 </div>
               )}
 
-              <div className="ml-auto max-w-64 flex-1">
+              <div className="ml-auto hidden max-w-64 flex-1 lg:flex">
                 <div className="flex items-center gap-1 overflow-hidden rounded-md border border-border/60 bg-muted/35">
                   <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1 font-medium text-[9px] text-primary uppercase tracking-wide">
                     <IconClockExclamation className="size-3" />
@@ -354,7 +354,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="shrink-0">
+              <div className="ml-auto shrink-0">
                 <BackupWidget />
               </div>
 

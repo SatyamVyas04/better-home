@@ -130,7 +130,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
         </CardHeader>
 
         <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 px-3">
-          <div className="flex min-h-0 flex-1 items-center overflow-auto">
+          <div className="min-h-0 flex-1 items-center overflow-auto lg:flex">
             <div className="mx-auto min-h-fit w-full py-8">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -170,7 +170,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
           </div>
         </CardContent>
 
-        <CardFooter className="absolute right-2 bottom-2 flex items-center justify-end gap-1 p-0">
+        <CardFooter className="absolute right-2 bottom-2 flex items-center justify-end gap-1 rounded-full p-0 px-2 backdrop-blur-sm">
           {!showAllYear && (
             <div className="flex items-center gap-0.5">
               <Button
