@@ -225,7 +225,13 @@ async function applyUserIntentSnapshot(
   suppressMutationCapture = true;
 
   try {
-    for (const key of USER_INTENT_STORAGE_KEYS) {
+    const snapshotKeys = Object.keys(snapshot) as UserIntentStorageKey[];
+
+    for (const key of snapshotKeys) {
+      if (!isUserIntentStorageKey(key)) {
+        continue;
+      }
+
       const value = snapshot[key];
       const serializedValue = serializeStorageValue(key, value);
 
@@ -319,6 +325,72 @@ function parseSessionRestoreUndoState(
       checkpointId,
       restoredAt,
       snapshot: snapshot as UserIntentSnapshot,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function readSessionActionJournal(): Promise<SessionActionJournal | null> {
+  const rawValue = await readAppStorageRaw(SESSION_ACTION_JOURNAL_KEY);
+
+  if (!rawValue) {
+    return null;
+  }
+
+  try {
+    const parsedValue = JSON.parse(rawValue) as unknown;
+
+    if (!isRecord(parsedValue)) {
+      return null;
+    }
+
+    const { sessionId, startedAt, updatedAt, cursor, actions } = parsedValue;
+
+    if (
+      typeof sessionId !== "string" ||
+      typeof startedAt !== "string" ||
+      typeof updatedAt !== "string" ||
+      typeof cursor !== "number" ||
+      !Array.isArray(actions)
+    ) {
+      return null;
+    }
+
+    const validActions: SessionActionEntry[] = [];
+
+    for (const item of actions) {
+      if (!isRecord(item)) {
+        continue;
+      }
+
+      const { id, label, createdAt, before, after } = item;
+
+      if (
+        typeof id !== "string" ||
+        typeof label !== "string" ||
+        typeof createdAt !== "string" ||
+        !isRecord(before) ||
+        !isRecord(after)
+      ) {
+        continue;
+      }
+
+      validActions.push({
+        id,
+        label,
+        createdAt,
+        before: before as UserIntentSnapshot,
+        after: after as UserIntentSnapshot,
+      });
+    }
+
+    return {
+      sessionId,
+      startedAt,
+      updatedAt,
+      cursor,
+      actions: validActions,
     };
   } catch {
     return null;
@@ -470,7 +542,25 @@ export async function beginNewTabSession(): Promise<void> {
     finalized: false,
   };
 
-  actionJournal = createEmptyJournal(sessionId, startedAt);
+  const existingJournal = await readSessionActionJournal();
+
+  if (existingJournal && existingJournal.actions.length > 0) {
+    actionJournal = {
+      ...existingJournal,
+      updatedAt: startedAt,
+    };
+
+    for (const action of existingJournal.actions) {
+      for (const key of Object.keys(action.after)) {
+        activeSession.changedKeys.add(key as UserIntentStorageKey);
+      }
+    }
+
+    activeSession.actionCount = existingJournal.actions.length;
+  } else {
+    actionJournal = createEmptyJournal(sessionId, startedAt);
+  }
+
   persistActionJournal();
 }
 
@@ -586,7 +676,7 @@ export async function undoTrackedUserAction(): Promise<boolean> {
     return false;
   }
 
-  if (actionJournal.cursor < 0) {
+  if (actionJournal.cursor < 1) {
     return false;
   }
 
@@ -609,7 +699,15 @@ export async function redoTrackedUserAction(): Promise<boolean> {
     return false;
   }
 
+  if (actionJournal.cursor < 0) {
+    return false;
+  }
+
   const nextCursor = actionJournal.cursor + 1;
+  if (nextCursor >= actionJournal.actions.length) {
+    return false;
+  }
+
   const entry = actionJournal.actions[nextCursor];
 
   if (!entry) {
