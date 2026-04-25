@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.10.0](https://github.com/SatyamVyas04/better-home/compare/v1.9.0...v1.10.0) (2026-04-25)
+
+### Features
+
+* enhance calendar functionality with year selection and dynamic month rendering ([1291993](https://github.com/SatyamVyas04/better-home/commit/129199317f2203d57fe0b69312a7e7647303e02e))
+
+### Bug Fixes
+
+* **release:** update hook from after:bump to after:changelog for manifest synchronization ([c6e65bd](https://github.com/SatyamVyas04/better-home/commit/c6e65bd4b072f1ffcea8955a7f7240c223595037))
+* **storage:** major undo-redo data wipe-out bug fix ([c3fb0a1](https://github.com/SatyamVyas04/better-home/commit/c3fb0a1fe061873c52b2ee8df08284521d3ba6b6))
+* update release notification to link to GitHub releases and simplify changelog handling ([dc876c1](https://github.com/SatyamVyas04/better-home/commit/dc876c11640447800c2aec212794f229936b655a))
+
 ## [1.9.0](https://github.com/SatyamVyas04/better-home/compare/v1.8.0...v1.9.0) (2026-04-21)
 
 ### Features
