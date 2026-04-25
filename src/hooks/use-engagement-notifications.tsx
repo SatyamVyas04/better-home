@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { EngagementToastContent } from "@/features/notifications/engagement-toast-content";
-import { readLatestChangelogSummary } from "@/lib/changelog-summary";
 import {
   APP_VERSION,
   persistChangelogLastSeenVersion,
@@ -21,8 +20,7 @@ const FEEDBACK_TOAST_AFTER_CHANGELOG_DELAY_MS = 4000;
 const FEEDBACK_REVIEW_URL =
   "https://chromewebstore.google.com/detail/better-home/mfjbpiocndfighipkbgoepkikcjkfldi/reviews";
 const FEEDBACK_REPO_URL = "https://github.com/SatyamVyas04/better-home/issues";
-const FALLBACK_CHANGELOG_URL =
-  "https://github.com/SatyamVyas04/better-home/blob/main/CHANGELOG.md";
+const GITHUB_RELEASE_URL = `https://github.com/SatyamVyas04/better-home/releases/tag/v${APP_VERSION}`;
 const MASCOT_WELCOME_SRC = "/mascots/mascot-welcome.png";
 const MASCOT_UPDATE_SRC = "/mascots/mascot-update.png";
 const MASCOT_REVIEW_SRC = "/mascots/mascot-review.png";
@@ -71,24 +69,13 @@ async function maybeShowChangelogToast(): Promise<boolean> {
 
   await persistChangelogLastSeenVersion(APP_VERSION);
 
-  const changelogSummary = readLatestChangelogSummary();
-  const changelogUrl = changelogSummary?.compareUrl ?? FALLBACK_CHANGELOG_URL;
-  const releaseDateText = changelogSummary?.releaseDate
-    ? ` (${changelogSummary.releaseDate})`
-    : "";
-  const changelogDescription = changelogSummary
-    ? changelogSummary.highlights
-        .map((highlight) => {
-          return `• ${highlight}`;
-        })
-        .join("\n")
-    : "small improvements and bug fixes are now live";
+  const changelogUrl = GITHUB_RELEASE_URL;
 
   toast.custom(
     (toastId) => {
       return (
         <EngagementToastContent
-          description={changelogDescription}
+          description="check out the release notes for all the details."
           mascotAlt="update mascot"
           mascotSrc={MASCOT_UPDATE_SRC}
           onPrimaryAction={() => {
@@ -98,9 +85,9 @@ async function maybeShowChangelogToast(): Promise<boolean> {
           onSecondaryAction={() => {
             toast.dismiss(toastId);
           }}
-          primaryActionLabel="view changelog"
+          primaryActionLabel="view release"
           secondaryActionLabel="close"
-          title={`updated to v${APP_VERSION}${releaseDateText}`}
+          title={`updated to v${APP_VERSION}`}
         />
       );
     },
