@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.1](https://github.com/SatyamVyas04/better-home/compare/v1.10.0...v1.10.1) (2026-04-25)
+
+### Bug Fixes
+
+* **calendar:** adjust layout for better responsiveness and styling in interactive calendar ([a445342](https://github.com/SatyamVyas04/better-home/commit/a445342570aeec4ae0bb43897912e328c3cd58f6))
+
 ## [1.10.0](https://github.com/SatyamVyas04/better-home/compare/v1.9.0...v1.10.0) (2026-04-25)
 
 ### Features
