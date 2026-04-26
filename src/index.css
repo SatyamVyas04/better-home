@@ -723,9 +723,11 @@
   }
 }
 
-@media (min-aspect-ratio: 19 / 9) {
-  .wide-mode {
-    @apply grid-rows-1 grid-cols-4 scale-95 gap-x-80;
+@media (min-aspect-ratio: 18 / 9) {
+  @layer base {
+    .calendar-grid {
+      @apply grid-cols-4! grid-rows-1!;
+    }
   }
 }
 

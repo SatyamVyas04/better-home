@@ -61,9 +61,9 @@ export function MonthGrid({
       animate={{
         filter: "blur(0px)",
         opacity: 1,
-        scale: showAllYear ? 1.05 : 1,
+        scale: showAllYear ? 1 : 1,
       }}
-      className="mx-auto flex h-full w-fit flex-col items-center justify-center"
+      className="mx-auto flex h-full w-full items-center justify-center"
       initial={{ filter: "blur(8px)", opacity: 0, scale: 0.95 }}
       transition={{
         delay: animationDelay,
@@ -73,10 +73,11 @@ export function MonthGrid({
     >
       <svg
         aria-label={`${month.name} ${year} Mood Calendar`}
-        className="h-full"
+        className="h-full w-full"
         height={svgHeight + (showAllYear ? 10 : 20)}
+        preserveAspectRatio="xMidYMid meet"
         viewBox={`0 0 ${svgWidth} ${svgHeight + (showAllYear ? 10 : 20)}`}
-        width={svgWidth}
+        width="100%"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>{`${month.name} ${year} Mood Calendar`}</title>

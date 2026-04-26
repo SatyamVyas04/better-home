@@ -29,7 +29,6 @@ import {
   CALENDAR_END_YEAR,
   CALENDAR_START_YEAR,
   getMonthsForYear,
-  MONTH_GAP,
   QUADRIMESTERS,
 } from "@/lib/calendar-utils";
 import { runTrackedUserAction } from "@/lib/session-history";
@@ -108,7 +107,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
 
   return (
     <div className={cn("flex min-h-0 flex-1 gap-2", className)}>
-      <Card className="relative flex min-h-0 flex-1 flex-col gap-0 border-border/50 p-0">
+      <Card className="relative flex min-h-0 min-w-0 flex-1 flex-col gap-0 overflow-hidden border-border/50 p-0">
         <CardHeader className="px-3 py-2">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="font-medium text-xs lowercase">
@@ -156,45 +155,41 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
           </div>
         </CardHeader>
 
-        <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 px-3">
-          <div className="min-h-0 flex-1 items-center overflow-auto lg:flex">
-            <div className="mx-auto min-h-fit w-full py-8">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  animate={{ filter: "blur(0px)", opacity: 1 }}
-                  className={cn(
-                    "mx-auto flex w-full flex-col items-center justify-start gap-6 pb-1 lg:grid lg:justify-center",
-                    showAllYear
-                      ? "grid-cols-2 grid-rows-6 lg:grid-cols-4 lg:grid-rows-3"
-                      : "grid-cols-1 gap-y-6 lg:grid-cols-2 lg:grid-rows-2 lg:gap-x-8"
-                  )}
-                  exit={{ filter: "blur(4px)", opacity: 0 }}
-                  initial={{ filter: "blur(4px)", opacity: 0 }}
-                  key={`${currentYear}-${showAllYear ? "full-year" : `quad-${currentQuadrimester}`}`}
-                  style={{ gap: showAllYear ? `${MONTH_GAP}px` : undefined }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                >
-                  {currentMonths.map((monthIndex, i) => {
-                    const month = monthsForYear[monthIndex];
-                    return (
-                      <MonthGrid
-                        animationDelay={i * 0.05}
-                        getEntryForDate={getEntryForDate}
-                        getFillColor={getFillColor}
-                        handleSaveEntry={handleSaveEntry}
-                        key={`${currentYear}-${month.name}`}
-                        month={month}
-                        monthIndex={monthIndex}
-                        showAllYear={showAllYear}
-                        showNumbers={showNumbers}
-                        year={currentYear}
-                      />
-                    );
-                  })}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
+        <CardContent className="relative flex max-h-196 flex-1 flex-col gap-1.5 px-3">
+          <AnimatePresence mode="wait">
+            <motion.div
+              animate={{ filter: "blur(0px)", opacity: 1 }}
+              className={cn(
+                "calendar-grid flex h-full w-full scale-90 flex-col content-start items-center justify-start justify-items-center md:grid",
+                showAllYear
+                  ? "grid-cols-2 grid-rows-6 lg:grid-cols-4 lg:grid-rows-3"
+                  : "grid-cols-2 grid-rows-2"
+              )}
+              exit={{ filter: "blur(4px)", opacity: 0 }}
+              initial={{ filter: "blur(4px)", opacity: 0 }}
+              key={`${currentYear}-${showAllYear ? "full-year" : `quad-${currentQuadrimester}`}`}
+              style={{ gap: "12px" }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              {currentMonths.map((monthIndex, i) => {
+                const month = monthsForYear[monthIndex];
+                return (
+                  <MonthGrid
+                    animationDelay={i * 0.05}
+                    getEntryForDate={getEntryForDate}
+                    getFillColor={getFillColor}
+                    handleSaveEntry={handleSaveEntry}
+                    key={`${currentYear}-${month.name}`}
+                    month={month}
+                    monthIndex={monthIndex}
+                    showAllYear={showAllYear}
+                    showNumbers={showNumbers}
+                    year={currentYear}
+                  />
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
         </CardContent>
 
         <CardFooter className="absolute right-2 bottom-2 flex items-center justify-end gap-1 rounded-full p-0 px-2 backdrop-blur-sm">
