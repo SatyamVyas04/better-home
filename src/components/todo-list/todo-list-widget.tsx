@@ -125,15 +125,15 @@ export function TodoList({ fullSize = false }: TodoListProps) {
           }`}
         >
           <CardHeader className="px-3 pb-1">
-            <div className="flex items-center justify-between gap-2">
-              <CardTitle className="flex items-center gap-2 font-medium text-xs lowercase">
-                <span>tasks</span>
-                {totalCount > 0 && (
-                  <span className="font-normal text-muted-foreground text-xs">
-                    {completedCount}/{totalCount}
-                  </span>
-                )}
+            <div className="flex flex-row items-center justify-between gap-2">
+              <CardTitle className="font-medium text-xs lowercase">
+                tasks
               </CardTitle>
+              {totalCount > 0 && (
+                <span className="font-normal text-muted-foreground text-xs">
+                  {completedCount}/{totalCount}
+                </span>
+              )}
             </div>
           </CardHeader>
           <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 px-3">
@@ -147,6 +147,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                 value={newTodo}
               />
               <Button
+                aria-label="Enter to add task"
                 className="h-full w-8"
                 disabled={!newTodo.trim()}
                 onClick={addTodo}

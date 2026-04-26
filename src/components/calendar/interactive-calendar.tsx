@@ -1,6 +1,7 @@
 import {
   Icon123,
   IconCalendarMonth,
+  IconCalendarPin,
   IconCaretLeftFilled,
   IconCaretRightFilled,
 } from "@tabler/icons-react";
@@ -49,6 +50,8 @@ const YEAR_OPTIONS = Array.from(
 
 export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
   const { getEntryForDate, handleSaveEntry } = useCalendarData();
+  const today = new Date();
+  const currentYearFromDate = today.getFullYear();
   const [currentYear, setCurrentYear] = useState(() => {
     const now = new Date().getFullYear();
     return Math.min(Math.max(now, CALENDAR_START_YEAR), CALENDAR_END_YEAR);
@@ -60,6 +63,21 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
     true
   );
   const monthsForYear = getMonthsForYear(currentYear);
+
+  const handleJumpToToday = useCallback(() => {
+    const clampedYear = Math.min(
+      Math.max(currentYearFromDate, CALENDAR_START_YEAR),
+      CALENDAR_END_YEAR
+    );
+    setCurrentYear(clampedYear);
+    if (clampedYear !== currentYear) {
+      setShowAllYear(false);
+    }
+    const month = today.getMonth();
+    const newQuadrimester = Math.floor(month / 4);
+    setCurrentQuadrimester(newQuadrimester);
+    setShowAllYear(false);
+  }, [currentYear, currentYearFromDate, today]);
 
   const getFillColor = useCallback(
     (dateKey: string): string => {
@@ -97,6 +115,15 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
               mood calendar
             </CardTitle>
             <div className="flex items-center gap-1">
+              <Button
+                aria-label="Jump to today"
+                className="h-8 w-8"
+                onClick={handleJumpToToday}
+                size="icon-sm"
+                title="Jump to today"
+              >
+                <IconCalendarPin className="size-3.5" />
+              </Button>
               <Button
                 aria-label={
                   showNumbers ? "Hide date numbers" : "Show date numbers"
