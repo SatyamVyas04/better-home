@@ -151,7 +151,7 @@ export function TodoItemRow({
             />
             <div className="ml-0.5 flex w-full -translate-y-px items-center justify-center">
               <Textarea
-                className={`mt-0.75 min-h-5 w-full rounded-sm border-0 not-active:bg-transparent! px-1 py-px text-xs lowercase leading-3.5 tracking-tight ${
+                className={`mt-0.75 min-h-5 w-full rounded-sm border-0 not-active:bg-transparent! px-1 py-px text-xs leading-3.5 tracking-tight ${
                   editingTodoId === todo.id
                     ? "resize-y overflow-auto"
                     : "resize-none overflow-hidden"
@@ -282,7 +282,7 @@ export function TodoItemRow({
                       className="p-1 pl-2 text-[10px] lowercase"
                       side="right"
                     >
-                      <p>{todoGroup.name.toLowerCase()}</p>
+                      <p>{todoGroup.name}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -303,7 +303,7 @@ export function TodoItemRow({
         </ContextMenuItem>
         <div className="space-y-1.5 px-1 pb-1">
           <Input
-            className="h-7 text-xs lowercase"
+            className="h-7 text-xs"
             onChange={(event) => onSetGroupDraftName(event.target.value)}
             onKeyDown={(event) => onGroupDraftKeyDown(event, todo.id)}
             onPointerDown={(event) => event.stopPropagation()}
@@ -383,7 +383,7 @@ export function TodoItemRow({
                   key={group.id}
                 >
                   <ContextMenuItem
-                    className="h-6 min-w-0 flex-1 gap-2 px-2 text-xs lowercase"
+                    className="h-6 min-w-0 flex-1 gap-2 px-2 text-xs"
                     onSelect={() => onAssignTodoGroup(todo.id, group.id)}
                   >
                     <span
@@ -394,7 +394,7 @@ export function TodoItemRow({
                       }}
                     />
                     <span className="min-w-0 flex-1 truncate">
-                      {group.name.toLowerCase()}
+                      {group.name}
                     </span>
                     <span className="ml-1 inline-flex size-3.5 shrink-0 items-center justify-center">
                       {isSelected ? <IconCheck className="size-3.5" /> : null}

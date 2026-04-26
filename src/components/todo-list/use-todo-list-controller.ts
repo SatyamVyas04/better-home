@@ -210,7 +210,7 @@ export function useTodoListController() {
 
     const todo: Todo = {
       id: crypto.randomUUID(),
-      text: trimmedText.toLowerCase(),
+      text: trimmedText,
       completed: false,
       important: false,
       groupId: null,
@@ -273,7 +273,7 @@ export function useTodoListController() {
     runTodoAction("edit task text", () => {
       setTodos((prev) =>
         prev.map((todo) =>
-          todo.id === id ? { ...todo, text: trimmedText.toLowerCase() } : todo
+          todo.id === id ? { ...todo, text: trimmedText } : todo
         )
       );
     });

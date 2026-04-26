@@ -139,7 +139,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
           <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 px-3">
             <div className="flex gap-1">
               <Textarea
-                className="max-h-18 min-h-6 flex-1 py-1.25 text-xs lowercase"
+                className="max-h-18 min-h-6 flex-1 py-1.25 text-xs"
                 onChange={(event) => setNewTodo(event.target.value)}
                 onKeyDown={handleNewTodoKeyDown}
                 placeholder="add a task..."
@@ -181,21 +181,21 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                           key={section.id}
                         >
                           <button
-                            className="flex w-full items-center justify-between gap-2 bg-muted/20 px-2 py-1.5 text-left transition-[background-color] hover:bg-muted/35"
+                            className="flex w-full items-start justify-between gap-2 bg-muted/20 px-2 py-1.5 text-left transition-[background-color] hover:bg-muted/35"
                             onClick={() => toggleSectionCollapsed(section.id)}
                             type="button"
                           >
-                            <div className="flex min-w-0 items-center gap-1.5">
+                            <div className="flex min-w-0 items-start gap-1.5">
                               <IconChevronRight
                                 className={cn(
-                                  "size-3.5 text-muted-foreground transition-transform",
+                                  "size-4 text-muted-foreground transition-transform",
                                   !isCollapsed && "rotate-90"
                                 )}
                               />
                               {section.color && (
                                 <span
                                   aria-hidden="true"
-                                  className="mt-px size-2 rounded-full"
+                                  className="mt-1 size-2 rounded-full"
                                   style={{
                                     backgroundColor: getGroupColorVar(
                                       section.color
@@ -203,16 +203,16 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                                   }}
                                 />
                               )}
-                              <span
-                                className="min-w-0 truncate text-xs lowercase"
+                              <div
+                                className="line-clamp-2 min-w-0 max-w-[24ch] text-xs"
                                 style={{
                                   color: section.color
                                     ? getGroupColorVar(section.color)
                                     : undefined,
                                 }}
                               >
-                                {section.label.toLowerCase()}
-                              </span>
+                                {section.label}
+                              </div>
                             </div>
                             <span className="translate-x-6 text-[10px] text-muted-foreground opacity-0 transition-all group-focus-within/count:translate-x-0 group-focus-within/count:opacity-100 group-hover/count:translate-x-0 group-hover/count:opacity-100 group-active/count:translate-x-0 group-active/count:opacity-100">
                               {section.todos.filter((t) => t.completed).length}/
