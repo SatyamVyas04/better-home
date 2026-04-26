@@ -41,7 +41,6 @@ import {
   normalizeWidgetSettings,
   type WidgetSettings,
 } from "@/types/widget-settings";
-import { Separator } from "./components/ui/separator";
 
 interface ChromeMessage {
   type: string;
@@ -313,11 +312,11 @@ function App() {
           {layouts[layoutKey]}
         </main>
 
-        <footer className="border-border/70 border-t bg-card/80 px-1 py-1 backdrop-blur supports-backdrop-filter:bg-card/65">
+        <footer className="border-border/70 border-t bg-card/80 backdrop-blur supports-backdrop-filter:bg-card/65">
           <TooltipProvider delayDuration={180}>
             <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <a
-                className="group flex shrink-0 items-center gap-1 rounded-md bg-accent px-1 py-1 text-foreground transition-colors"
+                className="group flex shrink-0 items-center gap-1 rounded-md rounded-none border bg-accent px-2 py-2 text-foreground transition-colors"
                 href="https://github.com/SatyamVyas04/better-home"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -336,7 +335,6 @@ function App() {
 
               {settings.showQuotes && (
                 <div className="hidden min-w-0 flex-1 items-center gap-1 md:flex">
-                  <Separator className="w-px" orientation="vertical" />
                   <QuotesProvider>
                     <FooterQuote />
                   </QuotesProvider>
@@ -344,12 +342,12 @@ function App() {
               )}
 
               <div className="ml-auto hidden max-w-64 flex-1 lg:flex">
-                <div className="flex items-center gap-1 overflow-hidden rounded-md border border-border/60 bg-muted/35">
-                  <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1 font-medium text-[9px] text-primary uppercase tracking-wide">
-                    <IconClockExclamation className="size-3" />
+                <div className="flex w-full items-center gap-1 overflow-hidden rounded-md border border-border/60 bg-muted/35">
+                  <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1.5 font-medium text-[12px] text-primary uppercase tracking-wide">
+                    <IconClockExclamation className="size-3.5" />
                   </span>
-                  <p className="truncate text-[10px] text-muted-foreground">
-                    milestones & reminders, coming soon!
+                  <p className="truncate px-1 text-[12px] text-muted-foreground">
+                    reminders coming soon!
                   </p>
                 </div>
               </div>
@@ -358,13 +356,11 @@ function App() {
                 <BackupWidget />
               </div>
 
-              <Separator className="w-px" orientation="vertical" />
-
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     asChild
-                    className="text-pink-500 transition-colors hover:bg-pink-500! hover:text-white"
+                    className="mr-1 text-pink-500 transition-colors hover:bg-pink-500! hover:text-white"
                     size="icon-sm"
                     variant="ghost"
                   >

@@ -1135,11 +1135,11 @@ export function FooterQuote() {
   return (
     <div className="w-full flex-1 overflow-hidden">
       <div className="flex items-center gap-1 rounded-md border border-border/60 bg-muted/35">
-        <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1 font-medium text-[9px] text-primary uppercase tracking-wide">
-          <IconBlockquote className="size-3" />
+        <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1.5 font-medium text-[9px] text-primary uppercase tracking-wide">
+          <IconBlockquote className="size-3.5" />
         </span>
 
-        <div className="min-w-0 flex-1 px-0.5 py-0.5">
+        <div className="min-w-0 flex-1 px-1 py-1">
           <AnimatePresence mode="wait">
             <motion.div
               animate={{
@@ -1179,7 +1179,7 @@ export function FooterQuote() {
                 className="relative min-w-0 flex-1 will-change-contents"
               >
                 <AnimatedQuoteText
-                  className="line-clamp-1 h-3.5! min-w-0 flex-1 overflow-visible font-mono text-[10px] text-foreground leading-4"
+                  className="line-clamp-1 h-3.5! min-w-0 flex-1 -translate-y-1.25 overflow-visible font-mono text-[12px] text-foreground leading-6"
                   highlightKeywords={activeQuote.highlightKeywords}
                   quoteDurationMs={quoteDurationMs}
                   quoteSeed={activeQuote.key}
@@ -1190,7 +1190,7 @@ export function FooterQuote() {
               </div>
 
               <div className="flex shrink-0 items-center gap-1">
-                <span className="shrink-0 truncate rounded bg-primary/10 px-1 py-px text-[9px] text-primary/85 tracking-tighter">
+                <span className="shrink-0 truncate rounded bg-primary/10 px-1.5 py-px text-[10px] text-primary tracking-tighter">
                   ~ {activeQuote.attribution}
                 </span>
               </div>

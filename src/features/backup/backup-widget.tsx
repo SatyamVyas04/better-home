@@ -632,18 +632,18 @@ export function BackupWidget() {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          className="flex h-6 w-auto min-w-0 items-center justify-start gap-1 px-1"
+          className="flex h-auto w-auto min-w-0 items-center justify-start gap-1 border border-border px-1 py-0.5"
           size="sm"
           type="button"
           variant="ghost"
         >
           <span
             aria-hidden="true"
-            className={`inline-flex w-8 shrink-0 items-center justify-start text-center font-mono text-[14px] tabular-nums leading-none ${backupStatusTone}`}
+            className={`inline-flex w-8 shrink-0 items-center justify-start py-1 text-center font-mono text-[14px] tabular-nums leading-none ${backupStatusTone}`}
           >
             {backupStatusGlyph}
           </span>
-          <span className="min-w-[7ch] text-left font-mono font-semibold text-[11px]">
+          <span className="min-w-[7ch] py-0.5 text-left font-mono font-semibold text-[11px]">
             {backupDisplayText}
           </span>
         </Button>
