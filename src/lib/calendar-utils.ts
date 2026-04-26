@@ -6,7 +6,33 @@ export function getContrastColor(moodKey: string): string {
   return moodKey === "neutral" ? "black" : "white";
 }
 
-export const DAY_LABELS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+export const DAY_LABELS_MONDAY_START = [
+  "MON",
+  "TUE",
+  "WED",
+  "THU",
+  "FRI",
+  "SAT",
+  "SUN",
+];
+export const DAY_LABELS_SUNDAY_START = [
+  "SUN",
+  "MON",
+  "TUE",
+  "WED",
+  "THU",
+  "FRI",
+  "SAT",
+];
+
+export const DAY_LABELS = DAY_LABELS_MONDAY_START;
+
+export function getDayLabels(firstDayOfWeek: number): string[] {
+  if (firstDayOfWeek === 0) {
+    return DAY_LABELS_SUNDAY_START;
+  }
+  return DAY_LABELS_MONDAY_START;
+}
 
 export const CALENDAR_START_YEAR = 2026;
 export const CALENDAR_END_YEAR = 2030;
@@ -27,7 +53,8 @@ const MONTH_NAMES = [
 ] as const;
 
 export function getMonthsForYear(
-  year: number
+  year: number,
+  firstDayOfWeek = 1
 ): { name: string; days: number; startDay: number }[] {
   return MONTH_NAMES.map((name, monthIndex) => {
     const days = new Date(year, monthIndex + 1, 0).getDate();
@@ -36,7 +63,7 @@ export function getMonthsForYear(
     return {
       name,
       days,
-      startDay: (firstDay + 6) % 7,
+      startDay: (firstDay + (7 - firstDayOfWeek)) % 7,
     };
   });
 }

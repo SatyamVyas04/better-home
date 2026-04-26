@@ -62,6 +62,7 @@ const STORAGE_AREA_LABELS: Partial<
   "better-home-quick-links-sort": "quick links sort",
   "mood-calendar-2026-data": "mood calendar data",
   "mood-calendar-show-numbers": "mood calendar numbers",
+  "mood-calendar-first-day-of-week": "calendar first day",
   "vite-ui-theme": "theme",
 };
 
@@ -74,6 +75,7 @@ const STRING_RESTORE_HINT_KEYS = new Set([
 const BOOLEAN_RESTORE_HINT_KEYS = new Set([
   "better-home-todo-group-by",
   "mood-calendar-show-numbers",
+  "mood-calendar-first-day-of-week",
 ]);
 
 const ARRAY_RESTORE_HINT_LABELS: Record<string, string> = {

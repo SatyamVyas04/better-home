@@ -47,5 +47,7 @@ export interface MonthGridProps {
   handleSaveEntry: (dateKey: string, entry: DayEntry) => void;
   showAllYear: boolean;
   showNumbers: boolean;
+  dayLabels: string[];
+  firstDayOfWeek: number;
   animationDelay?: number;
 }

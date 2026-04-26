@@ -101,6 +101,7 @@ const STORAGE_AREA_LABELS: Partial<Record<UserIntentStorageKey, string>> = {
   "better-home-quick-links-sort": "quick links sort",
   "mood-calendar-2026-data": "mood calendar",
   "mood-calendar-show-numbers": "calendar numbers",
+  "mood-calendar-first-day-of-week": "calendar first day",
   "vite-ui-theme": "theme",
 };
 

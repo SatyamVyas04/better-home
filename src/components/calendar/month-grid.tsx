@@ -5,7 +5,6 @@ import {
   CELL_GAP,
   CELL_SIZE,
   DAY_LABEL_WIDTH,
-  DAY_LABELS,
   generateCalendarData,
   getContrastColor,
   getDateKey,
@@ -29,6 +28,7 @@ export function MonthGrid({
   handleSaveEntry,
   showAllYear,
   showNumbers,
+  dayLabels,
   animationDelay = 0,
 }: MonthGridProps) {
   const monthData = useMemo(
@@ -72,17 +72,14 @@ export function MonthGrid({
       }}
     >
       <svg
-        aria-label={`${month.name} ${year} Mood Calendar`}
-        className="h-full w-full"
-        height={svgHeight + (showAllYear ? 10 : 20)}
-        preserveAspectRatio="xMidYMid meet"
-        viewBox={`0 0 ${svgWidth} ${svgHeight + (showAllYear ? 10 : 20)}`}
-        width="100%"
+        className="h-full w-full overflow-visible"
+        height={svgHeight + (showAllYear ? 10 : 24)}
+        viewBox={`0 0 ${svgWidth} ${svgHeight + (showAllYear ? 10 : 24)}`}
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>{`${month.name} ${year} Mood Calendar`}</title>
         <g>
-          {DAY_LABELS.map((label, i) => (
+          {dayLabels.map((label, i) => (
             <text
               dominantBaseline="middle"
               fill="var(--muted-foreground)"

@@ -11,6 +11,7 @@ export const USER_STORAGE_KEYS = [
   "better-home-quick-links-sort",
   "mood-calendar-2026-data",
   "mood-calendar-show-numbers",
+  "mood-calendar-first-day-of-week",
   "vite-ui-theme",
 ] as const;
 
@@ -30,6 +31,7 @@ export const USER_INTENT_STORAGE_KEYS = [
   "better-home-quick-links-sort",
   "mood-calendar-2026-data",
   "mood-calendar-show-numbers",
+  "mood-calendar-first-day-of-week",
   "vite-ui-theme",
 ] as const;
 

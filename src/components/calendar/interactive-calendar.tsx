@@ -1,9 +1,11 @@
 import {
   Icon123,
   IconCalendarMonth,
-  IconCalendarPin,
   IconCaretLeftFilled,
   IconCaretRightFilled,
+  IconLetterM,
+  IconLetterS,
+  IconNavigation,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useState } from "react";
@@ -28,6 +30,7 @@ import { MOOD_COLORS } from "@/lib/calendar-constants";
 import {
   CALENDAR_END_YEAR,
   CALENDAR_START_YEAR,
+  getDayLabels,
   getMonthsForYear,
   QUADRIMESTERS,
 } from "@/lib/calendar-utils";
@@ -61,7 +64,12 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
     "mood-calendar-show-numbers",
     true
   );
-  const monthsForYear = getMonthsForYear(currentYear);
+  const [firstDayOfWeek, setFirstDayOfWeek] = useLocalStorage(
+    "mood-calendar-first-day-of-week",
+    1
+  );
+  const dayLabels = getDayLabels(firstDayOfWeek);
+  const monthsForYear = getMonthsForYear(currentYear, firstDayOfWeek);
 
   const handleJumpToToday = useCallback(() => {
     const clampedYear = Math.min(
@@ -120,8 +128,35 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
                 onClick={handleJumpToToday}
                 size="icon-sm"
                 title="Jump to today"
+                variant="outline"
               >
-                <IconCalendarPin className="size-3.5" />
+                <IconNavigation className="size-3.5" />
+              </Button>
+              <Button
+                aria-label={
+                  firstDayOfWeek === 1
+                    ? "Start week on Sunday"
+                    : "Start week on Monday"
+                }
+                className="h-8 w-8"
+                onClick={() => {
+                  runTrackedUserAction("toggle first day of week", () => {
+                    setFirstDayOfWeek(firstDayOfWeek === 1 ? 0 : 1);
+                  });
+                }}
+                size="icon-sm"
+                title={
+                  firstDayOfWeek === 1
+                    ? "Start week on Sunday"
+                    : "Start week on Monday"
+                }
+                variant="outline"
+              >
+                {firstDayOfWeek === 1 ? (
+                  <IconLetterS className="size-3.5" />
+                ) : (
+                  <IconLetterM className="size-3.5" />
+                )}
               </Button>
               <Button
                 aria-label={
@@ -176,6 +211,8 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
                 return (
                   <MonthGrid
                     animationDelay={i * 0.05}
+                    dayLabels={dayLabels}
+                    firstDayOfWeek={firstDayOfWeek}
                     getEntryForDate={getEntryForDate}
                     getFillColor={getFillColor}
                     handleSaveEntry={handleSaveEntry}
