@@ -177,7 +177,7 @@ export function DatePopover({
 
           <div className="flex gap-2">
             <Button
-              className="relative flex-1 cursor-pointer overflow-clip bg-transparent py-4 text-xs active:scale-95"
+              className="relative flex-1 overflow-clip bg-transparent py-4 text-xs active:scale-95"
               onMouseDown={handleMouseDown}
               onMouseLeave={handleMouseUp}
               onMouseUp={handleMouseUp}
@@ -203,7 +203,7 @@ export function DatePopover({
               </div>
             </Button>
             <Button
-              className="flex-1 cursor-pointer py-4 text-xs"
+              className="flex-1 py-4 text-xs"
               onClick={handleSave}
               size="sm"
             >
