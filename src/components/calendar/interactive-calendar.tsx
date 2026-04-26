@@ -190,7 +190,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
           </div>
         </CardHeader>
 
-        <CardContent className="relative flex max-h-196 flex-1 flex-col gap-1.5 px-3">
+        <CardContent className="relative flex max-h-196 flex-1 flex-col gap-1.5 overflow-auto px-3">
           <AnimatePresence mode="wait">
             <motion.div
               animate={{ filter: "blur(0px)", opacity: 1 }}
