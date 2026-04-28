@@ -83,7 +83,7 @@ export function MonthGrid({
             <text
               dominantBaseline="middle"
               fill="var(--muted-foreground)"
-              fontFamily="DMMono, monospace"
+              fontFamily='var(--better-home-app-font, "DMMono", monospace)'
               fontSize={labelFontSize}
               fontWeight="500"
               key={label}
@@ -155,7 +155,7 @@ export function MonthGrid({
                   <text
                     dominantBaseline="central"
                     fill={dayNumberColor}
-                    fontFamily="DMMono, monospace"
+                    fontFamily='var(--better-home-app-font, "DMMono", monospace)'
                     fontSize={fontSize}
                     fontWeight="500"
                     textAnchor="middle"
@@ -173,7 +173,7 @@ export function MonthGrid({
         <text
           dominantBaseline="middle"
           fill="var(--muted-foreground)"
-          fontFamily="DMMono, monospace"
+          fontFamily='var(--better-home-app-font, "DMMono", monospace)'
           fontSize={showAllYear ? 10 : 14}
           fontWeight="500"
           textAnchor="middle"

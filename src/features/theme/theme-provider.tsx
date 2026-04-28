@@ -1,123 +1,305 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { readAppStorageRaw, writeAppStorageRaw } from "@/lib/extension-storage";
-import {
-  captureUserIntentMutation,
-  runTrackedUserAction,
-} from "@/lib/session-history";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { readAppStorageRaw } from "@/lib/extension-storage";
 
-declare const chrome: {
-  tabs?: {
-    query: (
-      query: { active: boolean; currentWindow: boolean },
-      callback: (tabs: Array<{ id?: number }>) => void
-    ) => void;
-    sendMessage: (
-      tabId: number,
-      message: { type: string; theme?: Theme }
-    ) => void;
-  };
-};
+export const THEME_PALETTES = [
+  "zinc",
+  "neutral",
+  "stone",
+  "mauve",
+  "olive",
+  "mist",
+  "taupe",
+] as const;
+export const THEME_MODES = ["light", "dark", "system"] as const;
+export const THEME_FONTS = [
+  "DMMono",
+  "ApercuMono",
+  "GeistMono",
+  "IBMPlexMono",
+  "Inconsolata",
+  "JetBrainsMono",
+  "RobotoMono",
+  "SpaceMono",
+] as const;
 
-type Theme = "dark" | "light" | "system";
+export type ThemePalette = (typeof THEME_PALETTES)[number];
+export type ThemeMode = (typeof THEME_MODES)[number];
+export type ThemeFont = (typeof THEME_FONTS)[number];
+
+export interface ThemeSettings {
+  palette: ThemePalette;
+  mode: ThemeMode;
+  font: ThemeFont;
+}
 
 interface ThemeProviderProps {
   children: React.ReactNode;
-  defaultTheme?: Theme;
+  defaultTheme?: ThemeMode;
+  defaultPalette?: ThemePalette;
+  defaultFont?: ThemeFont;
   storageKey?: string;
 }
 
 interface ThemeProviderState {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
+  settings: ThemeSettings;
+  resolvedMode: Exclude<ThemeMode, "system">;
+  themeClassName: string | null;
+  setThemePalette: (palette: ThemePalette) => void;
+  setThemeMode: (mode: ThemeMode) => void;
+  setThemeFont: (font: ThemeFont) => void;
 }
 
-const initialState: ThemeProviderState = {
-  theme: "system",
-  setTheme: () => null,
+const THEME_CLASS_NAMES = [
+  "dark",
+  "neutral-light",
+  "neutral-dark",
+  "stone-light",
+  "stone-dark",
+  "mauve-light",
+  "mauve-dark",
+  "olive-light",
+  "olive-dark",
+  "mist-light",
+  "mist-dark",
+  "taupe-light",
+  "taupe-dark",
+] as const;
+
+const FONT_FAMILY_VALUES: Record<ThemeFont, string> = {
+  DMMono: '"DMMono", monospace',
+  ApercuMono: '"ApercuMono", monospace',
+  GeistMono: '"GeistMono", monospace',
+  IBMPlexMono: '"IBMPlexMono", monospace',
+  Inconsolata: '"Inconsolata", monospace',
+  JetBrainsMono: '"JetBrainsMono", monospace',
+  RobotoMono: '"RobotoMono", monospace',
+  SpaceMono: '"SpaceMono", monospace',
 };
 
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
+const DEFAULT_THEME_SETTINGS: ThemeSettings = {
+  palette: "zinc",
+  mode: "system",
+  font: "DMMono",
+};
 
-function isValidTheme(value: string | null): value is Theme {
-  return value === "light" || value === "dark" || value === "system";
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
+  undefined
+);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
-function readInitialTheme(defaultTheme: Theme, storageKey: string): Theme {
-  try {
-    const rawTheme = window.localStorage.getItem(storageKey);
-    if (isValidTheme(rawTheme)) {
-      return rawTheme;
-    }
-  } catch {
-    return defaultTheme;
+function isThemePalette(value: string): value is ThemePalette {
+  return THEME_PALETTES.includes(value as ThemePalette);
+}
+
+function isThemeMode(value: string): value is ThemeMode {
+  return THEME_MODES.includes(value as ThemeMode);
+}
+
+function isThemeFont(value: string): value is ThemeFont {
+  return THEME_FONTS.includes(value as ThemeFont);
+}
+
+function normalizeThemeSettings(
+  value: unknown,
+  fallback: ThemeSettings = DEFAULT_THEME_SETTINGS
+): ThemeSettings {
+  if (!isRecord(value)) {
+    return fallback;
   }
 
-  return defaultTheme;
+  const palette =
+    typeof value.palette === "string" && isThemePalette(value.palette)
+      ? value.palette
+      : fallback.palette;
+  const mode =
+    typeof value.mode === "string" && isThemeMode(value.mode)
+      ? value.mode
+      : fallback.mode;
+  const font =
+    typeof value.font === "string" && isThemeFont(value.font)
+      ? value.font
+      : fallback.font;
+
+  return { palette, mode, font };
+}
+
+function parseThemeSettings(
+  rawValue: string | null,
+  fallback: ThemeSettings = DEFAULT_THEME_SETTINGS
+): ThemeSettings {
+  if (rawValue === null) {
+    return fallback;
+  }
+
+  try {
+    return normalizeThemeSettings(JSON.parse(rawValue), fallback);
+  } catch {
+    if (isThemeMode(rawValue)) {
+      return { ...fallback, mode: rawValue };
+    }
+
+    const [palette, mode] = rawValue.split("-");
+
+    if (isThemePalette(palette) && isThemeMode(mode)) {
+      return { ...fallback, palette, mode };
+    }
+
+    return fallback;
+  }
+}
+
+function getSystemMode(): Exclude<ThemeMode, "system"> {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function resolveMode(
+  mode: ThemeMode,
+  prefersDark: boolean
+): Exclude<ThemeMode, "system"> {
+  if (mode === "system") {
+    return prefersDark ? "dark" : "light";
+  }
+
+  return mode;
+}
+
+function getThemeClassName(
+  palette: ThemePalette,
+  resolvedMode: Exclude<ThemeMode, "system">
+): string | null {
+  if (palette === "zinc") {
+    return resolvedMode === "dark" ? "dark" : null;
+  }
+
+  return `${palette}-${resolvedMode}`;
+}
+
+function getBackgroundColor(
+  _palette: ThemePalette,
+  _resolvedMode: Exclude<ThemeMode, "system">
+): string {
+  return "var(--background)";
+}
+
+function applyThemeToRoot(settings: ThemeSettings, prefersDark: boolean): void {
+  const root = window.document.documentElement;
+  const resolvedMode = resolveMode(settings.mode, prefersDark);
+  const themeClassName = getThemeClassName(settings.palette, resolvedMode);
+
+  root.classList.remove(...THEME_CLASS_NAMES);
+
+  if (themeClassName) {
+    root.classList.add(themeClassName);
+  }
+
+  if (settings.palette !== "zinc" && resolvedMode === "dark") {
+    root.classList.add("dark");
+  }
+
+  root.style.setProperty(
+    "--better-home-app-font",
+    FONT_FAMILY_VALUES[settings.font]
+  );
+  root.style.backgroundColor = getBackgroundColor(
+    settings.palette,
+    resolvedMode
+  );
+  root.style.colorScheme = resolvedMode;
 }
 
 export function ThemeProvider({
   children,
   defaultTheme = "system",
+  defaultPalette = "zinc",
+  defaultFont = "DMMono",
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    return readInitialTheme(defaultTheme, storageKey);
+  const defaultSettings = useMemo<ThemeSettings>(() => {
+    return {
+      palette: defaultPalette,
+      mode: defaultTheme,
+      font: defaultFont,
+    };
+  }, [defaultFont, defaultPalette, defaultTheme]);
+
+  const [settings, setSettings] = useLocalStorage<ThemeSettings>(
+    storageKey,
+    defaultSettings
+  );
+  const [prefersDark, setPrefersDark] = useState<boolean>(() => {
+    return getSystemMode() === "dark";
   });
 
   useEffect(() => {
     readAppStorageRaw(storageKey)
-      .then((storedTheme) => {
-        if (isValidTheme(storedTheme)) {
-          setTheme(storedTheme);
-          return;
-        }
+      .then((rawValue) => {
+        const nextSettings = parseThemeSettings(rawValue, defaultSettings);
 
-        setTheme(defaultTheme);
+        setSettings((previousSettings) => {
+          if (
+            previousSettings.palette === nextSettings.palette &&
+            previousSettings.mode === nextSettings.mode &&
+            previousSettings.font === nextSettings.font
+          ) {
+            return previousSettings;
+          }
+
+          return nextSettings;
+        });
       })
-      .catch(() => {
-        setTheme(defaultTheme);
-      });
-  }, [defaultTheme, storageKey]);
+      .catch(() => null);
+  }, [defaultSettings, setSettings, storageKey]);
 
   useEffect(() => {
-    const root = window.document.documentElement;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-    root.classList.remove("light", "dark");
+    const updatePrefersDark = () => {
+      setPrefersDark(mediaQuery.matches);
+    };
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
+    updatePrefersDark();
+    mediaQuery.addEventListener("change", updatePrefersDark);
 
-      root.classList.add(systemTheme);
-      return;
-    }
+    return () => {
+      mediaQuery.removeEventListener("change", updatePrefersDark);
+    };
+  }, []);
 
-    root.classList.add(theme);
+  useEffect(() => {
+    applyThemeToRoot(settings, prefersDark);
+  }, [prefersDark, settings]);
 
-    chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
-      const tabId = tabs[0]?.id;
-      if (tabId) {
-        chrome.tabs?.sendMessage(tabId, {
-          type: "THEME_CHANGED",
-          theme,
+  const value = useMemo<ThemeProviderState>(() => {
+    const resolvedMode = resolveMode(settings.mode, prefersDark);
+
+    return {
+      settings,
+      resolvedMode,
+      themeClassName: getThemeClassName(settings.palette, resolvedMode),
+      setThemePalette: (palette: ThemePalette) => {
+        setSettings((previousSettings) => {
+          return { ...previousSettings, palette };
         });
-      }
-    });
-  }, [theme]);
-
-  const value = {
-    theme,
-    setTheme: (nextTheme: Theme) => {
-      runTrackedUserAction("change theme", () => {
-        captureUserIntentMutation(storageKey, theme, nextTheme);
-        writeAppStorageRaw(storageKey, nextTheme).catch(() => null);
-        setTheme(nextTheme);
-      });
-    },
-  };
+      },
+      setThemeMode: (mode: ThemeMode) => {
+        setSettings((previousSettings) => {
+          return { ...previousSettings, mode };
+        });
+      },
+      setThemeFont: (font: ThemeFont) => {
+        setSettings((previousSettings) => {
+          return { ...previousSettings, font };
+        });
+      },
+    };
+  }, [prefersDark, setSettings, settings]);
 
   return (
     <ThemeProviderContext.Provider {...props} value={value}>
@@ -129,7 +311,7 @@ export function ThemeProvider({
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext);
 
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
 

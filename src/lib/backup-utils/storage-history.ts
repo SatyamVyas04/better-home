@@ -178,8 +178,13 @@ export async function applyBackupPayload(
       continue;
     }
 
-    if (typeof value === "string" && key === "vite-ui-theme") {
-      await writeAppStorageRaw(key, value);
+    if (key === "vite-ui-theme") {
+      if (typeof value === "string") {
+        await writeAppStorageRaw(key, value);
+        continue;
+      }
+
+      await writeAppStorageRaw(key, JSON.stringify(value));
       continue;
     }
 

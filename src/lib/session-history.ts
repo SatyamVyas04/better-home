@@ -174,7 +174,11 @@ function parseRawStorageValue(
   }
 
   if (key === "vite-ui-theme") {
-    return rawValue;
+    try {
+      return JSON.parse(rawValue) as unknown;
+    } catch {
+      return rawValue;
+    }
   }
 
   try {
@@ -193,7 +197,15 @@ function serializeStorageValue(
   }
 
   if (key === "vite-ui-theme") {
-    return typeof value === "string" ? value : null;
+    if (typeof value === "string") {
+      return value;
+    }
+
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return null;
+    }
   }
 
   try {

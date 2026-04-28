@@ -48,6 +48,7 @@
 /* Zinc Theme (Default) */
 :root {
   --radius: 0.45rem;
+  --better-home-app-font: "DMMono", monospace;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -703,6 +704,15 @@
   --todo-group-brown: oklch(76.4% 0.0867 61.3);
 }
 
+/* Fonts */
+@font-face {
+  font-family: "ApercuMono";
+  src: url("/fonts/ApercuMono.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @font-face {
   font-family: "DMMono";
   src: url("/fonts/DMMono.ttf") format("truetype");
@@ -711,10 +721,58 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "GeistMono";
+  src: url("/fonts/GeistMono.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBMPlexMono";
+  src: url("/fonts/IBMPlexMono.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inconsolata";
+  src: url("/fonts/Inconsolata.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrainsMono";
+  src: url("/fonts/JetBrainsMono.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "RobotoMono";
+  src: url("/fonts/RobotoMono.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SpaceMono";
+  src: url("/fonts/SpaceMono.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    font-family: "DMMono", monospace;
+    font-family: var(--better-home-app-font, "DMMono", monospace);
     scrollbar-width: thin;
     scrollbar-color: gray transparent;
   }

@@ -25,10 +25,7 @@ import {
   flushAutosaveBackupNow,
   queueAutosaveBackup,
 } from "@/lib/backup-utils";
-import {
-  waitForPendingStorageWrites,
-  writeAppStorageRaw,
-} from "@/lib/extension-storage";
+import { waitForPendingStorageWrites } from "@/lib/extension-storage";
 import {
   beginNewTabSession,
   finalizeSessionCheckpointOnLeave,
@@ -41,32 +38,6 @@ import {
   normalizeWidgetSettings,
   type WidgetSettings,
 } from "@/types/widget-settings";
-
-interface ChromeMessage {
-  type: string;
-  theme?: string;
-}
-
-declare const chrome: {
-  runtime?: {
-    onMessage?: {
-      addListener: (
-        callback: (
-          message: ChromeMessage,
-          sender: unknown,
-          sendResponse: unknown
-        ) => void
-      ) => void;
-      removeListener: (
-        callback: (
-          message: ChromeMessage,
-          sender: unknown,
-          sendResponse: unknown
-        ) => void
-      ) => void;
-    };
-  };
-};
 
 type LayoutKey =
   | "none"
@@ -114,27 +85,6 @@ function App() {
 
     return () => {
       setSessionActionTrackingEnabled(false);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleThemeMessage = (
-      message: ChromeMessage,
-      _sender: unknown,
-      _sendResponse: unknown
-    ) => {
-      if (message.type === "THEME_CHANGED" && message.theme) {
-        const root = window.document.documentElement;
-        root.classList.remove("light", "dark");
-        root.classList.add(message.theme);
-        writeAppStorageRaw("vite-ui-theme", message.theme).catch(() => null);
-      }
-    };
-
-    chrome?.runtime?.onMessage?.addListener?.(handleThemeMessage);
-
-    return () => {
-      chrome?.runtime?.onMessage?.removeListener?.(handleThemeMessage);
     };
   }, []);
 
@@ -316,7 +266,7 @@ function App() {
           <TooltipProvider delayDuration={180}>
             <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <a
-                className="group flex shrink-0 items-center gap-1 rounded-md rounded-none border bg-accent px-2 py-2 text-foreground transition-colors"
+                className="group flex shrink-0 items-center gap-1 rounded-none border bg-accent px-2 py-2 text-foreground transition-colors"
                 href="https://github.com/SatyamVyas04/better-home"
                 rel="noopener noreferrer"
                 target="_blank"
