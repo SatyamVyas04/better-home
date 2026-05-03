@@ -28,7 +28,6 @@ const QUOTE_MEDIUM_ROTATION_INTERVAL_MS = 8000;
 const QUOTE_LONG_ROTATION_INTERVAL_MS = 10_000;
 const QUOTE_CLAMP_COPY_MIN_CHARACTERS = 60;
 const TOKEN_SPLIT_REGEX = /(\s+)/;
-const WORD_TOKEN_REGEX = /[A-Za-z0-9']+/g;
 const WHITESPACE_TOKEN_REGEX = /^\s+$/;
 const STRONG_EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 const TODO_HIGHLIGHT_COLOR_VARS = [
@@ -469,288 +468,18 @@ function getPositiveHighlightColor(
   return `var(${colorVariable})`;
 }
 
-interface PositiveNeonPalette {
-  flickerShadow: string;
-  flickerTextColor: string;
-  introTextColor: string;
-  softShadow: string;
-  strongShadow: string;
-  textColor: string;
-}
-
-interface NeonFlickerTimeline {
-  durationSeconds: number;
-  times: number[];
-}
-
-const NEON_ENTRY_PEAK_RATIO = 0.08;
-const NEON_ENTRY_SETTLE_RATIO = 0.11;
-const NEON_FLICKER_JITTER_MS = 120;
-const NEON_FLICKER_PULSE_MS = 100;
-const NEON_MIN_TIMELINE_MS = 2400;
-
-function clampNumber(
-  value: number,
-  minValue: number,
-  maxValue: number
+function getPositiveHighlightSweepDurationSeconds(
+  quoteDurationMs: number
 ): number {
-  return Math.max(minValue, Math.min(maxValue, value));
+  return Math.max(0.72, Math.min(1, quoteDurationMs / 3200));
 }
 
-function hashString(value: string): number {
-  let hash = 0;
-  for (let index = 0; index < value.length; index += 1) {
-    hash = (hash * 31 + value.charCodeAt(index)) % 2_147_483_647;
-  }
-
-  return hash;
-}
-
-function createNeonFlickerTimeline(
-  quoteDurationMs: number,
-  flickerSeed: string
-): NeonFlickerTimeline {
-  const safeDurationMs = Math.max(NEON_MIN_TIMELINE_MS, quoteDurationMs);
-  const jitterRange = NEON_FLICKER_JITTER_MS * 2 + 1;
-  const jitterMs =
-    (hashString(flickerSeed) % jitterRange) - NEON_FLICKER_JITTER_MS;
-  const flickerCenterMs = safeDurationMs / 2 + jitterMs;
-  const halfPulseMs = NEON_FLICKER_PULSE_MS / 2;
-
-  const entryPeakRatio = clampNumber(NEON_ENTRY_PEAK_RATIO, 0.04, 0.12);
-  const entrySettleRatio = clampNumber(
-    NEON_ENTRY_SETTLE_RATIO,
-    entryPeakRatio + 0.01,
-    0.2
-  );
-  const flickerStartRatio = clampNumber(
-    (flickerCenterMs - halfPulseMs) / safeDurationMs,
-    entrySettleRatio + 0.08,
-    0.9
-  );
-  const flickerMidRatio = clampNumber(
-    flickerCenterMs / safeDurationMs,
-    flickerStartRatio + 0.004,
-    0.95
-  );
-  const flickerEndRatio = clampNumber(
-    (flickerCenterMs + halfPulseMs) / safeDurationMs,
-    flickerMidRatio + 0.004,
-    0.98
-  );
-  const preFlickerRatio = clampNumber(
-    flickerStartRatio - 0.01,
-    entrySettleRatio + 0.01,
-    flickerStartRatio
-  );
-
+function getPositiveHighlightBarStyle(highlightColor: string): CSSProperties {
   return {
-    durationSeconds: safeDurationMs / 1000,
-    times: [
-      0,
-      entryPeakRatio,
-      entrySettleRatio,
-      preFlickerRatio,
-      flickerMidRatio,
-      flickerEndRatio,
-      1,
-    ],
+    backgroundColor: `color-mix(in oklab, ${highlightColor} 34%, transparent)`,
+    borderRadius: "0.18em",
+    transformOrigin: "0% 50%",
   };
-}
-
-function isDarkThemeActive(): boolean {
-  if (typeof document === "undefined") {
-    return false;
-  }
-
-  return document.documentElement.classList.contains("dark");
-}
-
-function getPositiveNeonPalette(highlightColor: string): PositiveNeonPalette {
-  if (isDarkThemeActive()) {
-    const textColor = `color-mix(in oklab, ${highlightColor} 74%, white)`;
-    const introTextColor = `color-mix(in oklab, ${highlightColor} 58%, white)`;
-    const flickerTextColor = `color-mix(in oklab, ${highlightColor} 86%, white)`;
-    const coreGlow = `color-mix(in oklab, ${highlightColor} 82%, white)`;
-    const innerGlow = `color-mix(in oklab, ${highlightColor} 68%, white)`;
-    const outerGlow = `color-mix(in oklab, ${highlightColor} 54%, white)`;
-    const flickerShadow = `0 0 0.02rem ${coreGlow}, 0 0 0.12rem ${coreGlow}, 0 0 0.26rem ${innerGlow}, 0 0 0.56rem ${outerGlow}`;
-
-    return {
-      flickerShadow,
-      flickerTextColor,
-      introTextColor,
-      softShadow: `0 0 0.06rem ${coreGlow}, 0 0 0.18rem ${innerGlow}, 0 0 0.42rem ${outerGlow}`,
-      strongShadow: `0 0 0.02rem ${coreGlow}, 0 0 0.1rem ${coreGlow}, 0 0 0.24rem ${innerGlow}, 0 0 0.5rem ${outerGlow}`,
-      textColor,
-    };
-  }
-
-  const textColor = `color-mix(in oklab, ${highlightColor} 70%, white)`;
-  const introTextColor = `color-mix(in oklab, ${highlightColor} 48%, white)`;
-  const flickerTextColor = `color-mix(in oklab, ${highlightColor} 82%, white)`;
-  const edgeInk = `color-mix(in oklab, ${highlightColor} 70%, black)`;
-  const coreGlow = `color-mix(in oklab, ${highlightColor} 84%, white)`;
-  const innerGlow = `color-mix(in oklab, ${highlightColor} 66%, white)`;
-  const outerGlow = `color-mix(in oklab, ${highlightColor} 44%, white)`;
-  const haloGlow = `color-mix(in oklab, ${highlightColor} 28%, white)`;
-  const flickerShadow = `0 0 0.02rem ${edgeInk}, 0 0 0.08rem ${coreGlow}, 0 0 0.22rem ${innerGlow}, 0 0 0.48rem ${outerGlow}`;
-
-  return {
-    flickerShadow,
-    flickerTextColor,
-    introTextColor,
-    softShadow: `0 0 0.02rem ${edgeInk}, 0 0 0.12rem ${innerGlow}, 0 0 0.34rem ${outerGlow}`,
-    strongShadow: `0 0 0.02rem ${edgeInk}, 0 0 0.08rem ${coreGlow}, 0 0 0.22rem ${innerGlow}, 0 0 0.48rem ${outerGlow}, 0 0 0.62rem ${haloGlow}`,
-    textColor,
-  };
-}
-
-function getPositiveHighlightTextColor(highlightColor: string): string {
-  return getPositiveNeonPalette(highlightColor).textColor;
-}
-
-function getPositiveHighlightIntroColor(highlightColor: string): string {
-  return getPositiveNeonPalette(highlightColor).introTextColor;
-}
-
-function getPositiveHighlightShadow(highlightColor: string): string {
-  return getPositiveNeonPalette(highlightColor).strongShadow;
-}
-
-function getPositiveHighlightStyle(
-  highlightColor: string | null
-): CSSProperties | undefined {
-  if (!highlightColor) {
-    return undefined;
-  }
-
-  return {
-    color: getPositiveHighlightTextColor(highlightColor),
-    fontWeight: 600,
-    textShadow: getPositiveHighlightShadow(highlightColor),
-  };
-}
-
-function renderShimmerLetterCharacter({
-  character,
-  characterIndex,
-  quoteDurationMs,
-  quoteSeed,
-  highlightColor,
-  revealDelay,
-}: {
-  character: string;
-  characterIndex: number;
-  quoteDurationMs: number;
-  quoteSeed: string;
-  highlightColor: string | null;
-  revealDelay: number;
-}): ReactNode {
-  const characterKey = `${character}-${characterIndex}`;
-  if (WHITESPACE_TOKEN_REGEX.test(character)) {
-    return <span key={characterKey}>{character}</span>;
-  }
-
-  const isPositiveCharacter = highlightColor !== null;
-
-  if (isPositiveCharacter) {
-    const neonPalette = getPositiveNeonPalette(highlightColor);
-    const neonFlickerTimeline = createNeonFlickerTimeline(
-      quoteDurationMs,
-      `${quoteSeed}-${characterKey}`
-    );
-
-    return (
-      <motion.span
-        animate={{
-          color: [
-            "hsl(var(--foreground) / 0.48)",
-            neonPalette.introTextColor,
-            neonPalette.flickerTextColor,
-            neonPalette.textColor,
-            neonPalette.textColor,
-            "hsl(var(--foreground) / 0.08)",
-            neonPalette.textColor,
-            neonPalette.textColor,
-          ],
-          filter: [
-            "blur(8px) saturate(176%) brightness(108%)",
-            "blur(2px) saturate(164%) brightness(112%)",
-            "blur(0px) saturate(160%) brightness(114%)",
-            "blur(0px) saturate(148%) brightness(104%)",
-            "blur(0px) saturate(10%) brightness(4%)",
-            "blur(0px) saturate(170%) brightness(114%)",
-            "blur(0px) saturate(148%) brightness(104%)",
-          ],
-          opacity: [0, 0.86, 1, 1, 0, 1, 1],
-          textShadow: [
-            "0 0 0 transparent",
-            neonPalette.softShadow,
-            neonPalette.flickerShadow,
-            neonPalette.strongShadow,
-            "0 0 0 transparent",
-            neonPalette.flickerShadow,
-            neonPalette.strongShadow,
-          ],
-          y: [3.2, 0.8, 0, 0, 0, 0, 0],
-        }}
-        initial={{
-          color: neonPalette.introTextColor,
-          filter: "blur(9px) saturate(170%) brightness(106%)",
-          opacity: 0,
-          textShadow: "0 0 0 transparent",
-          y: 3.2,
-        }}
-        key={characterKey}
-        style={getPositiveHighlightStyle(highlightColor)}
-        transition={{
-          delay: revealDelay,
-          duration: neonFlickerTimeline.durationSeconds,
-          ease: STRONG_EASE_OUT,
-          times: neonFlickerTimeline.times,
-        }}
-      >
-        {character}
-      </motion.span>
-    );
-  }
-
-  return (
-    <motion.span
-      animate={{
-        color: [
-          "hsl(var(--foreground) / 0.42)",
-          "hsl(var(--foreground) / 1)",
-          "hsl(var(--foreground) / 0.92)",
-        ],
-        filter: ["blur(8px)", "blur(2px)", "blur(0px)"],
-        opacity: [0, 0.86, 1],
-        textShadow: [
-          "0 0 0 hsl(var(--foreground) / 0)",
-          "0 0 9px hsl(var(--foreground) / 0.35)",
-          "0 0 0 hsl(var(--foreground) / 0)",
-        ],
-        y: [3.2, 0.8, 0],
-      }}
-      initial={{
-        color: "hsl(var(--foreground) / 0.34)",
-        filter: "blur(9px)",
-        opacity: 0,
-        textShadow: "0 0 0 hsl(var(--foreground) / 0)",
-        y: 3.2,
-      }}
-      key={characterKey}
-      transition={{
-        delay: revealDelay,
-        duration: 0.62,
-        ease: STRONG_EASE_OUT,
-        times: [0, 0.58, 1],
-      }}
-    >
-      {character}
-    </motion.span>
-  );
 }
 
 function getWordTone(word: string): "positive" | null {
@@ -768,143 +497,20 @@ function getWordTone(word: string): "positive" | null {
 function AnimatedQuoteText({
   quoteText,
   quoteDurationMs,
-  quoteSeed,
   highlightKeywords,
   className,
   staggerDelay = 0.042,
-  useLetterShimmer = false,
 }: {
   quoteText: string;
   quoteDurationMs: number;
-  quoteSeed: string;
   highlightKeywords?: string[];
   className?: string;
   staggerDelay?: number;
-  useLetterShimmer?: boolean;
 }) {
   const prefersReducedMotion = useReducedMotion();
   const curatedHighlightKeywordSet = useMemo(() => {
     return buildCuratedHighlightKeywordSet(highlightKeywords);
   }, [highlightKeywords]);
-
-  if (useLetterShimmer) {
-    if (prefersReducedMotion) {
-      const quoteTokens = quoteText.split(TOKEN_SPLIT_REGEX).filter(Boolean);
-
-      return (
-        <p className={className}>
-          {quoteTokens.map((token, tokenIndex) => {
-            const tokenKey = `${token}-${tokenIndex}`;
-
-            if (WHITESPACE_TOKEN_REGEX.test(token)) {
-              return <span key={tokenKey}>{token}</span>;
-            }
-
-            const highlightColor = getPositiveHighlightColor(
-              token,
-              curatedHighlightKeywordSet
-            );
-
-            return (
-              <span
-                className={highlightColor ? "font-medium" : undefined}
-                key={tokenKey}
-                style={getPositiveHighlightStyle(highlightColor)}
-              >
-                {token}
-              </span>
-            );
-          })}
-        </p>
-      );
-    }
-
-    const quoteCharacters = Array.from(quoteText);
-    const glintDuration = 1.16;
-    const positiveCharacterColorsByIndex = new Map<number, string>();
-    const revealDelayByIndex = new Map<number, number>();
-    let characterRevealIndex = 0;
-
-    for (const [characterIndex, character] of quoteCharacters.entries()) {
-      if (WHITESPACE_TOKEN_REGEX.test(character)) {
-        continue;
-      }
-
-      revealDelayByIndex.set(
-        characterIndex,
-        characterRevealIndex * staggerDelay
-      );
-      characterRevealIndex += 1;
-    }
-
-    for (const wordMatch of quoteText.matchAll(WORD_TOKEN_REGEX)) {
-      const highlightColor = getPositiveHighlightColor(
-        wordMatch[0],
-        curatedHighlightKeywordSet
-      );
-      if (!highlightColor) {
-        continue;
-      }
-
-      const wordStartIndex = wordMatch.index ?? -1;
-      if (wordStartIndex < 0) {
-        continue;
-      }
-
-      for (
-        let characterOffset = 0;
-        characterOffset < wordMatch[0].length;
-        characterOffset += 1
-      ) {
-        positiveCharacterColorsByIndex.set(
-          wordStartIndex + characterOffset,
-          highlightColor
-        );
-      }
-    }
-
-    return (
-      <span className="relative block">
-        <p className={className}>
-          {quoteCharacters.map((character, characterIndex) => {
-            const highlightColor =
-              positiveCharacterColorsByIndex.get(characterIndex) ?? null;
-
-            return renderShimmerLetterCharacter({
-              character,
-              characterIndex,
-              highlightColor,
-              quoteDurationMs,
-              quoteSeed,
-              revealDelay: revealDelayByIndex.get(characterIndex) ?? 0,
-            });
-          })}
-        </p>
-
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0 overflow-x-hidden rounded-sm"
-        >
-          <motion.span
-            animate={{
-              opacity: [0, 0.82, 0],
-              x: ["0%", "560%"],
-            }}
-            className="absolute inset-y-0 -left-full w-1/3 bg-linear-to-r from-transparent via-primary/75 to-transparent mix-blend-screen"
-            initial={{
-              opacity: 0,
-              x: "0%",
-            }}
-            transition={{
-              delay: 0,
-              duration: glintDuration,
-              ease: STRONG_EASE_OUT,
-            }}
-          />
-        </span>
-      </span>
-    );
-  }
 
   const tokenOccurrences = new Map<string, number>();
   let tokenPosition = 0;
@@ -925,16 +531,20 @@ function AnimatedQuoteText({
           token,
           curatedHighlightKeywordSet
         );
-        const tokenClassName = highlightColor ? "font-medium" : undefined;
 
         if (prefersReducedMotion) {
+          if (!highlightColor) {
+            return <span key={tokenKey}>{token}</span>;
+          }
+
           return (
-            <span
-              className={tokenClassName}
-              key={tokenKey}
-              style={getPositiveHighlightStyle(highlightColor)}
-            >
-              {token}
+            <span className="relative inline-block" key={tokenKey}>
+              <span
+                aria-hidden
+                className="absolute inset-0 rounded-[0.18em]"
+                style={getPositiveHighlightBarStyle(highlightColor)}
+              />
+              <span className="relative z-10">{token}</span>
             </span>
           );
         }
@@ -943,65 +553,29 @@ function AnimatedQuoteText({
         tokenPosition += 1;
 
         if (highlightColor) {
-          const neonPalette = getPositiveNeonPalette(highlightColor);
-          const neonFlickerTimeline = createNeonFlickerTimeline(
-            quoteDurationMs,
-            `${quoteSeed}-${tokenKey}`
-          );
+          const highlightSweepDurationSeconds =
+            getPositiveHighlightSweepDurationSeconds(quoteDurationMs);
 
           return (
-            <motion.span
-              animate={{
-                color: [
-                  "hsl(var(--foreground) / 0.5)",
-                  neonPalette.introTextColor,
-                  neonPalette.flickerTextColor,
-                  neonPalette.textColor,
-                  neonPalette.textColor,
-                  "hsl(var(--foreground) / 0.08)",
-                  neonPalette.textColor,
-                  neonPalette.textColor,
-                ],
-                filter: [
-                  "blur(6px) saturate(170%) brightness(106%)",
-                  "blur(2px) saturate(160%) brightness(111%)",
-                  "blur(0px) saturate(154%) brightness(113%)",
-                  "blur(0px) saturate(146%) brightness(103%)",
-                  "blur(0px) saturate(8%) brightness(4%)",
-                  "blur(0px) saturate(168%) brightness(114%)",
-                  "blur(0px) saturate(146%) brightness(103%)",
-                ],
-                opacity: [0, 0.86, 1, 1, 0, 1, 1],
-                textShadow: [
-                  "0 0 0 transparent",
-                  neonPalette.softShadow,
-                  neonPalette.flickerShadow,
-                  neonPalette.strongShadow,
-                  "0 0 0 transparent",
-                  neonPalette.flickerShadow,
-                  neonPalette.strongShadow,
-                ],
-                y: [1.2, 0.35, 0, 0, 0, 0, 0],
-              }}
-              className={tokenClassName}
-              initial={{
-                color: getPositiveHighlightIntroColor(highlightColor),
-                filter: "blur(7px) saturate(162%) brightness(106%)",
-                opacity: 0.08,
-                textShadow: "0 0 0 transparent",
-                y: 1.2,
-              }}
-              key={tokenKey}
-              style={getPositiveHighlightStyle(highlightColor)}
-              transition={{
-                delay: transitionDelay,
-                duration: neonFlickerTimeline.durationSeconds,
-                ease: [0.23, 1, 0.32, 1],
-                times: neonFlickerTimeline.times,
-              }}
-            >
-              {token}
-            </motion.span>
+            <span className="relative inline-block" key={tokenKey}>
+              <motion.div
+                animate={{
+                  scaleX: [0, 1],
+                }}
+                aria-hidden
+                className="absolute -inset-x-1 inset-y-1 rounded-sm"
+                initial={{
+                  scaleX: 0,
+                }}
+                style={getPositiveHighlightBarStyle(highlightColor)}
+                transition={{
+                  delay: transitionDelay,
+                  duration: highlightSweepDurationSeconds,
+                  ease: STRONG_EASE_OUT,
+                }}
+              />
+              <span className="relative z-10">{token}</span>
+            </span>
           );
         }
 
@@ -1017,7 +591,6 @@ function AnimatedQuoteText({
               opacity: [0, 0.86, 1],
               y: [1.2, 0.35, 0],
             }}
-            className={tokenClassName}
             initial={{
               color: "hsl(var(--foreground) / 0.35)",
               filter: "blur(7px)",
@@ -1182,10 +755,8 @@ export function FooterQuote() {
                   className="line-clamp-1 h-3.5! min-w-0 flex-1 -translate-y-1.25 overflow-visible font-mono text-[12px] text-foreground leading-6"
                   highlightKeywords={activeQuote.highlightKeywords}
                   quoteDurationMs={quoteDurationMs}
-                  quoteSeed={activeQuote.key}
                   quoteText={activeQuote.text}
                   staggerDelay={0.0135}
-                  useLetterShimmer
                 />
               </div>
 
