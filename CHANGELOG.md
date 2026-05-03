@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.0.0](https://github.com/SatyamVyas04/better-home/compare/v1.10.1...v2.0.0) (2026-05-03)
+
+### ⚠ BREAKING CHANGES
+
+* **theme:** add 7 base themes and 8 font options
+
+### Features
+
+* add jump-to-today for calendar and new network info hook ([bd3a5c4](https://github.com/SatyamVyas04/better-home/commit/bd3a5c42892daeb74d15554c2c5faa92d88b74c6))
+* added new mono fonts, updated buttons to enable cursor-pointer ([c8dc998](https://github.com/SatyamVyas04/better-home/commit/c8dc9989ee7df0d1b0db92e0857eded64b66e3c6))
+* implement first day of week toggle and update calendar labels ([ad13bc0](https://github.com/SatyamVyas04/better-home/commit/ad13bc0e2531a1a2afaaaab1fcc7090d223f3f62))
+* **theme:** add 7 base themes and 8 font options ([03704c4](https://github.com/SatyamVyas04/better-home/commit/03704c4c2a95c6971d2473dd543a039af8b3f3b0))
+
+### Bug Fixes
+
+* add overflow-auto to CardContent for improved scrolling behavior ([13975a6](https://github.com/SatyamVyas04/better-home/commit/13975a6094f40e79110121a6e232795258a0b2b9))
+* added more global theme shadcn presets ([0e36004](https://github.com/SatyamVyas04/better-home/commit/0e36004822dffa8c84379f5b38edf84e52010b21))
+* adjust calendar widget  height for improved layout and scrolling ([5e2917e](https://github.com/SatyamVyas04/better-home/commit/5e2917edab031b9ccbccd1ad980dc623620cdd0b))
+* enhance calendar layout and styling for better responsiveness ([94d3c5d](https://github.com/SatyamVyas04/better-home/commit/94d3c5da7761fd9379a16c7000dd7783a1a5c6f9))
+* improve styling and layout for footer and quotes widget components ([ede6766](https://github.com/SatyamVyas04/better-home/commit/ede6766c5921057bd919fb4588ad52b96cb68446))
+* preserve user input case in todos ([9fa4403](https://github.com/SatyamVyas04/better-home/commit/9fa44033691b2846c88ef189c717759a78ae0b91))
+* simplify quote animation logic and remove unused functions ([9b790ee](https://github.com/SatyamVyas04/better-home/commit/9b790ee0edcef22ffb2072c70659b4b84426b425))
+
 ## [1.10.1](https://github.com/SatyamVyas04/better-home/compare/v1.10.0...v1.10.1) (2026-04-25)
 
 ### Bug Fixes
