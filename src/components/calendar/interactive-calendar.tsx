@@ -115,7 +115,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
 
   return (
     <div className={cn("flex min-h-0 flex-1 gap-2", className)}>
-      <Card className="relative flex min-h-0 min-w-0 flex-1 flex-col gap-0 overflow-hidden border-border/50 p-0">
+      <Card className="relative flex max-h-screen min-h-0 min-w-0 flex-1 flex-col gap-0 overflow-hidden border-border/50 p-0">
         <CardHeader className="px-3 py-2">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="font-medium text-xs lowercase">
@@ -190,7 +190,7 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
           </div>
         </CardHeader>
 
-        <CardContent className="relative flex max-h-196 flex-1 flex-col gap-1.5 overflow-auto px-3">
+        <CardContent className="relative flex h-full flex-1 flex-col gap-1.5 overflow-auto px-3">
           <AnimatePresence mode="wait">
             <motion.div
               animate={{ filter: "blur(0px)", opacity: 1 }}
