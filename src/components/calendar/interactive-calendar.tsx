@@ -58,7 +58,9 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
     const now = new Date().getFullYear();
     return Math.min(Math.max(now, CALENDAR_START_YEAR), CALENDAR_END_YEAR);
   });
-  const [currentQuadrimester, setCurrentQuadrimester] = useState(0);
+  const [currentQuadrimester, setCurrentQuadrimester] = useState(() =>
+    Math.floor(new Date().getMonth() / 4)
+  );
   const [showAllYear, setShowAllYear] = useState(false);
   const [showNumbers, setShowNumbers] = useLocalStorage(
     "mood-calendar-show-numbers",

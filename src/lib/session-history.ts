@@ -568,8 +568,6 @@ export async function beginNewTabSession(): Promise<void> {
         activeSession.changedKeys.add(key as UserIntentStorageKey);
       }
     }
-
-    activeSession.actionCount = existingJournal.actions.length;
   } else {
     actionJournal = createEmptyJournal(sessionId, startedAt);
   }
@@ -637,7 +635,7 @@ export function runTrackedUserAction<T>(label: string, action: () => T): T {
         activeSession.changedKeys.add(key);
       }
 
-      activeSession.actionCount = actionJournal.actions.length;
+      activeSession.actionCount += 1;
       activeSession.lastActionAt = actionJournal.updatedAt;
 
       persistActionJournal();
