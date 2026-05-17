@@ -17,6 +17,7 @@ import {
 import { renderWidget } from "@/components/widget-registry";
 import { BackupWidget } from "@/features/backup/backup-widget";
 import { ThemeProvider } from "@/features/theme/theme-provider";
+import { useBackupPermissionsInit } from "@/hooks/use-backup-permissions-init";
 import { useEngagementNotifications } from "@/hooks/use-engagement-notifications";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useStorageMigration } from "@/hooks/use-storage-migration";
@@ -78,6 +79,9 @@ function App() {
   useEngagementNotifications({
     isReady: migrationStatus.state === "ready",
   });
+
+  // Initialize backup file permissions proactively
+  useBackupPermissionsInit();
 
   useEffect(() => {
     setSessionActionTrackingEnabled(true);

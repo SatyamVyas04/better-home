@@ -34,6 +34,8 @@ import {
   type BackupLocationStatus,
   type BackupStatus,
   backupNow,
+  createBackup,
+  downloadBackup,
   ensureDailyAutoBackup,
   loadBackupFromFilePicker,
   parseBackupFile,
@@ -155,7 +157,7 @@ function SessionArchiveItem({
 
 interface SetupTabContentProps {
   backupLocationStatus: BackupLocationStatus;
-  handleBackupNow: () => void;
+  handleSaveNow: () => void;
   handleRestoreFileClick: () => void;
   handleSelectBackupLocation: () => void;
   handleUploadBackup: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -164,11 +166,13 @@ interface SetupTabContentProps {
   isSelectingBackupLocation: boolean;
   lastSuccessfulWriteAge: string;
   restoreFileInputRef: React.RefObject<HTMLInputElement | null>;
+  isReauthorizing?: boolean;
+  handleReauthorize?: () => void;
 }
 
 function SetupTabContent({
   backupLocationStatus,
-  handleBackupNow,
+  handleSaveNow,
   handleRestoreFileClick,
   handleSelectBackupLocation,
   handleUploadBackup,
@@ -177,36 +181,87 @@ function SetupTabContent({
   isSelectingBackupLocation,
   lastSuccessfulWriteAge,
   restoreFileInputRef,
+  isReauthorizing,
+  handleReauthorize,
 }: SetupTabContentProps) {
+  const needsReauthorization =
+    backupLocationStatus.configured &&
+    backupLocationStatus.needsReauthorization;
+  let guidanceMessage: string | null = null;
+
+  if (backupLocationStatus.lastWriteErrorMessage) {
+    guidanceMessage = backupLocationStatus.lastWriteErrorMessage;
+  } else if (needsReauthorization) {
+    guidanceMessage =
+      "Brave is blocking file editing for this backup location. Save now still works as a manual download, and you can also enable File System Access API at brave://flags/#file-system-access-api.";
+  }
+
   return (
     <TabsContent className="space-y-2" value="options">
       <div className="rounded-md border border-border/60 bg-muted/30 p-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate font-medium text-[11px] text-foreground">
-            {backupLocationStatus.fileName ?? "no folder chosen"}
-          </span>
-          <span
-            className={`text-[10px] ${
-              isBackupLocationReady ? "text-emerald-500" : "text-destructive"
-            }`}
-          >
-            {isBackupLocationReady ? "ready" : "not ready"}
-          </span>
+          <div className="flex w-full items-center justify-between">
+            <span className="truncate font-medium text-[11px] text-foreground">
+              {backupLocationStatus.fileName ?? "no folder chosen"}
+            </span>
+            {isBackupLocationReady ? (
+              <span className="text-[10px] text-emerald-500">ready</span>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    className="inline-flex items-center rounded-full border border-destructive/30 px-1 py-0.5 text-[10px] text-destructive transition-colors hover:bg-destructive/10"
+                    type="button"
+                  >
+                    not ready
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <div className="max-w-56 space-y-1 text-[11px]">
+                    <p>Brave can block the file picker or file editing API.</p>
+                    <p>
+                      Enable{" "}
+                      <span className="font-medium">
+                        File System Access API
+                      </span>{" "}
+                      in{" "}
+                      <span className="font-mono underline">
+                        brave://flags/#file-system-access-api
+                      </span>
+                      , or use Save now to download a backup manually.
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
         </div>
         <p className="mt-1 text-[10px] text-muted-foreground">
           last saved: {lastSuccessfulWriteAge}
         </p>
-        {backupLocationStatus.lastWriteErrorMessage ? (
-          <p className="mt-1 truncate text-[10px] text-destructive">
-            {backupLocationStatus.lastWriteErrorMessage}
-          </p>
+        {guidanceMessage ? (
+          <p className="mt-1 text-[10px] text-destructive">{guidanceMessage}</p>
         ) : null}
       </div>
 
       <div className="space-y-2">
+        {needsReauthorization && handleReauthorize ? (
+          <Button
+            className="w-full"
+            disabled={isReauthorizing}
+            onClick={handleReauthorize}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            <IconFolderOpen className="size-3.5" />
+            {isReauthorizing ? "requesting..." : "request permission"}
+          </Button>
+        ) : null}
+
         <Button
           className="w-full"
-          disabled={isSelectingBackupLocation}
+          disabled={isSelectingBackupLocation || needsReauthorization}
           onClick={handleSelectBackupLocation}
           size="sm"
           type="button"
@@ -219,8 +274,8 @@ function SetupTabContent({
         <div className="flex items-center gap-2">
           <Button
             className="flex-1"
-            disabled={!isBackupLocationReady || isBackingUp}
-            onClick={handleBackupNow}
+            disabled={isBackingUp}
+            onClick={handleSaveNow}
             size="sm"
             type="button"
             variant="outline"
@@ -456,6 +511,7 @@ export function BackupWidget() {
     useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [isArchiveExpanded, setIsArchiveExpanded] = useState(false);
+  const [isReauthorizing, setIsReauthorizing] = useState(false);
   const restoreFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const visibleBackupStatus = useVisibleBackupStatus(
@@ -531,9 +587,28 @@ export function BackupWidget() {
     setIsSelectingBackupLocation(false);
   };
 
-  const handleBackupNow = async () => {
+  const handleReauthorize = async () => {
+    setIsReauthorizing(true);
+
+    const selected = await selectBackupLocation();
+    if (selected) {
+      setActiveBackupTab("history");
+    }
+
+    await refreshBackupSurface();
+    setIsReauthorizing(false);
+  };
+
+  const handleSaveNow = async () => {
     setIsBackingUp(true);
-    await backupNow();
+
+    if (isBackupLocationReady) {
+      await backupNow();
+    } else {
+      const backupPayload = await createBackup();
+      downloadBackup(backupPayload);
+    }
+
     await refreshBackupSurface();
     setIsBackingUp(false);
   };
@@ -674,16 +749,20 @@ export function BackupWidget() {
 
           <SetupTabContent
             backupLocationStatus={backupLocationStatus}
-            handleBackupNow={() => {
-              handleBackupNow().catch(() => null);
+            handleReauthorize={() => {
+              handleReauthorize().catch(() => null);
             }}
             handleRestoreFileClick={handleRestoreFileClick}
+            handleSaveNow={() => {
+              handleSaveNow().catch(() => null);
+            }}
             handleSelectBackupLocation={() => {
               handleSelectBackupLocation().catch(() => null);
             }}
             handleUploadBackup={handleUploadBackup}
             isBackingUp={isBackingUp}
             isBackupLocationReady={isBackupLocationReady}
+            isReauthorizing={isReauthorizing}
             isSelectingBackupLocation={isSelectingBackupLocation}
             lastSuccessfulWriteAge={lastSuccessfulWriteAge}
             restoreFileInputRef={restoreFileInputRef}

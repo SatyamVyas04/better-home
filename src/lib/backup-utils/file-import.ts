@@ -1,7 +1,7 @@
 import { savePrimaryBackupFileHandle } from "@/lib/backup-file-handle-store";
 import {
-  ensureReadWritePermission,
   readBackupFileConfig,
+  requestPermissionImmediately,
   writeBackupFileConfig,
 } from "./internal-file";
 import {
@@ -110,10 +110,14 @@ export async function loadBackupFromFilePicker(
       return null;
     }
 
+    // CRITICAL: Request permission immediately after file selection
+    // while the user gesture is still fresh. This is especially important
+    // for the restore flow in Brave and other Chromium browsers.
+    const permissionState = await requestPermissionImmediately(fileHandle);
+    const needsReauthorization = permissionState !== "granted";
+
     await savePrimaryBackupFileHandle(fileHandle);
 
-    const permissionState = await ensureReadWritePermission(fileHandle, true);
-    const needsReauthorization = permissionState !== "granted";
     const existingConfig = await readBackupFileConfig();
     const updateTime = new Date().toISOString();
 

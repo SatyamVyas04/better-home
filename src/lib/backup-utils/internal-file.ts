@@ -22,6 +22,9 @@ import {
   parseBackupFileDocument,
 } from "./internal-parsers";
 
+// Re-export types for convenience
+export type { PermissionCapableFileHandle } from "./internal-models";
+
 type UpdateBackupStatusFn = (
   state: "idle" | "saving" | "saved" | "restored" | "auto-saved" | "error",
   source: BackupSource,
@@ -67,6 +70,74 @@ export async function ensureReadWritePermission(
     return requestedPermission as BackupFilePermissionState;
   } catch {
     return "denied";
+  }
+}
+
+/**
+ * Aggressively request permission immediately after file selection.
+ * This should be called right after showSaveFilePicker or showOpenFilePicker
+ * while the user gesture is still "fresh" to maximize success rate across browsers.
+ */
+export async function requestPermissionImmediately(
+  fileHandle: PermissionCapableFileHandle
+): Promise<BackupFilePermissionState> {
+  if (!fileHandle.requestPermission) {
+    return "granted";
+  }
+
+  try {
+    const permission = await fileHandle.requestPermission({
+      mode: "readwrite",
+    });
+    return permission as BackupFilePermissionState;
+  } catch {
+    return "denied";
+  }
+}
+
+/**
+ * Proactively request permission for an existing saved file handle.
+ * Used during app initialization to prepare stored file handles.
+ * This helps catch permission issues early for a smoother experience.
+ */
+export async function proactivelyRequestPermissionForSavedHandle(
+  fileHandle: PermissionCapableFileHandle
+): Promise<{
+  permissionState: BackupFilePermissionState;
+  wasSuccessful: boolean;
+}> {
+  if (!(fileHandle.queryPermission && fileHandle.requestPermission)) {
+    return { permissionState: "granted", wasSuccessful: true };
+  }
+
+  try {
+    // Check current permission state
+    const currentPermission = await fileHandle.queryPermission({
+      mode: "readwrite",
+    });
+
+    if (currentPermission === "granted") {
+      return { permissionState: "granted", wasSuccessful: true };
+    }
+
+    // Only request if not granted - try to get permission.
+    try {
+      const requestedPermission = await fileHandle.requestPermission({
+        mode: "readwrite",
+      });
+
+      return {
+        permissionState: requestedPermission as BackupFilePermissionState,
+        wasSuccessful: requestedPermission === "granted",
+      };
+    } catch {
+      return {
+        permissionState: currentPermission as BackupFilePermissionState,
+        wasSuccessful: false,
+      };
+    }
+  } catch {
+    return { permissionState: "denied", wasSuccessful: false };
   }
 }
 

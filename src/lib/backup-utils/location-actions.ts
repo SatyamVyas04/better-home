@@ -1,5 +1,9 @@
 import { savePrimaryBackupFileHandle } from "@/lib/backup-file-handle-store";
-import { readBackupFileConfig, writeBackupFileDocument } from "./internal-file";
+import {
+  readBackupFileConfig,
+  requestPermissionImmediately,
+  writeBackupFileDocument,
+} from "./internal-file";
 import {
   type BackupData,
   type BackupFilePickerWindow,
@@ -21,23 +25,62 @@ export async function selectBackupLocation(
   const runtimeWindow = window as BackupFilePickerWindow;
 
   if (!runtimeWindow.showSaveFilePicker) {
-    updateBackupStatus("error", "file-picker", "file picker not supported");
+    updateBackupStatus(
+      "error",
+      "file-picker",
+      "File System Access is not available here. Use Save now, or enable Brave's File System Access API flag at brave://flags/#file-system-access-api."
+    );
     return false;
   }
 
   try {
-    const fileHandle = await runtimeWindow.showSaveFilePicker({
-      suggestedName: createBackupFileName(new Date()),
-      types: [
-        {
-          description: "JSON backup",
-          accept: {
-            "application/json": [".json"],
+    let fileHandle: FileSystemFileHandle;
+
+    try {
+      fileHandle = await runtimeWindow.showSaveFilePicker({
+        suggestedName: createBackupFileName(new Date()),
+        types: [
+          {
+            description: "JSON backup",
+            accept: {
+              "application/json": [".json"],
+            },
           },
-        },
-      ],
-      excludeAcceptAllOption: false,
-    });
+        ],
+        excludeAcceptAllOption: false,
+      });
+    } catch (error) {
+      updateBackupStatus(
+        "error",
+        "file-picker",
+        `Brave blocked the folder picker. Enable File System Access API at brave://flags/#file-system-access-api, or use Save now to download a backup manually.${error instanceof Error ? ` (${error.message})` : ""}`
+      );
+      return false;
+    }
+
+    let permissionState: Awaited<
+      ReturnType<typeof requestPermissionImmediately>
+    >;
+
+    try {
+      permissionState = await requestPermissionImmediately(fileHandle);
+    } catch (error) {
+      updateBackupStatus(
+        "error",
+        "file-picker",
+        `Folder selected, but Brave refused write access. Enable File System Access API at brave://flags/#file-system-access-api, or use Save now to download a backup manually.${error instanceof Error ? ` (${error.message})` : ""}`
+      );
+      return false;
+    }
+
+    if (permissionState !== "granted") {
+      updateBackupStatus(
+        "error",
+        "file-picker",
+        `Brave did not grant file editing permission (${permissionState}). Enable File System Access API at brave://flags/#file-system-access-api, or use Save now to download a backup manually.`
+      );
+      return false;
+    }
 
     await savePrimaryBackupFileHandle(fileHandle);
 
@@ -48,12 +91,17 @@ export async function selectBackupLocation(
       {
         appendHistory: false,
         historyReason: "manual",
-        requestPermission: true,
+        requestPermission: false,
       },
       updateBackupStatus
     );
 
     if (!fileWritten) {
+      updateBackupStatus(
+        "error",
+        "file-picker",
+        "The folder was selected, but the browser still refused to save there. Use Save now to download a backup manually."
+      );
       return false;
     }
 
