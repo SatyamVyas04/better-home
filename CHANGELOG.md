@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/SatyamVyas04/better-home/compare/v2.0.0...v2.0.1) (2026-05-17)
+
+### Bug Fixes
+
+* **backup:** implement proactive permission requests for backup file handling ([a3c9b19](https://github.com/SatyamVyas04/better-home/commit/a3c9b19c529d05be283ba112a7d865a41fad2e44))
+* update currentQuadrimester initialization and adjust actionCount increment logic ([f0b9dae](https://github.com/SatyamVyas04/better-home/commit/f0b9daebe7765d8e3c76b46537c4e48977c4c6ae))
+
 ## [2.0.0](https://github.com/SatyamVyas04/better-home/compare/v1.10.1...v2.0.0) (2026-05-03)
 
 ### ⚠ BREAKING CHANGES
