@@ -111,9 +111,8 @@ const resolvePreviewImageUrl = (
   return isSupportedPreviewImageUrl(resolvedImageUrl) ? resolvedImageUrl : "";
 };
 
-const hasReachedJsonLdCandidateLimit = (candidates: string[]): boolean => {
-  return candidates.length >= JSON_LD_MAX_CANDIDATES;
-};
+const hasReachedJsonLdCandidateLimit = (candidates: string[]): boolean =>
+  candidates.length >= JSON_LD_MAX_CANDIDATES;
 
 const appendJsonLdTextCandidate = (
   value: unknown,
@@ -346,15 +345,14 @@ export interface ParsedPreviewPayload {
 export const hasRichParsedPreviewMetadata = (
   parsedPreview: ParsedPreviewPayload,
   manifestIconUrl: string
-): boolean => {
-  return Boolean(
+): boolean =>
+  Boolean(
     parsedPreview.title ||
       parsedPreview.description ||
       parsedPreview.imageUrl ||
       parsedPreview.iconUrl ||
       manifestIconUrl
   );
-};
 
 export const parseHtmlMetadata = (
   html: string,

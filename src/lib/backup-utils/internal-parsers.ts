@@ -79,9 +79,10 @@ export function mergeDuplicateFileHistoryEntries(
 
   const mergedEntries = [...mergedBySignature.values()];
 
-  mergedEntries.sort((first, second) => {
-    return toTimestamp(first.createdAt) - toTimestamp(second.createdAt);
-  });
+  mergedEntries.sort(
+    (first, second) =>
+      toTimestamp(first.createdAt) - toTimestamp(second.createdAt)
+  );
 
   return mergedEntries;
 }

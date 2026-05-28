@@ -28,26 +28,26 @@ export type ThemeMode = (typeof THEME_MODES)[number];
 export type ThemeFont = (typeof THEME_FONTS)[number];
 
 export interface ThemeSettings {
-  palette: ThemePalette;
-  mode: ThemeMode;
   font: ThemeFont;
+  mode: ThemeMode;
+  palette: ThemePalette;
 }
 
 interface ThemeProviderProps {
   children: React.ReactNode;
-  defaultTheme?: ThemeMode;
-  defaultPalette?: ThemePalette;
   defaultFont?: ThemeFont;
+  defaultPalette?: ThemePalette;
+  defaultTheme?: ThemeMode;
   storageKey?: string;
 }
 
 interface ThemeProviderState {
-  settings: ThemeSettings;
   resolvedMode: Exclude<ThemeMode, "system">;
-  themeClassName: string | null;
-  setThemePalette: (palette: ThemePalette) => void;
-  setThemeMode: (mode: ThemeMode) => void;
   setThemeFont: (font: ThemeFont) => void;
+  setThemeMode: (mode: ThemeMode) => void;
+  setThemePalette: (palette: ThemePalette) => void;
+  settings: ThemeSettings;
+  themeClassName: string | null;
 }
 
 const THEME_CLASS_NAMES = [
@@ -221,21 +221,22 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const defaultSettings = useMemo<ThemeSettings>(() => {
-    return {
+  const defaultSettings = useMemo<ThemeSettings>(
+    () => ({
       palette: defaultPalette,
       mode: defaultTheme,
       font: defaultFont,
-    };
-  }, [defaultFont, defaultPalette, defaultTheme]);
+    }),
+    [defaultFont, defaultPalette, defaultTheme]
+  );
 
   const [settings, setSettings] = useLocalStorage<ThemeSettings>(
     storageKey,
     defaultSettings
   );
-  const [prefersDark, setPrefersDark] = useState<boolean>(() => {
-    return getSystemMode() === "dark";
-  });
+  const [prefersDark, setPrefersDark] = useState<boolean>(
+    () => getSystemMode() === "dark"
+  );
 
   useEffect(() => {
     readAppStorageRaw(storageKey)
@@ -284,19 +285,13 @@ export function ThemeProvider({
       resolvedMode,
       themeClassName: getThemeClassName(settings.palette, resolvedMode),
       setThemePalette: (palette: ThemePalette) => {
-        setSettings((previousSettings) => {
-          return { ...previousSettings, palette };
-        });
+        setSettings((previousSettings) => ({ ...previousSettings, palette }));
       },
       setThemeMode: (mode: ThemeMode) => {
-        setSettings((previousSettings) => {
-          return { ...previousSettings, mode };
-        });
+        setSettings((previousSettings) => ({ ...previousSettings, mode }));
       },
       setThemeFont: (font: ThemeFont) => {
-        setSettings((previousSettings) => {
-          return { ...previousSettings, font };
-        });
+        setSettings((previousSettings) => ({ ...previousSettings, font }));
       },
     };
   }, [prefersDark, setSettings, settings]);

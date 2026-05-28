@@ -16,11 +16,11 @@ import {
 const MAINTENANCE_WRITE_DRAIN_TIMEOUT_MS = 500;
 
 export interface StorageCleanupResult {
+  preservedKnownKeyCount: number;
+  removedCacheKeys: string[];
   removedKeyCount: number;
   removedKeys: string[];
-  removedCacheKeys: string[];
   removedLegacyKeys: string[];
-  preservedKnownKeyCount: number;
 }
 
 function hasManagedPrefix(key: string): boolean {
@@ -28,9 +28,9 @@ function hasManagedPrefix(key: string): boolean {
 }
 
 function uniqueSorted(values: string[]): string[] {
-  return [...new Set(values)].sort((firstValue, secondValue) => {
-    return firstValue.localeCompare(secondValue);
-  });
+  return [...new Set(values)].sort((firstValue, secondValue) =>
+    firstValue.localeCompare(secondValue)
+  );
 }
 
 export async function clearNonUsefulStorageData(): Promise<StorageCleanupResult> {
@@ -45,32 +45,30 @@ export async function clearNonUsefulStorageData(): Promise<StorageCleanupResult>
   const localKeysBefore = listLocalStorageKeys();
   const chromeKeysBefore = await listChromeStorageKeys();
   const presentKnownKeys = uniqueSorted(
-    [...localKeysBefore, ...chromeKeysBefore].filter((key) => {
-      return knownAppStorageKeySet.has(key);
-    })
+    [...localKeysBefore, ...chromeKeysBefore].filter((key) =>
+      knownAppStorageKeySet.has(key)
+    )
   );
 
-  const clearableLocalKeys = localKeysBefore.filter((key) => {
-    return clearableCacheKeySet.has(key);
-  });
-  const clearableChromeKeys = chromeKeysBefore.filter((key) => {
-    return clearableCacheKeySet.has(key);
-  });
+  const clearableLocalKeys = localKeysBefore.filter((key) =>
+    clearableCacheKeySet.has(key)
+  );
+  const clearableChromeKeys = chromeKeysBefore.filter((key) =>
+    clearableCacheKeySet.has(key)
+  );
 
-  const sweepableLegacyLocalKeys = localKeysBefore.filter((key) => {
-    return (
+  const sweepableLegacyLocalKeys = localKeysBefore.filter(
+    (key) =>
       hasManagedPrefix(key) &&
       !knownAppStorageKeySet.has(key) &&
       !clearableCacheKeySet.has(key)
-    );
-  });
-  const sweepableLegacyChromeKeys = chromeKeysBefore.filter((key) => {
-    return (
+  );
+  const sweepableLegacyChromeKeys = chromeKeysBefore.filter(
+    (key) =>
       hasManagedPrefix(key) &&
       !knownAppStorageKeySet.has(key) &&
       !clearableCacheKeySet.has(key)
-    );
-  });
+  );
 
   const removedLocalCacheKeys = removeLocalStorageKeys(clearableLocalKeys);
   const removedChromeCacheKeys =

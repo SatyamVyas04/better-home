@@ -72,25 +72,23 @@ async function maybeShowChangelogToast(): Promise<boolean> {
   const changelogUrl = GITHUB_RELEASE_URL;
 
   toast.custom(
-    (toastId) => {
-      return (
-        <EngagementToastContent
-          description="check out the release notes for all the details."
-          mascotAlt="update mascot"
-          mascotSrc={MASCOT_UPDATE_SRC}
-          onPrimaryAction={() => {
-            openExternalLink(changelogUrl);
-            toast.dismiss(toastId);
-          }}
-          onSecondaryAction={() => {
-            toast.dismiss(toastId);
-          }}
-          primaryActionLabel="view release"
-          secondaryActionLabel="close"
-          title={`updated to v${APP_VERSION}`}
-        />
-      );
-    },
+    (toastId) => (
+      <EngagementToastContent
+        description="check out the release notes for all the details."
+        mascotAlt="update mascot"
+        mascotSrc={MASCOT_UPDATE_SRC}
+        onPrimaryAction={() => {
+          openExternalLink(changelogUrl);
+          toast.dismiss(toastId);
+        }}
+        onSecondaryAction={() => {
+          toast.dismiss(toastId);
+        }}
+        primaryActionLabel="view release"
+        secondaryActionLabel="close"
+        title={`updated to v${APP_VERSION}`}
+      />
+    ),
     {
       duration: 12_000,
       id: CHANGELOG_TOAST_ID,
@@ -137,20 +135,18 @@ async function maybeShowWelcomeToast(): Promise<boolean> {
   });
 
   toast.custom(
-    (toastId) => {
-      return (
-        <EngagementToastContent
-          description="start with your daily essentials in one place: tasks, quick links, and mood tracking."
-          mascotAlt="welcome mascot"
-          mascotSrc={MASCOT_WELCOME_SRC}
-          onPrimaryAction={() => {
-            toast.dismiss(toastId);
-          }}
-          primaryActionLabel="let's go"
-          title="welcome to better-home"
-        />
-      );
-    },
+    (toastId) => (
+      <EngagementToastContent
+        description="start with your daily essentials in one place: tasks, quick links, and mood tracking."
+        mascotAlt="welcome mascot"
+        mascotSrc={MASCOT_WELCOME_SRC}
+        onPrimaryAction={() => {
+          toast.dismiss(toastId);
+        }}
+        primaryActionLabel="let's go"
+        title="welcome to better-home"
+      />
+    ),
     {
       duration: 10_000,
       id: WELCOME_TOAST_ID,
@@ -238,43 +234,41 @@ async function maybeShowFeedbackPrompt(
   const promptVariant = resolveFeedbackPromptVariant(lastAction);
 
   toast.custom(
-    (toastId) => {
-      return (
-        <EngagementToastContent
-          description={promptVariant.description}
-          mascotAlt={promptVariant.mascotAlt}
-          mascotSrc={promptVariant.mascotSrc}
-          onPrimaryAction={() => {
-            const nextAction = hasOpenedReviewBefore
-              ? "opened-review"
-              : promptVariant.actionType;
+    (toastId) => (
+      <EngagementToastContent
+        description={promptVariant.description}
+        mascotAlt={promptVariant.mascotAlt}
+        mascotSrc={promptVariant.mascotSrc}
+        onPrimaryAction={() => {
+          const nextAction = hasOpenedReviewBefore
+            ? "opened-review"
+            : promptVariant.actionType;
 
-            persistFeedbackPromptState({
-              cadence: "regular",
-              lastAction: nextAction,
-              lastPromptedAt: new Date().toISOString(),
-            }).catch(() => null);
-            openExternalLink(promptVariant.url);
-            toast.dismiss(toastId);
-          }}
-          onSecondaryAction={() => {
-            const nextAction = hasOpenedReviewBefore
-              ? "opened-review"
-              : "dismissed";
+          persistFeedbackPromptState({
+            cadence: "regular",
+            lastAction: nextAction,
+            lastPromptedAt: new Date().toISOString(),
+          }).catch(() => null);
+          openExternalLink(promptVariant.url);
+          toast.dismiss(toastId);
+        }}
+        onSecondaryAction={() => {
+          const nextAction = hasOpenedReviewBefore
+            ? "opened-review"
+            : "dismissed";
 
-            persistFeedbackPromptState({
-              cadence: "regular",
-              lastAction: nextAction,
-              lastPromptedAt: new Date().toISOString(),
-            }).catch(() => null);
-            toast.dismiss(toastId);
-          }}
-          primaryActionLabel={promptVariant.ctaLabel}
-          secondaryActionLabel="maybe later"
-          title={promptVariant.title}
-        />
-      );
-    },
+          persistFeedbackPromptState({
+            cadence: "regular",
+            lastAction: nextAction,
+            lastPromptedAt: new Date().toISOString(),
+          }).catch(() => null);
+          toast.dismiss(toastId);
+        }}
+        primaryActionLabel={promptVariant.ctaLabel}
+        secondaryActionLabel="maybe later"
+        title={promptVariant.title}
+      />
+    ),
     {
       duration: 14_000,
       id: FEEDBACK_TOAST_ID,
@@ -318,20 +312,18 @@ export function useEngagementNotifications({
 
     runNotifications().catch(() => {
       toast.custom(
-        (toastId) => {
-          return (
-            <EngagementToastContent
-              description="we hit a small snag while preparing updates."
-              mascotAlt="error mascot"
-              mascotSrc={MASCOT_ERROR_SRC}
-              onPrimaryAction={() => {
-                toast.dismiss(toastId);
-              }}
-              primaryActionLabel="close"
-              title="notifications need a retry"
-            />
-          );
-        },
+        (toastId) => (
+          <EngagementToastContent
+            description="we hit a small snag while preparing updates."
+            mascotAlt="error mascot"
+            mascotSrc={MASCOT_ERROR_SRC}
+            onPrimaryAction={() => {
+              toast.dismiss(toastId);
+            }}
+            primaryActionLabel="close"
+            title="notifications need a retry"
+          />
+        ),
         {
           duration: 6000,
           id: "better-home-notifications-fallback",

@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 
 export interface NetworkInformation {
-  effectiveType: string;
   downlink: number;
-  rtt: number;
+  effectiveType: string;
   isReady: boolean;
+  rtt: number;
 }
 
 interface NetworkConnection extends EventTarget {
-  effectiveType: string;
-  downlink: number;
-  rtt: number;
   addEventListener(type: "change", listener: () => void): void;
+  downlink: number;
+  effectiveType: string;
   removeEventListener(type: "change", listener: () => void): void;
+  rtt: number;
 }
 
 declare global {
@@ -37,14 +37,11 @@ export function useNetworkInfo(): NetworkInformation {
     useState<NetworkInformation>(DEFAULT_NETWORK_INFO);
 
   useEffect(() => {
-    const getConnection = (): NetworkConnection | null => {
-      return (
-        navigator.connection ??
-        navigator.mozConnection ??
-        navigator.webkitConnection ??
-        null
-      );
-    };
+    const getConnection = (): NetworkConnection | null =>
+      navigator.connection ??
+      navigator.mozConnection ??
+      navigator.webkitConnection ??
+      null;
 
     const updateNetworkInfo = () => {
       const connection = getConnection();

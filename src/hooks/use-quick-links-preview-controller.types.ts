@@ -45,12 +45,12 @@ export interface UseQuickLinksPreviewControllerResult {
     y: number,
     options?: OpenFloatingPreviewOptions
   ) => void;
+  previewCache: Record<string, LinkPreviewCacheEntry>;
   previewContentDirection: 1 | -1;
   previewPosition: {
     x: number;
     y: number;
   };
-  previewCache: Record<string, LinkPreviewCacheEntry>;
   scheduleFloatingPreviewClose: () => void;
   setSortMode: (nextSortMode: QuickLinksSortMode) => void;
   sortMode: QuickLinksSortMode;

@@ -21,9 +21,8 @@ export const clearTimeoutRef = (
   timeoutRef.current = null;
 };
 
-export const normalizePreviewText = (value: string): string => {
-  return value.replace(/\s+/g, " ").trim();
-};
+export const normalizePreviewText = (value: string): string =>
+  value.replace(/\s+/g, " ").trim();
 
 export const clipPreviewText = (value: string, maxLength: number): string => {
   if (value.length <= maxLength) {
@@ -48,14 +47,14 @@ export const getUrlPathContext = (targetUrl: string): string => {
       .split("/")
       .filter(Boolean)
       .slice(0, 3)
-      .map((segment) => {
-        return normalizePreviewText(
+      .map((segment) =>
+        normalizePreviewText(
           decodeUrlPathSegment(segment).replace(
             URL_SEGMENT_SEPARATOR_REGEX,
             " "
           )
-        );
-      })
+        )
+      )
       .filter(Boolean)
       .join(" / ");
     const queryKeys = Array.from(parsedUrl.searchParams.keys());

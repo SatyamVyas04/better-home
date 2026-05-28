@@ -771,10 +771,10 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
     font-family: var(--better-home-app-font, "DMMono", monospace);
-    scrollbar-width: thin;
     scrollbar-color: gray transparent;
+    scrollbar-width: thin;
+    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground h-screen w-screen overflow-hidden overscroll-none;

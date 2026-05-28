@@ -288,23 +288,24 @@ function App() {
               </a>
 
               {settings.showQuotes && (
-                <div className="hidden min-w-0 flex-1 items-center gap-1 md:flex">
-                  <QuotesProvider>
-                    <FooterQuote />
-                  </QuotesProvider>
-                </div>
+                <>
+                  <div className="hidden min-w-0 flex-1 items-center gap-1 md:flex">
+                    <QuotesProvider>
+                      <FooterQuote />
+                    </QuotesProvider>
+                  </div>
+                  <div className="ml-auto hidden max-w-64 flex-1 lg:flex">
+                    <div className="flex w-full items-center gap-1 overflow-hidden rounded-md border border-border/60 bg-muted/35">
+                      <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1.5 font-medium text-[12px] text-primary uppercase tracking-wide">
+                        <IconClockExclamation className="size-3.5" />
+                      </span>
+                      <p className="truncate px-1 text-[12px] text-muted-foreground">
+                        reminders coming soon!
+                      </p>
+                    </div>
+                  </div>
+                </>
               )}
-
-              <div className="ml-auto hidden max-w-64 flex-1 lg:flex">
-                <div className="flex w-full items-center gap-1 overflow-hidden rounded-md border border-border/60 bg-muted/35">
-                  <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1.5 font-medium text-[12px] text-primary uppercase tracking-wide">
-                    <IconClockExclamation className="size-3.5" />
-                  </span>
-                  <p className="truncate px-1 text-[12px] text-muted-foreground">
-                    reminders coming soon!
-                  </p>
-                </div>
-              </div>
 
               <div className="ml-auto shrink-0">
                 <BackupWidget />

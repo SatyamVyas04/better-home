@@ -41,9 +41,9 @@ export function readLatestChangelogSummary(
   maxHighlights = 2
 ): LatestChangelogSummary | null {
   const lines = changelogMarkdown.split(NEWLINE_SPLIT_REGEX);
-  const releaseHeadingIndex = lines.findIndex((line) => {
-    return RELEASE_HEADING_REGEX.test(line.trim());
-  });
+  const releaseHeadingIndex = lines.findIndex((line) =>
+    RELEASE_HEADING_REGEX.test(line.trim())
+  );
 
   if (releaseHeadingIndex < 0) {
     return null;

@@ -1,10 +1,10 @@
 export interface Todo {
-  id: string;
-  text: string;
   completed: boolean;
-  important: boolean;
-  groupId?: string | null;
   createdAt: number;
+  groupId?: string | null;
+  id: string;
+  important: boolean;
+  text: string;
 }
 
 export const TODO_GROUP_COLOR_NAMES = [
@@ -25,9 +25,9 @@ export const TODO_GROUP_COLOR_NAMES = [
 export type TodoGroupColorName = (typeof TODO_GROUP_COLOR_NAMES)[number];
 
 export interface TodoGroup {
+  color: TodoGroupColorName;
   id: string;
   name: string;
-  color: TodoGroupColorName;
 }
 
 export type SortMode = "manual" | "oldest" | "newest";

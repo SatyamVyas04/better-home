@@ -8,10 +8,10 @@ export type QuickLinksDisplayMode = "list" | "icon-hover" | "compact-cards";
 export type QuickLinksCompactColumns = 2 | 3 | 4;
 
 export interface ChromeBookmarkNode {
+  children?: ChromeBookmarkNode[];
   id: string;
   title?: string;
   url?: string;
-  children?: ChromeBookmarkNode[];
 }
 
 export interface QuickLinksProps {
@@ -23,18 +23,18 @@ export interface QuickLinksProps {
 }
 
 export interface QuickLink {
+  favicon: string;
   id: string;
   title: string;
   url: string;
-  favicon: string;
 }
 
 export interface BookmarkImportItem {
+  favicon: string;
   id: string;
+  location: string;
   title: string;
   url: string;
-  favicon: string;
-  location: string;
 }
 
 export type QuickLinksSortMode =
@@ -53,8 +53,8 @@ export interface BuildPreviewDescriptionTextOptions {
 }
 
 export interface PreviewFallbackMediaProps {
-  platform: LinkPreviewPlatform;
   favicon: string;
+  platform: LinkPreviewPlatform;
   title: string;
 }
 
@@ -72,8 +72,8 @@ export interface OpenFloatingPreviewOptions {
 
 export interface QuickLinksListProps {
   compactColumns?: QuickLinksCompactColumns;
-  displayMode: QuickLinksDisplayMode;
   displayedLinks: QuickLink[];
+  displayMode: QuickLinksDisplayMode;
   ensureLinkPreview: (url: string) => void;
   failedPreviewImageUrls: Record<string, true>;
   getComparableUrl: (url: string) => string;

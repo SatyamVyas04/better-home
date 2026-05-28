@@ -5,10 +5,10 @@ export const TODO_UNGROUPED_SECTION_ID = "ungrouped";
 const TODO_GROUP_SECTION_PREFIX = "group:";
 
 export interface TodoSection {
-  id: string;
-  groupId: string | null;
-  label: string;
   color: TodoGroup["color"] | null;
+  groupId: string | null;
+  id: string;
+  label: string;
   todos: Todo[];
 }
 

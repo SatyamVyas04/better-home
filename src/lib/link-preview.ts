@@ -47,27 +47,21 @@ export type {
 export const shouldRefetchPreview = (
   entry: LinkPreviewCacheEntry | null | undefined,
   now = Date.now()
-): boolean => {
-  return shouldRefetchPreviewInternal(entry, now);
-};
+): boolean => shouldRefetchPreviewInternal(entry, now);
 
 export const cacheLinkPreviewImageDataUrl = (
   imageUrl: string
-): Promise<string> => {
-  return cacheLinkPreviewImageDataUrlInternal(imageUrl);
-};
+): Promise<string> => cacheLinkPreviewImageDataUrlInternal(imageUrl);
 
-export const warmLinkPreviewImage = (imageUrl: string): Promise<boolean> => {
-  return warmLinkPreviewImageInternal(imageUrl);
-};
+export const warmLinkPreviewImage = (imageUrl: string): Promise<boolean> =>
+  warmLinkPreviewImageInternal(imageUrl);
 
 export const resetLinkPreviewImageRuntimeCache = (): void => {
   resetLinkPreviewImageRuntimeCacheInternal();
 };
 
-export const getPreviewPlatform = (targetUrl: string) => {
-  return getPreviewPlatformInternal(targetUrl);
-};
+export const getPreviewPlatform = (targetUrl: string) =>
+  getPreviewPlatformInternal(targetUrl);
 
 export async function fetchLinkPreviewMetadata(
   targetUrl: string,

@@ -27,7 +27,7 @@ const QUOTE_NEAR_SIXTY_ROTATION_INTERVAL_MS = 6000;
 const QUOTE_MEDIUM_ROTATION_INTERVAL_MS = 8000;
 const QUOTE_LONG_ROTATION_INTERVAL_MS = 10_000;
 const QUOTE_CLAMP_COPY_MIN_CHARACTERS = 60;
-const TOKEN_SPLIT_REGEX = /(\s+)/;
+const TOKEN_SPLIT_REGEX = /([,.!?:;()[\]"'—–-]+|\s+)/;
 const WHITESPACE_TOKEN_REGEX = /^\s+$/;
 const STRONG_EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 const TODO_HIGHLIGHT_COLOR_VARS = [
@@ -197,7 +197,7 @@ function normalizeHighlightKeywords(
   highlightKeywords: unknown
 ): string[] | undefined {
   if (!Array.isArray(highlightKeywords)) {
-    return undefined;
+    return;
   }
 
   const normalizedKeywordSet = new Set<string>();
@@ -302,9 +302,10 @@ function readRecentQuoteKeys(): string[] {
       return [];
     }
 
-    return parsed.filter((historyItem): historyItem is string => {
-      return typeof historyItem === "string" && historyItem.length > 0;
-    });
+    return parsed.filter(
+      (historyItem): historyItem is string =>
+        typeof historyItem === "string" && historyItem.length > 0
+    );
   } catch {
     return [];
   }
@@ -351,9 +352,9 @@ function pickQuote(
     recentQuoteIndexByKey.set(historyKey, historyIndex);
   }
 
-  let randomPool = normalizedPool.filter((quote) => {
-    return !recentQuoteKeySet.has(quote.key);
-  });
+  let randomPool = normalizedPool.filter(
+    (quote) => !recentQuoteKeySet.has(quote.key)
+  );
 
   if (previousQuoteKey) {
     randomPool = randomPool.filter((quote) => quote.key !== previousQuoteKey);
@@ -476,9 +477,9 @@ function getPositiveHighlightSweepDurationSeconds(
 
 function getPositiveHighlightBarStyle(highlightColor: string): CSSProperties {
   return {
-    backgroundColor: `color-mix(in oklab, ${highlightColor} 34%, transparent)`,
-    borderRadius: "0.18em",
-    transformOrigin: "0% 50%",
+    backgroundColor: `color-mix(in oklab, ${highlightColor} 35%, transparent)`,
+    borderRadius: "0.15em",
+    transformOrigin: "center",
   };
 }
 
@@ -508,9 +509,10 @@ function AnimatedQuoteText({
   staggerDelay?: number;
 }) {
   const prefersReducedMotion = useReducedMotion();
-  const curatedHighlightKeywordSet = useMemo(() => {
-    return buildCuratedHighlightKeywordSet(highlightKeywords);
-  }, [highlightKeywords]);
+  const curatedHighlightKeywordSet = useMemo(
+    () => buildCuratedHighlightKeywordSet(highlightKeywords),
+    [highlightKeywords]
+  );
 
   const tokenOccurrences = new Map<string, number>();
   let tokenPosition = 0;
@@ -560,12 +562,14 @@ function AnimatedQuoteText({
             <span className="relative inline-block" key={tokenKey}>
               <motion.div
                 animate={{
-                  scaleX: [0, 1],
+                  scaleX: [0, 1.03, 0.97],
+                  skewX: ["0deg", "-17.5deg", "-15deg"],
                 }}
                 aria-hidden
                 className="absolute -inset-x-1 inset-y-1 rounded-sm"
                 initial={{
                   scaleX: 0,
+                  skewX: "0deg",
                 }}
                 style={getPositiveHighlightBarStyle(highlightColor)}
                 transition={{
@@ -623,9 +627,7 @@ function useQuotesContext(): QuotesContextValue {
 }
 
 export function QuotesProvider({ children }: { children: ReactNode }) {
-  const quotePool = useMemo(() => {
-    return resolveQuotePool();
-  }, []);
+  const quotePool = useMemo(() => resolveQuotePool(), []);
 
   const [activeQuote, setActiveQuote] = useState<ResolvedQuoteEntry>(() => {
     const quoteFromSession = parseStoredQuote(
@@ -654,9 +656,9 @@ export function QuotesProvider({ children }: { children: ReactNode }) {
     }
 
     const rotationTimer = window.setTimeout(() => {
-      setActiveQuote((previousQuote) => {
-        return pickQuote(quotePool, readRecentQuoteKeys(), previousQuote.key);
-      });
+      setActiveQuote((previousQuote) =>
+        pickQuote(quotePool, readRecentQuoteKeys(), previousQuote.key)
+      );
     }, getQuoteRotationIntervalMs(activeQuote.text));
 
     return () => {
@@ -673,11 +675,12 @@ export function QuotesProvider({ children }: { children: ReactNode }) {
     appendRecentQuoteKey(activeQuote.key, quotePool.length);
   }, [activeQuote, quotePool.length]);
 
-  const contextValue = useMemo<QuotesContextValue>(() => {
-    return {
+  const contextValue = useMemo<QuotesContextValue>(
+    () => ({
       activeQuote,
-    };
-  }, [activeQuote]);
+    }),
+    [activeQuote]
+  );
 
   return (
     <QuotesContext.Provider value={contextValue}>

@@ -12,18 +12,18 @@ export type LinkPreviewSource =
   | "youtube-thumbnail";
 
 export interface LinkPreviewCacheEntry {
-  title: string;
   description: string;
-  imageUrl: string;
-  imageDataUrl?: string;
-  iconUrl: string;
-  siteName: string;
-  platform: LinkPreviewPlatform;
-  fetchedAt: number;
-  quality: LinkPreviewQuality;
-  source: LinkPreviewSource;
-  nextRetryAt: number;
   failureCount: number;
+  fetchedAt: number;
+  iconUrl: string;
+  imageDataUrl?: string;
+  imageUrl: string;
+  nextRetryAt: number;
+  platform: LinkPreviewPlatform;
+  quality: LinkPreviewQuality;
+  siteName: string;
+  source: LinkPreviewSource;
+  title: string;
 }
 
 export const isPreviewQuality = (value: unknown): value is LinkPreviewQuality =>

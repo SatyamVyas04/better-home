@@ -21,9 +21,9 @@ import { getFaviconUrl } from "@/lib/url-utils";
 import type { QuickLink } from "@/types/quick-links";
 
 interface UseQuickLinksPreviewCacheOptions {
+  getComparableUrl: (url: string) => string;
   links: QuickLink[];
   setLinks: React.Dispatch<React.SetStateAction<QuickLink[]>>;
-  getComparableUrl: (url: string) => string;
 }
 
 interface UseQuickLinksPreviewCacheResult {
@@ -106,12 +106,14 @@ export function useQuickLinksPreviewCache({
     preview: LinkPreviewCacheEntry;
   } | null>(null);
 
-  const previewCache = useMemo(() => {
-    return mergePreviewCacheWithLocalImageData(
-      persistedPreviewCache,
-      previewImageDataMap
-    );
-  }, [persistedPreviewCache, previewImageDataMap]);
+  const previewCache = useMemo(
+    () =>
+      mergePreviewCacheWithLocalImageData(
+        persistedPreviewCache,
+        previewImageDataMap
+      ),
+    [persistedPreviewCache, previewImageDataMap]
+  );
 
   const savePreviewImageData = useCallback(
     (comparableUrl: string, imageUrl: string, imageDataUrl: string) => {
@@ -200,13 +202,13 @@ export function useQuickLinksPreviewCache({
 
           savePreviewImageData(comparableUrl, imageUrl, imageDataUrl);
 
-          return undefined;
+          return;
         })
-        .catch(() => {
-          return warmLinkPreviewImage(imageUrl)
+        .catch(() =>
+          warmLinkPreviewImage(imageUrl)
             .then(() => undefined)
-            .catch(() => undefined);
-        })
+            .catch(() => undefined)
+        )
         .finally(() => {
           previewImagePrimeRequestMapRef.current.delete(requestKey);
         });
@@ -232,12 +234,12 @@ export function useQuickLinksPreviewCache({
 
       const sanitizedPreview = stripPreviewImageData(preview);
 
-      setPersistedPreviewCache((prev) => {
-        return pruneLinkPreviewCache({
+      setPersistedPreviewCache((prev) =>
+        pruneLinkPreviewCache({
           ...prev,
           [comparableUrl]: sanitizedPreview,
-        });
-      });
+        })
+      );
     },
     [primePreviewImageAsset, savePreviewImageData, setPersistedPreviewCache]
   );
@@ -337,11 +339,12 @@ export function useQuickLinksPreviewCache({
     });
   }, [persistedPreviewCache, setPersistedPreviewCache]);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       previewImagePrimeRequestMapRef.current.clear();
-    };
-  }, []);
+    },
+    []
+  );
 
   useEffect(() => {
     const activeComparableUrls = new Set(

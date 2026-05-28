@@ -7,10 +7,10 @@ import { cn } from "@/lib/utils";
 
 const ScrollAreaContext = React.createContext<boolean>(false);
 interface Mask {
-  top: boolean;
   bottom: boolean;
   left: boolean;
   right: boolean;
+  top: boolean;
 }
 
 const ScrollArea = React.forwardRef<

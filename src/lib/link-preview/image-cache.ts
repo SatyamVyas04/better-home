@@ -37,8 +37,8 @@ const setPreviewImageDataUrlCacheValue = (
   }
 };
 
-const readBlobAsDataUrl = (blob: Blob): Promise<string> => {
-  return new Promise((resolve) => {
+const readBlobAsDataUrl = (blob: Blob): Promise<string> =>
+  new Promise((resolve) => {
     const fileReader = new FileReader();
 
     fileReader.onload = () => {
@@ -56,10 +56,9 @@ const readBlobAsDataUrl = (blob: Blob): Promise<string> => {
 
     fileReader.readAsDataURL(blob);
   });
-};
 
-const loadImageElement = (sourceUrl: string): Promise<HTMLImageElement> => {
-  return new Promise((resolve, reject) => {
+const loadImageElement = (sourceUrl: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
     const imageElement = new Image();
     imageElement.decoding = "async";
     imageElement.loading = "eager";
@@ -75,7 +74,6 @@ const loadImageElement = (sourceUrl: string): Promise<HTMLImageElement> => {
 
     imageElement.src = sourceUrl;
   });
-};
 
 const renderImageDataUrl = (
   imageElement: HTMLImageElement,

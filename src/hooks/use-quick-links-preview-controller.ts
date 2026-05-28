@@ -132,12 +132,13 @@ export function useQuickLinksPreviewController({
     clearTimeoutRef(previewOpenTimeoutRef);
   }, []);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       clearPreviewOpenTimeout();
       clearPreviewCloseTimeout();
-    };
-  }, [clearPreviewCloseTimeout, clearPreviewOpenTimeout]);
+    },
+    [clearPreviewCloseTimeout, clearPreviewOpenTimeout]
+  );
 
   const updatePreviewContentDirection = useCallback(
     (nextLinkId: string) => {

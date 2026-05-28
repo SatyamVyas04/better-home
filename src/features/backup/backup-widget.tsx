@@ -157,17 +157,17 @@ function SessionArchiveItem({
 
 interface SetupTabContentProps {
   backupLocationStatus: BackupLocationStatus;
-  handleSaveNow: () => void;
+  handleReauthorize?: () => void;
   handleRestoreFileClick: () => void;
+  handleSaveNow: () => void;
   handleSelectBackupLocation: () => void;
   handleUploadBackup: (event: React.ChangeEvent<HTMLInputElement>) => void;
   isBackingUp: boolean;
   isBackupLocationReady: boolean;
+  isReauthorizing?: boolean;
   isSelectingBackupLocation: boolean;
   lastSuccessfulWriteAge: string;
   restoreFileInputRef: React.RefObject<HTMLInputElement | null>;
-  isReauthorizing?: boolean;
-  handleReauthorize?: () => void;
 }
 
 function SetupTabContent({
@@ -447,9 +447,7 @@ function HistoryTabContent({
                   <Button
                     className="h-6 px-2 text-[10px]"
                     onClick={() => {
-                      setIsArchiveExpanded((previousValue) => {
-                        return !previousValue;
-                      });
+                      setIsArchiveExpanded((previousValue) => !previousValue);
                     }}
                     size="xs"
                     type="button"

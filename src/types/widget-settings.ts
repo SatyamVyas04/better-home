@@ -1,10 +1,10 @@
 type LegacyWidgetSettings = Partial<WidgetSettings>;
 
 export interface WidgetSettings {
-  showTasks: boolean;
-  showQuickLinks: boolean;
   showCalendar: boolean;
+  showQuickLinks: boolean;
   showQuotes: boolean;
+  showTasks: boolean;
 }
 
 export const DEFAULT_WIDGET_SETTINGS: WidgetSettings = {

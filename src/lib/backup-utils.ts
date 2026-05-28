@@ -85,8 +85,8 @@ const ARRAY_RESTORE_HINT_LABELS: Record<string, string> = {
 };
 
 export interface RestorePreviewHint {
-  summary: string;
   details: string[];
+  summary: string;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -188,12 +188,11 @@ function buildRestorePreviewHint(
   snapshotPayload: BackupData,
   currentBackup: BackupData
 ): RestorePreviewHint {
-  const changedStorageAreas = USER_STORAGE_KEYS.filter((key) => {
-    return (
+  const changedStorageAreas = USER_STORAGE_KEYS.filter(
+    (key) =>
       createValueSignature(currentBackup[key]) !==
       createValueSignature(snapshotPayload[key])
-    );
-  });
+  );
 
   if (changedStorageAreas.length === 0) {
     return {
@@ -509,9 +508,10 @@ function getLatestSnapshot(
 ): AutoBackupEntry | undefined {
   return snapshots
     .filter((snapshot) => snapshot.reason !== "restore-checkpoint")
-    .sort((first, second) => {
-      return toTimestamp(second.createdAt) - toTimestamp(first.createdAt);
-    })[0];
+    .sort(
+      (first, second) =>
+        toTimestamp(second.createdAt) - toTimestamp(first.createdAt)
+    )[0];
 }
 
 export async function readBackupHistoryState(

@@ -618,9 +618,7 @@ function pickHighlightKeywords(quoteText: string): string[] {
   const maxKeywords = getTargetKeywordCount(quoteText.length);
 
   const candidateTokens = uniqueTokens
-    .filter((token) => {
-      return isValidKeywordCandidate(token);
-    })
+    .filter((token) => isValidKeywordCandidate(token))
     .sort((tokenA, tokenB) => {
       const scoreA = scoreKeywordCandidate(tokenA, frequencyByToken);
       const scoreB = scoreKeywordCandidate(tokenB, frequencyByToken);
@@ -632,15 +630,12 @@ function pickHighlightKeywords(quoteText: string): string[] {
 
   if (selectedKeywords.length === 0) {
     const emergencyCandidate = uniqueTokens
-      .filter((token) => {
-        return isValidKeywordCandidate(token);
-      })
-      .sort((tokenA, tokenB) => {
-        return (
+      .filter((token) => isValidKeywordCandidate(token))
+      .sort(
+        (tokenA, tokenB) =>
           scoreKeywordCandidate(tokenB, frequencyByToken) -
           scoreKeywordCandidate(tokenA, frequencyByToken)
-        );
-      })
+      )
       .at(0);
 
     if (emergencyCandidate) {
@@ -670,19 +665,13 @@ function pickHighlightKeywords(quoteText: string): string[] {
 }
 
 const curatedQuotes = quotesDefault
-  .map((sourceRecord) => {
-    return toQuoteEntry(sourceRecord);
-  })
-  .filter((quoteEntry) => {
-    return quoteEntry.text.trim().length > 0;
-  })
-  .map((quoteEntry) => {
-    return {
-      attribution: quoteEntry.attribution,
-      highlightKeywords: pickHighlightKeywords(quoteEntry.text),
-      text: quoteEntry.text,
-    };
-  });
+  .map((sourceRecord) => toQuoteEntry(sourceRecord))
+  .filter((quoteEntry) => quoteEntry.text.trim().length > 0)
+  .map((quoteEntry) => ({
+    attribution: quoteEntry.attribution,
+    highlightKeywords: pickHighlightKeywords(quoteEntry.text),
+    text: quoteEntry.text,
+  }));
 
 const outputFilePath = join(
   process.cwd(),

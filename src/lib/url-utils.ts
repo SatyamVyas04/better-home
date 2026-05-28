@@ -72,7 +72,7 @@ export function getDisplayUrl(url: string, maxLength = 40): string {
     const urlObj = new URL(url);
     const display =
       urlObj.hostname.replace(WWW_REGEX, "") +
-      (urlObj.pathname !== "/" ? urlObj.pathname : "");
+      (urlObj.pathname === "/" ? "" : urlObj.pathname);
     if (display.length <= maxLength) {
       return display;
     }

@@ -38,10 +38,10 @@ export type BackupFileHistoryReason =
   | "restore-checkpoint";
 
 export interface BackupStatus {
+  detail?: string;
+  source: BackupSource;
   state: BackupState;
   updatedAt: string;
-  source: BackupSource;
-  detail?: string;
 }
 
 export interface BackupData {
@@ -49,11 +49,11 @@ export interface BackupData {
 }
 
 export interface AutoBackupEntry {
-  id: string;
-  createdAt: string;
-  reason: BackupFileHistoryReason;
   checksum?: string;
+  createdAt: string;
+  id: string;
   payload: BackupData;
+  reason: BackupFileHistoryReason;
 }
 
 export interface AutoBackupMeta {
@@ -62,14 +62,14 @@ export interface AutoBackupMeta {
 }
 
 export interface AutoBackupSnapshot {
-  id: string;
   createdAt: string;
+  id: string;
   reason: BackupFileHistoryReason;
 }
 
 export interface BackupHistoryState {
-  snapshots: AutoBackupSnapshot[];
   canUndoLastRestore: boolean;
+  snapshots: AutoBackupSnapshot[];
 }
 
 export interface BackupTimelineState extends BackupHistoryState {
@@ -79,56 +79,56 @@ export interface BackupTimelineState extends BackupHistoryState {
 
 export interface BackupLocationStatus {
   configured: boolean;
-  fileName?: string;
-  permissionState: BackupFilePermissionState;
-  needsReauthorization: boolean;
-  lastError?: string;
-  lastSuccessfulWriteAt?: string;
-  lastFailedWriteAt?: string;
   consecutiveFailures: number;
+  fileName?: string;
+  lastError?: string;
+  lastFailedWriteAt?: string;
+  lastSuccessfulWriteAt?: string;
   lastWriteErrorMessage?: string;
+  needsReauthorization: boolean;
+  permissionState: BackupFilePermissionState;
 }
 
 export interface BackupFileConfig {
   configured: boolean;
-  updatedAt: string;
-  fileName?: string;
-  permissionState: BackupFilePermissionState;
-  lastError?: string;
-  lastSuccessfulWriteAt?: string;
-  lastFailedWriteAt?: string;
   consecutiveFailures: number;
+  fileName?: string;
+  lastError?: string;
+  lastFailedWriteAt?: string;
+  lastSuccessfulWriteAt?: string;
   lastWriteErrorMessage?: string;
+  permissionState: BackupFilePermissionState;
+  updatedAt: string;
 }
 
 export interface BackupFileHistoryEntry {
-  id: string;
-  createdAt: string;
-  reason: BackupFileHistoryReason;
   checksum?: string;
+  createdAt: string;
+  id: string;
   payload: BackupData;
+  reason: BackupFileHistoryReason;
 }
 
 export interface BackupFileDocument {
-  version: 1;
+  current: BackupData;
+  currentChecksum?: string;
+  history: BackupFileHistoryEntry[];
   schemaVersion?: number;
   updatedAt: string;
-  currentChecksum?: string;
-  current: BackupData;
-  history: BackupFileHistoryEntry[];
+  version: 1;
 }
 
 export interface BackupFilePickerWindow extends Window {
-  showSaveFilePicker?: (options?: {
-    suggestedName?: string;
-    types?: Array<{ description: string; accept: Record<string, string[]> }>;
-    excludeAcceptAllOption?: boolean;
-  }) => Promise<FileSystemFileHandle>;
   showOpenFilePicker?: (options?: {
     multiple?: boolean;
     types?: Array<{ description: string; accept: Record<string, string[]> }>;
     excludeAcceptAllOption?: boolean;
   }) => Promise<FileSystemFileHandle[]>;
+  showSaveFilePicker?: (options?: {
+    suggestedName?: string;
+    types?: Array<{ description: string; accept: Record<string, string[]> }>;
+    excludeAcceptAllOption?: boolean;
+  }) => Promise<FileSystemFileHandle>;
 }
 
 export interface PermissionCapableFileHandle extends FileSystemFileHandle {

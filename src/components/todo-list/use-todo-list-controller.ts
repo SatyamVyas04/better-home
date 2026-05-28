@@ -61,9 +61,8 @@ export function useTodoListController() {
   const holdTimeoutRef = useRef<number | null>(null);
   const textareaRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
 
-  const runTodoAction = <T>(label: string, action: () => T): T => {
-    return runTrackedUserAction(label, action);
-  };
+  const runTodoAction = <T>(label: string, action: () => T): T =>
+    runTrackedUserAction(label, action);
 
   useEffect(() => {
     setTodos((prev) => {
@@ -82,13 +81,14 @@ export function useTodoListController() {
     });
   }, [setTodos]);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (holdTimeoutRef.current) {
         clearTimeout(holdTimeoutRef.current);
       }
-    };
-  }, []);
+    },
+    []
+  );
 
   const getGroupColorVar = (colorName: TodoGroupColorName): string =>
     `var(--todo-group-${colorName})`;

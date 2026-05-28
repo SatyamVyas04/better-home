@@ -222,11 +222,12 @@ export function useQuickLinksPreviewWarmup({
     warmProgressively().catch(() => null);
   }, [ensureLinkPreview, getComparableUrl, links]);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       cancelInteractionWarmup();
-    };
-  }, [cancelInteractionWarmup]);
+    },
+    [cancelInteractionWarmup]
+  );
 
   useEffect(() => {
     if (hasStartedMountWarmupRef.current) {

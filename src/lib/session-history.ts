@@ -17,57 +17,57 @@ type UserIntentStorageKey = (typeof USER_INTENT_STORAGE_KEYS)[number];
 type UserIntentSnapshot = Partial<Record<UserIntentStorageKey, unknown>>;
 
 interface SessionActionEntry {
+  after: UserIntentSnapshot;
+  before: UserIntentSnapshot;
+  createdAt: string;
   id: string;
   label: string;
-  createdAt: string;
-  before: UserIntentSnapshot;
-  after: UserIntentSnapshot;
 }
 
 interface SessionActionJournal {
+  actions: SessionActionEntry[];
+  cursor: number;
   sessionId: string;
   startedAt: string;
   updatedAt: string;
-  cursor: number;
-  actions: SessionActionEntry[];
 }
 
 interface SessionState {
-  id: string;
-  startedAt: string;
+  actionCount: number;
   baseline: UserIntentSnapshot;
   changedKeys: Set<UserIntentStorageKey>;
-  actionCount: number;
-  lastActionAt?: string;
   finalized: boolean;
+  id: string;
+  lastActionAt?: string;
+  startedAt: string;
 }
 
 interface ActiveActionContext {
+  after: UserIntentSnapshot;
+  before: UserIntentSnapshot;
+  createdAt: string;
   id: string;
   label: string;
-  createdAt: string;
-  before: UserIntentSnapshot;
-  after: UserIntentSnapshot;
   touchedKeys: Set<UserIntentStorageKey>;
 }
 
 export interface SessionCheckpoint {
-  id: string;
-  sessionId: string;
-  openedAt: string;
-  closedAt: string;
   actionCount: number;
-  changedKeys: UserIntentStorageKey[];
-  before: UserIntentSnapshot;
   after: UserIntentSnapshot;
+  before: UserIntentSnapshot;
+  changedKeys: UserIntentStorageKey[];
+  closedAt: string;
+  id: string;
+  openedAt: string;
+  sessionId: string;
 }
 
 export interface SessionCheckpointSummary {
-  id: string;
-  closedAt: string;
-  openedAt: string;
   actionCount: number;
   changedKeys: UserIntentStorageKey[];
+  closedAt: string;
+  id: string;
+  openedAt: string;
 }
 
 interface SessionRestoreUndoState {
@@ -140,9 +140,7 @@ function canonicalize(value: unknown): unknown {
 
   if (isRecord(value)) {
     const sortedEntries = Object.entries(value).sort(
-      ([firstKey], [secondKey]) => {
-        return firstKey.localeCompare(secondKey);
-      }
+      ([firstKey], [secondKey]) => firstKey.localeCompare(secondKey)
     );
 
     return sortedEntries.reduce<Record<string, unknown>>(
@@ -170,7 +168,7 @@ function parseRawStorageValue(
   rawValue: string | null
 ): unknown {
   if (rawValue === null) {
-    return undefined;
+    return;
   }
 
   if (key === "vite-ui-theme") {
@@ -290,9 +288,8 @@ function parseSessionCheckpoint(rawValue: unknown): SessionCheckpoint | null {
   }
 
   const normalizedChangedKeys = changedKeys.filter(
-    (key): key is UserIntentStorageKey => {
-      return typeof key === "string" && isUserIntentStorageKey(key);
-    }
+    (key): key is UserIntentStorageKey =>
+      typeof key === "string" && isUserIntentStorageKey(key)
   );
 
   return {
@@ -465,12 +462,11 @@ function getChangedKeys(
   currentSnapshot: UserIntentSnapshot,
   targetSnapshot: UserIntentSnapshot
 ): UserIntentStorageKey[] {
-  return USER_INTENT_STORAGE_KEYS.filter((key) => {
-    return (
+  return USER_INTENT_STORAGE_KEYS.filter(
+    (key) =>
       createValueSignature(currentSnapshot[key]) !==
       createValueSignature(targetSnapshot[key])
-    );
-  });
+  );
 }
 
 function createEmptyJournal(
@@ -791,15 +787,13 @@ export async function readSessionCheckpointSummaries(
 ): Promise<SessionCheckpointSummary[]> {
   const checkpoints = await readSessionCheckpoints();
 
-  return checkpoints.slice(0, limit).map((checkpoint) => {
-    return {
-      id: checkpoint.id,
-      closedAt: checkpoint.closedAt,
-      openedAt: checkpoint.openedAt,
-      actionCount: checkpoint.actionCount,
-      changedKeys: checkpoint.changedKeys,
-    };
-  });
+  return checkpoints.slice(0, limit).map((checkpoint) => ({
+    id: checkpoint.id,
+    closedAt: checkpoint.closedAt,
+    openedAt: checkpoint.openedAt,
+    actionCount: checkpoint.actionCount,
+    changedKeys: checkpoint.changedKeys,
+  }));
 }
 
 export async function restoreSessionCheckpoint(
@@ -860,9 +854,9 @@ export async function readUndoSessionRestoreHint(): Promise<SessionRestoreUndoHi
     };
   }
 
-  const detailLines = changedKeys.slice(0, 4).map((key) => {
-    return getStorageAreaLabel(key);
-  });
+  const detailLines = changedKeys
+    .slice(0, 4)
+    .map((key) => getStorageAreaLabel(key));
 
   if (changedKeys.length > detailLines.length) {
     const remaining = changedKeys.length - detailLines.length;

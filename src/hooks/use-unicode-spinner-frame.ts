@@ -13,9 +13,9 @@ export function useUnicodeSpinnerFrame(
 
     const frameInterval = Math.max(16, Math.round(spinner.interval / speed));
     const timer = window.setInterval(() => {
-      setFrameIndex((previousFrame) => {
-        return (previousFrame + 1) % spinner.frames.length;
-      });
+      setFrameIndex(
+        (previousFrame) => (previousFrame + 1) % spinner.frames.length
+      );
     }, frameInterval);
 
     return () => {

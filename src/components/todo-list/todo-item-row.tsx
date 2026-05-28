@@ -35,8 +35,10 @@ import {
 
 interface TodoItemRowProps {
   canReorder: boolean;
-  editTodoText: string;
   editingTodoId: string | null;
+  editTodoText: string;
+  getColorDisplayName: (colorName: TodoGroupColorName) => string;
+  getGroupColorVar: (colorName: TodoGroupColorName) => string;
   groupDraftColor: TodoGroupColorName;
   groupDraftName: string;
   groupsForContextMenu: TodoGroup[];
@@ -55,8 +57,8 @@ interface TodoItemRowProps {
     event: React.KeyboardEvent<HTMLInputElement>,
     todoId: string
   ) => void;
-  onSetEditTodoText: (value: string) => void;
   onSetEditingTodoId: (todoId: string | null) => void;
+  onSetEditTodoText: (value: string) => void;
   onSetGroupDraftColor: (colorName: TodoGroupColorName) => void;
   onSetGroupDraftName: (value: string) => void;
   onSetTextareaRef: (todoId: string, node: HTMLTextAreaElement | null) => void;
@@ -66,8 +68,6 @@ interface TodoItemRowProps {
   resetGroupDraft: () => void;
   todo: Todo;
   todoGroup?: TodoGroup;
-  getColorDisplayName: (colorName: TodoGroupColorName) => string;
-  getGroupColorVar: (colorName: TodoGroupColorName) => string;
 }
 
 export function TodoItemRow({

@@ -26,8 +26,8 @@ import { clipText, getNonEmptyString } from "./utils";
 
 export interface BuildCacheEntryOptions {
   description: string;
-  imageDataUrl?: string;
   iconUrl: string;
+  imageDataUrl?: string;
   imageUrl: string;
   now: number;
   platform: LinkPreviewPlatform;

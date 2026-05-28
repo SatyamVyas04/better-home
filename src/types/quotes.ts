@@ -5,13 +5,13 @@ export interface QuoteHighlightMetadata {
 }
 
 export interface QuoteEntry extends QuoteHighlightMetadata {
-  text: string;
   attribution: string;
+  text: string;
 }
 
 export interface DefaultQuoteRecord extends QuoteHighlightMetadata {
-  quote: string;
   author: string;
+  quote: string;
 }
 
 export type QuoteSourceRecord = QuoteEntry | DefaultQuoteRecord;

@@ -25,8 +25,8 @@ interface ChromeStorageArea {
     keys: string[] | string | Record<string, unknown> | null,
     callback: (items: Record<string, unknown>) => void
   ): void;
-  set(items: Record<string, unknown>, callback?: () => void): void;
   remove(keys: string[] | string, callback?: () => void): void;
+  set(items: Record<string, unknown>, callback?: () => void): void;
 }
 
 interface ChromeStorageAPI {
@@ -44,18 +44,18 @@ declare const chrome: {
 export const APP_VERSION = "2.0.1";
 
 export interface StorageMigrationState {
-  completed: boolean;
   appVersion: string;
-  mirrorUntilVersion: string;
-  lastAttemptAt: string;
+  completed: boolean;
   completedAt?: string;
   error?: string;
+  lastAttemptAt: string;
+  mirrorUntilVersion: string;
 }
 
 export interface FeedbackPromptState {
   cadence?: "new" | "regular";
-  lastPromptedAt: string;
   lastAction?: "dismissed" | "opened-feedback" | "opened-review";
+  lastPromptedAt: string;
 }
 
 let cachedMigrationState: StorageMigrationState | null = null;
@@ -228,9 +228,9 @@ export function removeChromeStorageKeys(keys: string[]): Promise<string[]> {
   const removePromise = new Promise<string[]>((resolve) => {
     try {
       chromeStorageArea.get(uniqueKeys, (items) => {
-        const existingKeys = uniqueKeys.filter((key) => {
-          return Object.hasOwn(items, key);
-        });
+        const existingKeys = uniqueKeys.filter((key) =>
+          Object.hasOwn(items, key)
+        );
 
         if (existingKeys.length === 0) {
           resolve([]);

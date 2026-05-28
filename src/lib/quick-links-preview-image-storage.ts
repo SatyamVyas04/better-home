@@ -2,8 +2,8 @@ const QUICK_LINKS_PREVIEW_IMAGE_DATA_STORAGE_KEY =
   "better-home-quick-links-preview-image-data";
 
 export interface QuickLinksPreviewImageDataEntry {
-  imageUrl: string;
   imageDataUrl: string;
+  imageUrl: string;
 }
 
 export type QuickLinksPreviewImageDataMap = Record<

@@ -7,10 +7,10 @@ import {
 type MigrationViewState = "checking" | "ready" | "error";
 
 interface MigrationStatus {
-  state: MigrationViewState;
-  message: string;
   details?: string;
+  message: string;
   migration?: StorageMigrationState;
+  state: MigrationViewState;
 }
 
 const CHECKING_STATUS: MigrationStatus = {
