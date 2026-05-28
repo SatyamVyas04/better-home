@@ -197,10 +197,10 @@ export function InteractiveCalendar({ className }: InteractiveCalendarProps) {
             <motion.div
               animate={{ filter: "blur(0px)", opacity: 1 }}
               className={cn(
-                "calendar-grid flex h-full w-full scale-90 flex-col content-start items-center justify-start justify-items-center md:grid",
+                "flex h-full w-full scale-90 flex-col content-start items-center justify-start justify-items-center md:grid",
                 showAllYear
                   ? "grid-cols-2 grid-rows-6 lg:grid-cols-4 lg:grid-rows-3"
-                  : "grid-cols-2 grid-rows-2"
+                  : "grid-cols-2 grid-rows-2 calendar-grid"
               )}
               exit={{ filter: "blur(4px)", opacity: 0 }}
               initial={{ filter: "blur(4px)", opacity: 0 }}
