@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.2](https://github.com/SatyamVyas04/better-home/compare/v2.0.1...v2.0.2) (2026-06-23)
+
+### Bug Fixes
+
+* adjust calendar grid styles for improved layout ([fe20fd0](https://github.com/SatyamVyas04/better-home/commit/fe20fd0caedd3ca963a07697634f9deeb5f9468b))
+* improvised quotes highlight style, updated packages, and project lint executed ([a1e0e74](https://github.com/SatyamVyas04/better-home/commit/a1e0e7438898c502097721c88eabea200596166c))
+* use named import for archiver (Node v24 compat) ([16ae0fa](https://github.com/SatyamVyas04/better-home/commit/16ae0faa26d6ad5d8d301061283344845c7b325d))
+
 ## [2.0.1](https://github.com/SatyamVyas04/better-home/compare/v2.0.0...v2.0.1) (2026-05-17)
 
 ### Bug Fixes
