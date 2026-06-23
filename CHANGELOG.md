@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.3](https://github.com/SatyamVyas04/better-home/compare/v2.0.2...v2.0.3) (2026-06-23)
+
+### Bug Fixes
+
+* use ZipArchive/TarArchive classes for archiver v8 compat ([8e34598](https://github.com/SatyamVyas04/better-home/commit/8e34598729e69b4e61881caf30939fad5c0fc4cb))
+
 ## [2.0.2](https://github.com/SatyamVyas04/better-home/compare/v2.0.1...v2.0.2) (2026-06-23)
 
 ### Bug Fixes
