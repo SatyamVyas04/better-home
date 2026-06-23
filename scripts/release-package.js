@@ -7,7 +7,7 @@ import {
   rmSync,
 } from "node:fs";
 import { join } from "node:path";
-import { Archiver as archiver } from "archiver";
+import { TarArchive, ZipArchive } from "archiver";
 
 const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 const version = pkg.version;
@@ -37,10 +37,14 @@ const baseName = `${name}-v${version}`;
 const zipFile = join(releaseDir, `${baseName}.zip`);
 const tarFile = join(releaseDir, `${baseName}.tar.gz`);
 
+const archiveFormats = { zip: ZipArchive, tar: TarArchive };
+
 function createArchive(outputPath, format, options = {}) {
   return new Promise((resolve, reject) => {
     const output = createWriteStream(outputPath);
-    const archive = archiver(format, options);
+    const Archive = archiveFormats[format];
+    if (!Archive) throw new Error(`Unknown format: ${format}`);
+    const archive = new Archive(options);
 
     output.on("close", () => resolve(archive.pointer()));
     archive.on("error", (err) => reject(err));
