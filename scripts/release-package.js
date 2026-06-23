@@ -7,7 +7,7 @@ import {
   rmSync,
 } from "node:fs";
 import { join } from "node:path";
-import archiver from "archiver";
+import { Archiver as archiver } from "archiver";
 
 const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 const version = pkg.version;
