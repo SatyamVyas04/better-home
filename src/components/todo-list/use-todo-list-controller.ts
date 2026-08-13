@@ -49,6 +49,10 @@ export function useTodoListController() {
     "better-home-todo-group-by",
     false
   );
+  const [quickDelete, setQuickDelete] = useLocalStorage<boolean>(
+    "better-home-todo-quick-delete",
+    false
+  );
   const [collapsedSections, setCollapsedSections] = useLocalStorage<
     Record<string, boolean>
   >("better-home-todo-collapsed-sections", {});
@@ -247,6 +251,7 @@ export function useTodoListController() {
     runTodoAction("delete task", () => {
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
     });
+
     if (editingTodoId === id) {
       setEditingTodoId(null);
       setEditTodoText("");
@@ -294,6 +299,14 @@ export function useTodoListController() {
       clearTimeout(holdTimeoutRef.current);
       holdTimeoutRef.current = null;
     }
+  };
+
+  const handleDeletePressStart = (id: string) => {
+    if (!quickDelete) handleDeleteMouseDown(id);
+  };
+
+  const handleDeleteActivate = (id: string) => {
+    if (quickDelete) deleteTodo(id);
   };
 
   const todoGroupsById = useMemo(
@@ -495,8 +508,9 @@ export function useTodoListController() {
     groupDraftName,
     groupedSections,
     groupsForContextMenu,
-    handleDeleteMouseDown,
+    handleDeleteActivate,
     handleDeleteMouseUp,
+    handleDeletePressStart,
     handleEditBlur,
     handleEditKeyDown,
     handleGroupedReorder,
@@ -507,6 +521,7 @@ export function useTodoListController() {
     hasActiveFilters,
     holdingDelete,
     newTodo,
+    quickDelete,
     resetGroupDraft,
     setEditTodoText,
     setEditingTodoId,
@@ -515,6 +530,7 @@ export function useTodoListController() {
     setGroupDraftColor,
     setGroupDraftName,
     setNewTodo,
+    setQuickDelete,
     setSortMode: updateSortMode,
     setTextareaRef,
     sortMode,
