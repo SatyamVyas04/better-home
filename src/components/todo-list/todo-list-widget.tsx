@@ -6,6 +6,7 @@ import {
   IconHandMove,
   IconPlus,
   IconStar,
+  IconTrash,
   IconUsersGroup,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion, Reorder } from "motion/react";
@@ -52,8 +53,9 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     groupDraftName,
     groupedSections,
     groupsForContextMenu,
-    handleDeleteMouseDown,
+    handleDeleteActivate,
     handleDeleteMouseUp,
+    handleDeletePressStart,
     handleEditBlur,
     handleEditKeyDown,
     handleGroupedReorder,
@@ -64,6 +66,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     hasActiveFilters,
     holdingDelete,
     newTodo,
+    quickDelete,
     resetGroupDraft,
     setEditTodoText,
     setEditingTodoId,
@@ -72,6 +75,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     setGroupDraftColor,
     setGroupDraftName,
     setNewTodo,
+    setQuickDelete,
     setSortMode,
     setTextareaRef,
     sortMode,
@@ -97,8 +101,9 @@ export function TodoList({ fullSize = false }: TodoListProps) {
       onAssignTodoGroup={assignTodoGroup}
       onCreateGroupForTodo={createGroupForTodo}
       onDeleteGroupAndClearTodos={deleteGroupAndClearTodos}
-      onDeleteMouseDown={handleDeleteMouseDown}
+      onDeleteMouseDown={handleDeletePressStart}
       onDeleteMouseUp={handleDeleteMouseUp}
+      onDeleteQuick={handleDeleteActivate}
       onEditBlur={handleEditBlur}
       onEditKeyDown={handleEditKeyDown}
       onGroupDraftKeyDown={handleGroupDraftKeyDown}
@@ -110,6 +115,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
       onTodoContextMenuOpenChange={handleTodoContextMenuOpenChange}
       onToggleImportant={toggleImportant}
       onToggleTodo={toggleTodo}
+      quickDelete={quickDelete}
       resetGroupDraft={resetGroupDraft}
       todo={todo}
       todoGroup={todo.groupId ? todoGroupsById.get(todo.groupId) : undefined}
@@ -231,7 +237,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                                 <Reorder.Group
                                   as="div"
                                   axis="y"
-                                  className="flex flex-col space-y-px p-px"
+                                  className="flex flex-col gap-px p-px"
                                   onReorder={(reordered: Todo[]) =>
                                     handleGroupedReorder(section.id, reordered)
                                   }
@@ -252,7 +258,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                   <Reorder.Group
                     as="div"
                     axis="y"
-                    className="flex flex-col space-y-px"
+                    className="flex flex-col gap-px"
                     onReorder={handleReorder}
                     values={displayedTodos}
                   >
@@ -311,7 +317,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
         <ContextMenuCheckboxItem
           checked={groupByEnabled}
           className="text-xs lowercase"
-          onCheckedChange={(checked) => setGroupByEnabled(checked)}
+          onCheckedChange={(checked) => setGroupByEnabled(checked === true)}
         >
           <IconUsersGroup className="size-3.5" />
           group by group
@@ -339,6 +345,18 @@ export function TodoList({ fullSize = false }: TodoListProps) {
         >
           <IconStar className="size-3.5" />
           important only
+        </ContextMenuCheckboxItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem className="text-xs lowercase" disabled>
+          preferences
+        </ContextMenuItem>
+        <ContextMenuCheckboxItem
+          checked={quickDelete}
+          className="text-xs lowercase"
+          onCheckedChange={(checked) => setQuickDelete(Boolean(checked))}
+        >
+          <IconTrash className="size-3.5" />
+          quick delete
         </ContextMenuCheckboxItem>
       </ContextMenuContent>
     </ContextMenu>

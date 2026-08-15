@@ -48,6 +48,7 @@ interface TodoItemRowProps {
   onDeleteGroupAndClearTodos: (groupId: string) => void;
   onDeleteMouseDown: (id: string) => void;
   onDeleteMouseUp: () => void;
+  onDeleteQuick: (id: string) => void;
   onEditBlur: (
     event: React.FocusEvent<HTMLTextAreaElement>,
     todoId: string
@@ -65,6 +66,7 @@ interface TodoItemRowProps {
   onTodoContextMenuOpenChange: (isOpen: boolean) => void;
   onToggleImportant: (id: string) => void;
   onToggleTodo: (id: string) => void;
+  quickDelete?: boolean;
   resetGroupDraft: () => void;
   todo: Todo;
   todoGroup?: TodoGroup;
@@ -83,6 +85,7 @@ export function TodoItemRow({
   onDeleteGroupAndClearTodos,
   onDeleteMouseDown,
   onDeleteMouseUp,
+  onDeleteQuick,
   onEditBlur,
   onEditKeyDown,
   onGroupDraftKeyDown,
@@ -94,6 +97,7 @@ export function TodoItemRow({
   onTodoContextMenuOpenChange,
   onToggleImportant,
   onToggleTodo,
+  quickDelete = false,
   resetGroupDraft,
   todo,
   todoGroup,
@@ -103,6 +107,9 @@ export function TodoItemRow({
   const todoGroupColor = todoGroup
     ? getGroupColorVar(todoGroup.color)
     : undefined;
+
+  const isHoldingDelete = holdingDelete === todo.id;
+  const isEditing = editingTodoId === todo.id;
 
   return (
     <ContextMenu key={todo.id} onOpenChange={onTodoContextMenuOpenChange}>
@@ -145,30 +152,26 @@ export function TodoItemRow({
             </div>
             <Checkbox
               checked={todo.completed}
-              className="size-3.5 rounded-sm"
+              className="size-3.5 rounded-sm shrink-0 after:-left-1 after:-right-4 after:-top-2 after:-bottom-2"
               id={todo.id}
               onCheckedChange={() => onToggleTodo(todo.id)}
             />
             <div className="ml-0.5 flex w-full -translate-y-px items-center justify-center">
               <Textarea
-                className={`mt-0.75 min-h-5 w-full rounded-sm border-0 not-active:bg-transparent! px-1 py-px text-xs leading-3.5 tracking-tight ${
-                  editingTodoId === todo.id
+                className={cn(
+                  "mt-0.75 min-h-5 w-full rounded-sm border-0 not-active:bg-transparent! px-1 py-px text-xs leading-3.5 tracking-tight",
+                  isEditing
                     ? "resize-y overflow-auto"
-                    : "resize-none overflow-hidden"
-                } ${todo.completed ? "text-muted-foreground line-through" : ""}`}
+                    : "resize-none overflow-hidden",
+                  todo.completed && "text-muted-foreground line-through"
+                )}
                 onBlur={(event) => onEditBlur(event, todo.id)}
                 onChange={(event) => {
-                  if (editingTodoId !== todo.id) {
-                    onSetEditingTodoId(todo.id);
-                  }
-
+                  if (!isEditing) onSetEditingTodoId(todo.id);
                   onSetEditTodoText(event.target.value);
                 }}
                 onFocus={() => {
-                  if (editingTodoId === todo.id) {
-                    return;
-                  }
-
+                  if (isEditing) return;
                   onSetEditingTodoId(todo.id);
                   onSetEditTodoText(todo.text);
                 }}
@@ -176,44 +179,44 @@ export function TodoItemRow({
                 onPointerDown={(event) => event.stopPropagation()}
                 ref={(node) => onSetTextareaRef(todo.id, node)}
                 rows={1}
-                value={editingTodoId === todo.id ? editTodoText : todo.text}
+                value={isEditing ? editTodoText : todo.text}
               />
             </div>
             <div className="ml-auto flex items-center gap-1 pl-1">
               <AnimatePresence mode="wait">
-                {todo.important && (
-                  <motion.div
-                    animate={{
-                      filter: "blur(0px)",
-                      opacity: 1,
-                      scale: 1,
-                    }}
-                    className="translate-x-6 transform transition-transform group-focus-within:translate-x-0 group-hover:translate-x-0 group-active:translate-x-0"
-                    exit={{
-                      filter: "blur(4px)",
-                      opacity: 0,
-                      scale: 0.8,
-                    }}
-                    initial={{
-                      filter: "blur(4px)",
-                      opacity: 0,
-                      scale: 0.8,
-                    }}
-                    key="star"
-                    transition={{
-                      duration: 0.2,
-                      ease: "easeOut",
-                    }}
+                {todo.important ? (
+                  <motion.button
+                    animate={{ filter: "blur(0px)", opacity: 1, scale: 1 }}
+                    aria-label="Unmark important"
+                    className="relative -my-0.75 flex size-6 translate-x-6 transform items-center justify-center rounded-sm transition-transform group-focus-within:translate-x-0 group-hover:translate-x-0 group-active:translate-x-0 hover:bg-accent/50"
+                    exit={{ filter: "blur(4px)", opacity: 0, scale: 0.8 }}
+                    initial={{ filter: "blur(4px)", opacity: 0, scale: 0.8 }}
+                    key="star-filled"
+                    onClick={() => onToggleImportant(todo.id)}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    type="button"
                   >
                     <IconStarFilled className="size-3.5 text-yellow-500" />
-                  </motion.div>
+                  </motion.button>
+                ) : (
+                  <Button
+                    aria-label="Mark important"
+                    className="relative -my-0.75 size-6 translate-x-6 transform opacity-0 transition-all group-focus-within:translate-x-0 group-focus-within:opacity-100 group-hover:translate-x-0 group-hover:opacity-100 group-active:translate-x-0 group-active:opacity-100"
+                    onClick={() => onToggleImportant(todo.id)}
+                    size="icon-sm"
+                    variant="ghost"
+                  >
+                    <IconStar className="size-3.5 text-muted-foreground transition-colors hover:text-yellow-500" />
+                  </Button>
                 )}
               </AnimatePresence>
+
               <TooltipProvider>
                 <Tooltip delayDuration={500}>
                   <TooltipTrigger asChild>
                     <Button
                       className="relative -my-0.75 size-6 translate-x-6 transform overflow-clip opacity-0 transition-all group-focus-within:translate-x-0 group-focus-within:opacity-100 group-hover:translate-x-0 group-hover:opacity-100 group-active:translate-x-0 group-active:opacity-100"
+                      onClick={() => onDeleteQuick(todo.id)}
                       onMouseDown={() => onDeleteMouseDown(todo.id)}
                       onMouseLeave={onDeleteMouseUp}
                       onMouseUp={onDeleteMouseUp}
@@ -222,21 +225,26 @@ export function TodoItemRow({
                       size="icon-sm"
                       variant="ghost"
                     >
-                      <div
-                        aria-hidden="true"
-                        className={`absolute bottom-0 left-0 flex h-full w-full items-center justify-center bg-destructive text-destructive-foreground transition-[clip-path] ${
-                          holdingDelete === todo.id
-                            ? "duration-1500 ease-linear [clip-path:inset(0px_0px_0px_0px)]"
-                            : "duration-200 ease-out [clip-path:inset(100%_0px_0px_0px)]"
-                        }`}
-                      >
-                        <IconTrash className="size-3.5" />
-                      </div>
+                      {!quickDelete && (
+                        <div
+                          aria-hidden="true"
+                          className={cn(
+                            "absolute bottom-0 left-0 flex h-full w-full items-center justify-center bg-destructive text-destructive-foreground transition-[clip-path]",
+                            isHoldingDelete
+                              ? "duration-1500 ease-linear [clip-path:inset(0px_0px_0px_0px)]"
+                              : "duration-200 ease-out [clip-path:inset(100%_0px_0px_0px)]"
+                          )}
+                        >
+                          <IconTrash className="size-3.5" />
+                        </div>
+                      )}
                       <IconTrash className="size-3.5 text-destructive" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent className="text-xs" side="top">
-                    <p className="lowercase">hold to delete</p>
+                    <p className="lowercase">
+                      {quickDelete ? "delete task" : "hold to delete"}
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -423,16 +431,6 @@ export function TodoItemRow({
         <ContextMenuSeparator className="h-px" />
         <ContextMenuItem className="text-xs lowercase" disabled>
           actions
-        </ContextMenuItem>
-        <ContextMenuItem onClick={() => onToggleImportant(todo.id)}>
-          {todo.important ? (
-            <IconStarFilled className="mr-2 size-3.5" />
-          ) : (
-            <IconStar className="mr-2 size-3.5" />
-          )}
-          <span className="text-xs lowercase">
-            {todo.important ? "unmark important" : "mark important"}
-          </span>
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onToggleTodo(todo.id)}>
           <IconCheck className="mr-2 size-3.5" />
