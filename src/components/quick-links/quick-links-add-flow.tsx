@@ -29,7 +29,7 @@ export function QuickLinksAddFlow({ controller }: QuickLinksAddFlowProps) {
           className="h-8 flex-1 text-xs"
           containerClassName="flex-1"
           disabled={!controller.isUrlEntryStage}
-          label="press enter to fetch title"
+          label="enter to fetch title · shift+enter to add directly"
           labelClassName="bottom-0 left-2 text-[9px]"
           onChange={(event) =>
             controller.handleUrlInputChange(event.target.value)
