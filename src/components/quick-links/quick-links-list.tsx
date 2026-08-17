@@ -4,7 +4,7 @@ import {
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, Reorder } from "motion/react";
 import { useEffect } from "react";
 import { PreviewFallbackMedia } from "@/components/quick-links/preview-fallback-media";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ export function QuickLinksList({
   onDeleteLink,
   onMoveFloatingPreview,
   onOpenFloatingPreview,
+  onReorder,
   onScheduleFloatingPreviewClose,
   previewCache,
 }: QuickLinksListProps) {
@@ -54,26 +55,41 @@ export function QuickLinksList({
 
   const renderIconHoverGrid = () => (
     <div className="min-h-0 flex-1">
-      <div className="grid grid-cols-7 gap-1.5 sm:grid-cols-11 md:grid-cols-15 lg:grid-cols-7">
+      <Reorder.Group
+        as="div"
+        axis="y"
+        className="grid grid-cols-7 gap-1.5 sm:grid-cols-11 md:grid-cols-15 lg:grid-cols-7"
+        onReorder={onReorder}
+        values={displayedLinks}
+      >
         <AnimatePresence mode="popLayout">
           {displayedLinks.map((link) => (
-            <motion.div
+            <Reorder.Item
               animate={{ filter: "blur(0px)", opacity: 1, scale: 1 }}
+              as="div"
+              className="relative"
               exit={{ filter: "blur(4px)", opacity: 0, scale: 0.9 }}
               initial={{ filter: "blur(4px)", opacity: 0, scale: 0.5 }}
               key={link.id}
-              layout
+              onDragStart={() => onCloseFloatingPreview()}
               transition={{ duration: 0.22, ease: EASE_OUT }}
+              value={link}
+              whileDrag={{
+                scale: 1.15,
+                zIndex: 30,
+              }}
             >
               <div className="group relative w-fit">
                 <a
-                  className="relative -m-1 block p-1"
+                  className="relative -m-1 block cursor-grab select-none p-1 active:cursor-grabbing"
+                  draggable={false}
                   href={link.url}
                   onBlur={onScheduleFloatingPreviewClose}
                   onClick={(event) => {
                     event.currentTarget.blur();
                     onCloseFloatingPreview();
                   }}
+                  onDragStart={(event) => event.preventDefault()}
                   onFocus={(event) => {
                     const rect = event.currentTarget.getBoundingClientRect();
                     onOpenFloatingPreview(
@@ -98,6 +114,7 @@ export function QuickLinksList({
                       <img
                         alt={link.title}
                         className="size-4"
+                        draggable={false}
                         height={16}
                         loading="lazy"
                         src={link.favicon}
@@ -122,13 +139,14 @@ export function QuickLinksList({
                   onMouseMove={(event) =>
                     onMoveFloatingPreview(event.clientX, event.clientY)
                   }
+                  onPointerDown={(event) => event.stopPropagation()}
                   type="button"
                 >
                   <IconX className="size-2" />
                   <span className="sr-only">Delete {link.title}</span>
                 </button>
               </div>
-            </motion.div>
+            </Reorder.Item>
           ))}
           {displayedLinks.length === 0 ? (
             <motion.div
@@ -145,25 +163,31 @@ export function QuickLinksList({
             </motion.div>
           ) : null}
         </AnimatePresence>
-      </div>
+      </Reorder.Group>
     </div>
   );
 
   const renderIconTitleList = () => (
     <ScrollArea className="min-h-0 flex-1" maskHeight={40}>
-      <div className="flex min-h-full flex-col space-y-0.5 pr-0">
+      <Reorder.Group
+        as="div"
+        axis="y"
+        className="flex min-h-full flex-col space-y-0.5 pr-0"
+        onReorder={onReorder}
+        values={displayedLinks}
+      >
         <AnimatePresence mode="popLayout">
           {displayedLinks.map((link) => (
-            <motion.a
+            <Reorder.Item
               animate={{ filter: "blur(0px)", opacity: 1, scale: 1, x: 0 }}
-              className="group flex items-center gap-2 rounded-md border border-border/50 px-1.5 py-1 transition-[transform,background-color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-accent/30 focus-visible:bg-accent/30 focus-visible:ring-2 focus-visible:ring-ring/30 active:scale-[0.98]"
+              as="div"
+              className="relative"
               exit={{
                 filter: "blur(4px)",
                 opacity: 0,
                 scale: 0.95,
                 x: 10,
               }}
-              href={link.url}
               initial={{
                 filter: "blur(4px)",
                 opacity: 0,
@@ -171,38 +195,51 @@ export function QuickLinksList({
                 x: 10,
               }}
               key={link.id}
-              layout
-              rel="noopener noreferrer"
-              target="_blank"
               transition={{ duration: 0.22, ease: EASE_OUT }}
+              value={link}
+              whileDrag={{
+                scale: 1.02,
+                zIndex: 30,
+              }}
             >
-              {link.favicon ? (
-                <img
-                  alt={link.title}
-                  className="size-4 h-full shrink-0"
-                  height={16}
-                  loading="lazy"
-                  src={link.favicon}
-                  width={16}
-                />
-              ) : (
-                <IconExternalLink className="size-4 shrink-0 text-muted-foreground" />
-              )}
-              <span className="flex-1 truncate text-xs">{link.title}</span>
-              <Button
-                className="size-6 opacity-0 transition-[transform,opacity] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] focus-visible:opacity-100 active:scale-[0.95] group-focus-within:opacity-100 group-hover:opacity-100"
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  onDeleteLink(link.id);
-                }}
-                size="icon-sm"
-                variant="ghost"
+              <a
+                className="group flex cursor-grab select-none items-center gap-2 rounded-md border border-border/50 px-1.5 py-1 transition-[transform,background-color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-accent/30 focus-visible:bg-accent/30 focus-visible:ring-2 focus-visible:ring-ring/30 active:cursor-grabbing active:scale-[0.98]"
+                draggable={false}
+                href={link.url}
+                onDragStart={(event) => event.preventDefault()}
+                rel="noopener noreferrer"
+                target="_blank"
               >
-                <IconTrash className="size-3.5 text-destructive" />
-                <span className="sr-only">Delete {link.title}</span>
-              </Button>
-            </motion.a>
+                {link.favicon ? (
+                  <img
+                    alt={link.title}
+                    className="size-4 h-full shrink-0"
+                    draggable={false}
+                    height={16}
+                    loading="lazy"
+                    src={link.favicon}
+                    width={16}
+                  />
+                ) : (
+                  <IconExternalLink className="size-4 shrink-0 text-muted-foreground" />
+                )}
+                <span className="flex-1 truncate text-xs">{link.title}</span>
+                <Button
+                  className="size-6 opacity-0 transition-[transform,opacity] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] focus-visible:opacity-100 active:scale-[0.95] group-focus-within:opacity-100 group-hover:opacity-100"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onDeleteLink(link.id);
+                  }}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  size="icon-sm"
+                  variant="ghost"
+                >
+                  <IconTrash className="size-3.5 text-destructive" />
+                  <span className="sr-only">Delete {link.title}</span>
+                </Button>
+              </a>
+            </Reorder.Item>
           ))}
           {displayedLinks.length === 0 ? (
             <motion.div
@@ -219,7 +256,7 @@ export function QuickLinksList({
             </motion.div>
           ) : null}
         </AnimatePresence>
-      </div>
+      </Reorder.Group>
     </ScrollArea>
   );
 
@@ -244,7 +281,13 @@ export function QuickLinksList({
 
       <div className="hidden min-h-0 flex-1 md:block">
         <ScrollArea className="h-full" maskHeight={40}>
-          <div className={`grid gap-2 pr-0.5 ${compactGridColumnsClass}`}>
+          <Reorder.Group
+            as="div"
+            axis="y"
+            className={`grid gap-2 pr-0.5 ${compactGridColumnsClass}`}
+            onReorder={onReorder}
+            values={displayedLinks}
+          >
             <AnimatePresence mode="popLayout">
               {displayedLinks.map((link) => {
                 const comparableUrl = getComparableUrl(link.url);
@@ -272,14 +315,15 @@ export function QuickLinksList({
                   loadingPreviewUrls.includes(comparableUrl);
 
                 return (
-                  <motion.article
+                  <Reorder.Item
                     animate={{
                       filter: "blur(0px)",
                       opacity: 1,
                       scale: 1,
                       y: 0,
                     }}
-                    className="group relative overflow-hidden rounded-lg border border-border/50 bg-card/65 shadow-[0_14px_30px_-24px_hsl(var(--foreground)/0.6)]"
+                    as="article"
+                    className="group relative cursor-grab select-none overflow-hidden rounded-lg border border-border/50 bg-card/65 shadow-[0_14px_30px_-24px_hsl(var(--foreground)/0.6)] transition-shadow duration-150 ease-out active:cursor-grabbing"
                     exit={{
                       filter: "blur(3px)",
                       opacity: 0,
@@ -293,13 +337,20 @@ export function QuickLinksList({
                       y: 8,
                     }}
                     key={link.id}
-                    layout
                     transition={{ duration: 0.22, ease: EASE_OUT }}
+                    value={link}
+                    whileDrag={{
+                      scale: 1.03,
+                      zIndex: 30,
+                      boxShadow: "0 20px 35px -15px rgba(0, 0, 0, 0.45)",
+                    }}
                   >
                     <a
                       className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                      draggable={false}
                       href={link.url}
                       onClick={onCloseFloatingPreview}
+                      onDragStart={(event) => event.preventDefault()}
                       rel="noopener noreferrer"
                       target="_blank"
                     >
@@ -309,6 +360,7 @@ export function QuickLinksList({
                             alt={previewDisplayTitle}
                             className="h-full w-full object-cover object-center"
                             decoding="async"
+                            draggable={false}
                             fetchPriority="high"
                             height={188}
                             loading="eager"
@@ -345,6 +397,7 @@ export function QuickLinksList({
                             <img
                               alt={previewDisplayTitle}
                               className="size-3.5 shrink-0"
+                              draggable={false}
                               height={14}
                               loading="lazy"
                               src={link.favicon}
@@ -370,12 +423,13 @@ export function QuickLinksList({
                         event.stopPropagation();
                         onDeleteLink(link.id);
                       }}
+                      onPointerDown={(event) => event.stopPropagation()}
                       type="button"
                     >
                       <IconX className="size-2.5" />
                       <span className="sr-only">Delete {link.title}</span>
                     </button>
-                  </motion.article>
+                  </Reorder.Item>
                 );
               })}
               {displayedLinks.length === 0 ? (
@@ -393,7 +447,7 @@ export function QuickLinksList({
                 </motion.div>
               ) : null}
             </AnimatePresence>
-          </div>
+          </Reorder.Group>
         </ScrollArea>
       </div>
     </div>

@@ -38,6 +38,7 @@ export interface BookmarkImportItem {
 }
 
 export type QuickLinksSortMode =
+  | "manual"
   | "recent"
   | "alphabetical-asc"
   | "alphabetical-desc";
@@ -87,6 +88,7 @@ export interface QuickLinksListProps {
     y: number,
     options?: OpenFloatingPreviewOptions
   ) => void;
+  onReorder: (links: QuickLink[]) => void;
   onScheduleFloatingPreviewClose: () => void;
   previewCache: Record<string, LinkPreviewCacheEntry>;
 }

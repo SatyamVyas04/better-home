@@ -91,7 +91,7 @@ export function useQuickLinksPreviewController({
       sortedLinks.sort((a, b) =>
         b.title.localeCompare(a.title, undefined, { sensitivity: "base" })
       );
-    } else {
+    } else if (sortMode === "recent") {
       sortedLinks.reverse();
     }
 
@@ -288,6 +288,16 @@ export function useQuickLinksPreviewController({
     [setSortMode]
   );
 
+  const handleReorder = useCallback(
+    (reorderedLinks: QuickLink[]) => {
+      runTrackedUserAction("reorder quick links", () => {
+        setSortMode("manual");
+        setLinks(reorderedLinks);
+      });
+    },
+    [setLinks, setSortMode]
+  );
+
   useEffect(() => {
     if (!activePreviewLink) {
       return;
@@ -398,6 +408,7 @@ export function useQuickLinksPreviewController({
     failedPreviewImageUrls,
     getComparableUrl,
     getResolvedFavicon,
+    handleReorder,
     hasActivePreviewImage,
     hasDuplicates,
     hasPreviewCacheEntries,
