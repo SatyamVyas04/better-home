@@ -92,7 +92,12 @@ export function useQuickLinksPreviewController({
         b.title.localeCompare(a.title, undefined, { sensitivity: "base" })
       );
     } else if (sortMode === "recent") {
-      sortedLinks.reverse();
+      const hasCreatedAt = sortedLinks.some(
+        (link) => typeof link.createdAt === "number"
+      );
+      if (hasCreatedAt) {
+        sortedLinks.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+      }
     }
 
     return sortedLinks;

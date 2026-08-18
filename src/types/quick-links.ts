@@ -23,6 +23,7 @@ export interface QuickLinksProps {
 }
 
 export interface QuickLink {
+  createdAt?: number;
   favicon: string;
   id: string;
   title: string;
