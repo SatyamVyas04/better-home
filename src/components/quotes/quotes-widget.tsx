@@ -560,7 +560,7 @@ function AnimatedQuoteText({
 
           return (
             <span className="relative inline-block" key={tokenKey}>
-              <motion.div
+              <motion.span
                 animate={{
                   scaleX: [0, 1.03, 0.97],
                   skewX: ["0deg", "-17.5deg", "-15deg"],

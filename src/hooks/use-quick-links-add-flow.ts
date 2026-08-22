@@ -103,13 +103,18 @@ export function useQuickLinksAddFlow({
     [focusTitleInput]
   );
 
+  const resolveUrl = useCallback(() => {
+    const normalized = normalizeUrl(newUrl);
+    return normalized && isValidUrl(normalized) ? normalized : null;
+  }, [newUrl]);
+
   const startTitleResolution = useCallback(() => {
     if (addFlowStage !== "url") {
       return;
     }
 
-    const normalizedUrl = normalizeUrl(newUrl);
-    if (!(normalizedUrl && isValidUrl(normalizedUrl))) {
+    const normalizedUrl = resolveUrl();
+    if (!normalizedUrl) {
       return;
     }
 
@@ -139,43 +144,53 @@ export function useQuickLinksAddFlow({
   }, [
     addFlowStage,
     completeTitleResolution,
-    newUrl,
+    resolveUrl,
     stageResolvedTitlePreview,
   ]);
+
+  const commitLink = useCallback(
+    (url: string, title: string) => {
+      const link: QuickLink = {
+        id: crypto.randomUUID(),
+        title,
+        url,
+        favicon: getResolvedFavicon(url),
+      };
+
+      runTrackedUserAction("add quick link", () => {
+        setLinks((prev) => [...prev, link]);
+      });
+      ensureLinkPreview(url);
+      resetAddFlow();
+    },
+    [ensureLinkPreview, getResolvedFavicon, resetAddFlow, setLinks]
+  );
 
   const addLink = useCallback(() => {
     if (addFlowStage !== "ready-title") {
       return;
     }
 
-    const normalizedUrl = normalizeUrl(newUrl);
-    if (!(normalizedUrl && isValidUrl(normalizedUrl))) {
+    const normalizedUrl = resolveUrl();
+    if (!normalizedUrl) {
       return;
     }
 
-    const resolvedTitle = newTitle.trim() || extractTitle(normalizedUrl);
+    commitLink(normalizedUrl, newTitle.trim() || extractTitle(normalizedUrl));
+  }, [addFlowStage, commitLink, newTitle, resolveUrl]);
 
-    const link: QuickLink = {
-      id: crypto.randomUUID(),
-      title: resolvedTitle,
-      url: normalizedUrl,
-      favicon: getResolvedFavicon(normalizedUrl),
-    };
+  const addLinkDirectly = useCallback(() => {
+    if (addFlowStage !== "url") {
+      return;
+    }
 
-    runTrackedUserAction("add quick link", () => {
-      setLinks((prev) => [...prev, link]);
-    });
-    ensureLinkPreview(normalizedUrl);
-    resetAddFlow();
-  }, [
-    addFlowStage,
-    ensureLinkPreview,
-    getResolvedFavicon,
-    newTitle,
-    newUrl,
-    resetAddFlow,
-    setLinks,
-  ]);
+    const normalizedUrl = resolveUrl();
+    if (!normalizedUrl) {
+      return;
+    }
+
+    commitLink(normalizedUrl, extractTitle(normalizedUrl));
+  }, [addFlowStage, commitLink, resolveUrl]);
 
   const handleUrlInputChange = (nextUrl: string) => {
     setNewUrl(nextUrl);
@@ -197,7 +212,11 @@ export function useQuickLinksAddFlow({
   ) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      startTitleResolution();
+      if (event.shiftKey) {
+        addLinkDirectly();
+      } else {
+        startTitleResolution();
+      }
     }
   };
 
@@ -232,14 +251,10 @@ export function useQuickLinksAddFlow({
     }
   };
 
-  const normalizedNewUrl = normalizeUrl(newUrl);
-  const canStartTitleResolution = Boolean(
-    normalizedNewUrl && isValidUrl(normalizedNewUrl)
-  );
   const isUrlEntryStage = addFlowStage === "url";
   const isTitleEntryStage = !isUrlEntryStage;
   const isTitleLoadingStage = addFlowStage === "loading-title";
-  const canAdvanceFromUrlStage = isUrlEntryStage && canStartTitleResolution;
+  const canAdvanceFromUrlStage = isUrlEntryStage && Boolean(resolveUrl());
   const primaryButtonLabel = isTitleLoadingStage ? "Loading title" : "Add link";
 
   useEffect(() => {
