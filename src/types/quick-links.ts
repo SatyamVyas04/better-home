@@ -23,6 +23,7 @@ export interface QuickLinksProps {
 }
 
 export interface QuickLink {
+  createdAt?: number;
   favicon: string;
   id: string;
   title: string;
@@ -38,6 +39,7 @@ export interface BookmarkImportItem {
 }
 
 export type QuickLinksSortMode =
+  | "manual"
   | "recent"
   | "alphabetical-asc"
   | "alphabetical-desc";
@@ -87,6 +89,7 @@ export interface QuickLinksListProps {
     y: number,
     options?: OpenFloatingPreviewOptions
   ) => void;
+  onReorder: (links: QuickLink[]) => void;
   onScheduleFloatingPreviewClose: () => void;
   previewCache: Record<string, LinkPreviewCacheEntry>;
 }

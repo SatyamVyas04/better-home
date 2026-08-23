@@ -91,8 +91,13 @@ export function useQuickLinksPreviewController({
       sortedLinks.sort((a, b) =>
         b.title.localeCompare(a.title, undefined, { sensitivity: "base" })
       );
-    } else {
-      sortedLinks.reverse();
+    } else if (sortMode === "recent") {
+      const hasCreatedAt = sortedLinks.some(
+        (link) => typeof link.createdAt === "number"
+      );
+      if (hasCreatedAt) {
+        sortedLinks.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+      }
     }
 
     return sortedLinks;
@@ -288,6 +293,16 @@ export function useQuickLinksPreviewController({
     [setSortMode]
   );
 
+  const handleReorder = useCallback(
+    (reorderedLinks: QuickLink[]) => {
+      runTrackedUserAction("reorder quick links", () => {
+        setSortMode("manual");
+        setLinks(reorderedLinks);
+      });
+    },
+    [setLinks, setSortMode]
+  );
+
   useEffect(() => {
     if (!activePreviewLink) {
       return;
@@ -398,6 +413,7 @@ export function useQuickLinksPreviewController({
     failedPreviewImageUrls,
     getComparableUrl,
     getResolvedFavicon,
+    handleReorder,
     hasActivePreviewImage,
     hasDuplicates,
     hasPreviewCacheEntries,

@@ -170,12 +170,13 @@ export function useQuickLinksImportController({
 
     runTrackedUserAction("import bookmarks to quick links", () => {
       setLinks((prev) => {
-        const nextLinks = [...prev];
+        const importedLinks: QuickLink[] = [];
         const seenUrls = new Set(
           prev.map((link) => getComparableUrl(link.url))
         );
 
-        for (const bookmark of bookmarkOptions) {
+        const now = Date.now();
+        for (const [index, bookmark] of bookmarkOptions.entries()) {
           if (!selectedIds.has(bookmark.id)) {
             continue;
           }
@@ -187,7 +188,8 @@ export function useQuickLinksImportController({
 
           seenUrls.add(comparableUrl);
           importedBookmarkUrls.push(bookmark.url);
-          nextLinks.push({
+          importedLinks.push({
+            createdAt: now - index,
             favicon: getResolvedFavicon(bookmark.url),
             id: crypto.randomUUID(),
             title: bookmark.title,
@@ -195,7 +197,7 @@ export function useQuickLinksImportController({
           });
         }
 
-        return nextLinks;
+        return [...importedLinks, ...prev];
       });
     });
 

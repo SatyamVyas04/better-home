@@ -151,14 +151,15 @@ export function useQuickLinksAddFlow({
   const commitLink = useCallback(
     (url: string, title: string) => {
       const link: QuickLink = {
+        createdAt: Date.now(),
+        favicon: getResolvedFavicon(url),
         id: crypto.randomUUID(),
         title,
         url,
-        favicon: getResolvedFavicon(url),
       };
 
       runTrackedUserAction("add quick link", () => {
-        setLinks((prev) => [...prev, link]);
+        setLinks((prev) => [link, ...prev]);
       });
       ensureLinkPreview(url);
       resetAddFlow();

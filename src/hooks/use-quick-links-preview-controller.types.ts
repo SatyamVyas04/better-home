@@ -32,6 +32,7 @@ export interface UseQuickLinksPreviewControllerResult {
   failedPreviewImageUrls: Record<string, true>;
   getComparableUrl: (url: string) => string;
   getResolvedFavicon: (url: string) => string;
+  handleReorder: (reorderedLinks: QuickLink[]) => void;
   hasActivePreviewImage: boolean;
   hasDuplicates: boolean;
   hasPreviewCacheEntries: boolean;

@@ -1,4 +1,9 @@
-import { IconArrowDown, IconArrowUp, IconHistory } from "@tabler/icons-react";
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconHandMove,
+  IconHistory,
+} from "@tabler/icons-react";
 import { ImportBookmarksContent } from "@/components/quick-links/import-bookmarks-content";
 import { QuickLinksAddFlow } from "@/components/quick-links/quick-links-add-flow";
 import { QuickLinksList } from "@/components/quick-links/quick-links-list";
@@ -127,6 +132,7 @@ export function QuickLinks({
                   onDeleteLink={previewController.deleteLink}
                   onMoveFloatingPreview={previewController.moveFloatingPreview}
                   onOpenFloatingPreview={previewController.openFloatingPreview}
+                  onReorder={previewController.handleReorder}
                   onScheduleFloatingPreviewClose={
                     previewController.scheduleFloatingPreviewClose
                   }
@@ -148,6 +154,13 @@ export function QuickLinks({
               <ContextMenuItem className="text-xs lowercase" disabled>
                 sorting
               </ContextMenuItem>
+              <ContextMenuRadioItem
+                className="text-xs lowercase"
+                value="manual"
+              >
+                <IconHandMove className="size-3.5" />
+                manual order
+              </ContextMenuRadioItem>
               <ContextMenuRadioItem
                 className="text-xs lowercase"
                 value="alphabetical-asc"
