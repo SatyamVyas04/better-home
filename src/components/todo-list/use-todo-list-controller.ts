@@ -62,7 +62,11 @@ export function useTodoListController() {
   const [groupDraftColor, setGroupDraftColor] =
     useState<TodoGroupColorName>("blue");
   const [holdingDelete, setHoldingDelete] = useState<string | null>(null);
+  const [holdingDeleteGroupId, setHoldingDeleteGroupId] = useState<
+    string | null
+  >(null);
   const holdTimeoutRef = useRef<number | null>(null);
+  const holdGroupDeleteTimeoutRef = useRef<number | null>(null);
   const textareaRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
 
   const runTodoAction = <T>(label: string, action: () => T): T =>
@@ -89,6 +93,9 @@ export function useTodoListController() {
     () => () => {
       if (holdTimeoutRef.current) {
         clearTimeout(holdTimeoutRef.current);
+      }
+      if (holdGroupDeleteTimeoutRef.current) {
+        clearTimeout(holdGroupDeleteTimeoutRef.current);
       }
     },
     []
@@ -160,7 +167,7 @@ export function useTodoListController() {
     closeTodoContextMenu();
   };
 
-  const deleteGroupAndClearTodos = (groupId: string) => {
+  const deleteGroup = (groupId: string) => {
     runTodoAction("delete todo group", () => {
       setTodoGroups((prev) => prev.filter((group) => group.id !== groupId));
       setTodos((prev) =>
@@ -307,6 +314,34 @@ export function useTodoListController() {
 
   const handleDeleteActivate = (id: string) => {
     if (quickDelete) deleteTodo(id);
+  };
+
+  const handleDeleteGroupMouseDown = (groupId: string) => {
+    setHoldingDeleteGroupId(groupId);
+    holdGroupDeleteTimeoutRef.current = window.setTimeout(() => {
+      deleteGroup(groupId);
+      setHoldingDeleteGroupId(null);
+      if (holdGroupDeleteTimeoutRef.current) {
+        clearTimeout(holdGroupDeleteTimeoutRef.current);
+        holdGroupDeleteTimeoutRef.current = null;
+      }
+    }, DELETE_HOLD_DURATION);
+  };
+
+  const handleDeleteGroupMouseUp = () => {
+    setHoldingDeleteGroupId(null);
+    if (holdGroupDeleteTimeoutRef.current) {
+      clearTimeout(holdGroupDeleteTimeoutRef.current);
+      holdGroupDeleteTimeoutRef.current = null;
+    }
+  };
+
+  const handleDeleteGroupPressStart = (groupId: string) => {
+    if (!quickDelete) handleDeleteGroupMouseDown(groupId);
+  };
+
+  const handleDeleteGroupActivate = (groupId: string) => {
+    if (quickDelete) deleteGroup(groupId);
   };
 
   const todoGroupsById = useMemo(
@@ -496,7 +531,7 @@ export function useTodoListController() {
     collapsedSections,
     completedCount,
     createGroupForTodo,
-    deleteGroupAndClearTodos,
+    deleteGroup,
     displayedTodos,
     editTodoText,
     editingTodoId,
@@ -509,6 +544,9 @@ export function useTodoListController() {
     groupedSections,
     groupsForContextMenu,
     handleDeleteActivate,
+    handleDeleteGroupActivate,
+    handleDeleteGroupMouseUp,
+    handleDeleteGroupPressStart,
     handleDeleteMouseUp,
     handleDeletePressStart,
     handleEditBlur,
@@ -520,6 +558,7 @@ export function useTodoListController() {
     handleTodoContextMenuOpenChange,
     hasActiveFilters,
     holdingDelete,
+    holdingDeleteGroupId,
     newTodo,
     quickDelete,
     resetGroupDraft,

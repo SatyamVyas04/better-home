@@ -41,7 +41,6 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     collapsedSections,
     completedCount,
     createGroupForTodo,
-    deleteGroupAndClearTodos,
     displayedTodos,
     editTodoText,
     editingTodoId,
@@ -54,6 +53,9 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     groupedSections,
     groupsForContextMenu,
     handleDeleteActivate,
+    handleDeleteGroupActivate,
+    handleDeleteGroupMouseUp,
+    handleDeleteGroupPressStart,
     handleDeleteMouseUp,
     handleDeletePressStart,
     handleEditBlur,
@@ -65,6 +67,7 @@ export function TodoList({ fullSize = false }: TodoListProps) {
     handleTodoContextMenuOpenChange,
     hasActiveFilters,
     holdingDelete,
+    holdingDeleteGroupId,
     newTodo,
     quickDelete,
     resetGroupDraft,
@@ -97,10 +100,13 @@ export function TodoList({ fullSize = false }: TodoListProps) {
       groupDraftName={groupDraftName}
       groupsForContextMenu={groupsForContextMenu}
       holdingDelete={holdingDelete}
+      holdingDeleteGroupId={holdingDeleteGroupId}
       key={todo.id}
       onAssignTodoGroup={assignTodoGroup}
       onCreateGroupForTodo={createGroupForTodo}
-      onDeleteGroupAndClearTodos={deleteGroupAndClearTodos}
+      onDeleteGroupMouseDown={handleDeleteGroupPressStart}
+      onDeleteGroupMouseUp={handleDeleteGroupMouseUp}
+      onDeleteGroupQuick={handleDeleteGroupActivate}
       onDeleteMouseDown={handleDeletePressStart}
       onDeleteMouseUp={handleDeleteMouseUp}
       onDeleteQuick={handleDeleteActivate}

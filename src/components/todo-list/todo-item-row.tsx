@@ -43,9 +43,12 @@ interface TodoItemRowProps {
   groupDraftName: string;
   groupsForContextMenu: TodoGroup[];
   holdingDelete: string | null;
+  holdingDeleteGroupId: string | null;
   onAssignTodoGroup: (todoId: string, groupId: string | null) => void;
   onCreateGroupForTodo: (todoId: string) => void;
-  onDeleteGroupAndClearTodos: (groupId: string) => void;
+  onDeleteGroupMouseDown: (groupId: string) => void;
+  onDeleteGroupMouseUp: () => void;
+  onDeleteGroupQuick: (groupId: string) => void;
   onDeleteMouseDown: (id: string) => void;
   onDeleteMouseUp: () => void;
   onDeleteQuick: (id: string) => void;
@@ -76,13 +79,18 @@ export function TodoItemRow({
   canReorder,
   editTodoText,
   editingTodoId,
+  getColorDisplayName,
+  getGroupColorVar,
   groupDraftColor,
   groupDraftName,
   groupsForContextMenu,
   holdingDelete,
+  holdingDeleteGroupId,
   onAssignTodoGroup,
   onCreateGroupForTodo,
-  onDeleteGroupAndClearTodos,
+  onDeleteGroupMouseDown,
+  onDeleteGroupMouseUp,
+  onDeleteGroupQuick,
   onDeleteMouseDown,
   onDeleteMouseUp,
   onDeleteQuick,
@@ -101,8 +109,6 @@ export function TodoItemRow({
   resetGroupDraft,
   todo,
   todoGroup,
-  getColorDisplayName,
-  getGroupColorVar,
 }: TodoItemRowProps) {
   const todoGroupColor = todoGroup
     ? getGroupColorVar(todoGroup.color)
@@ -310,65 +316,67 @@ export function TodoItemRow({
           group settings
         </ContextMenuItem>
         <div className="space-y-1.5 px-1 pb-1">
-          <Input
-            className="h-7 text-xs"
-            onChange={(event) => onSetGroupDraftName(event.target.value)}
-            onKeyDown={(event) => onGroupDraftKeyDown(event, todo.id)}
-            onPointerDown={(event) => event.stopPropagation()}
-            placeholder="new group name"
-            value={groupDraftName}
-          />
-          <div className="space-y-2 py-1">
-            <div className="flex flex-wrap items-center justify-center gap-3 px-2 py-1">
-              {TODO_GROUP_COLOR_NAMES.map((colorName) => {
-                const isActive = groupDraftColor === colorName;
-                return (
-                  <button
-                    aria-label={`select ${getColorDisplayName(colorName)} group color`}
-                    aria-pressed={isActive}
-                    className={cn(
-                      "size-6 rounded-full transition-all duration-300 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                      isActive && "scale-110"
-                    )}
-                    key={colorName}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onSetGroupDraftColor(colorName);
-                    }}
-                    onPointerDown={(event) => event.stopPropagation()}
-                    style={{
-                      backgroundColor: getGroupColorVar(colorName),
-                      boxShadow: isActive
-                        ? `0 0 0 2px var(--background), 0 0 0 4px ${getGroupColorVar(
-                            colorName
-                          )}`
-                        : undefined,
-                    }}
-                    type="button"
-                  >
-                    <span className="sr-only">
-                      {getColorDisplayName(colorName)}
-                    </span>
-                    {isActive && (
-                      <span className="pointer-events-none flex items-center justify-center">
-                        <IconCheck className="size-3 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.45)]" />
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+          <div className="flex gap-1">
+            <Input
+              className="h-7 flex-1 text-xs"
+              onChange={(event) => onSetGroupDraftName(event.target.value)}
+              onKeyDown={(event) => onGroupDraftKeyDown(event, todo.id)}
+              onPointerDown={(event) => event.stopPropagation()}
+              placeholder="new group name"
+              value={groupDraftName}
+            />
+            <Button
+              aria-label="Create group"
+              className="h-7 w-7"
+              disabled={!groupDraftName.trim()}
+              onClick={() => onCreateGroupForTodo(todo.id)}
+              onMouseDown={(event) => event.preventDefault()}
+              size="icon"
+              type="button"
+            >
+              <IconPlus className="size-3.5" />
+              <span className="sr-only">Create group</span>
+            </Button>
           </div>
-          <ContextMenuItem
-            className="h-8 w-full text-xs lowercase"
-            disabled={!groupDraftName.trim()}
-            onSelect={() => {
-              onCreateGroupForTodo(todo.id);
-            }}
-          >
-            <IconPlus className="size-3.5" />
-            create group
-          </ContextMenuItem>
+          <div className="flex flex-wrap items-center justify-center gap-3 px-2 py-1">
+            {TODO_GROUP_COLOR_NAMES.map((colorName) => {
+              const isActive = groupDraftColor === colorName;
+              return (
+                <button
+                  aria-label={`select ${getColorDisplayName(colorName)} group color`}
+                  aria-pressed={isActive}
+                  className={cn(
+                    "size-6 rounded-full transition-all duration-300 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    isActive && "scale-110"
+                  )}
+                  key={colorName}
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onSetGroupDraftColor(colorName);
+                  }}
+                  style={{
+                    backgroundColor: getGroupColorVar(colorName),
+                    boxShadow: isActive
+                      ? `0 0 0 2px var(--background), 0 0 0 4px ${getGroupColorVar(
+                          colorName
+                        )}`
+                      : undefined,
+                  }}
+                  type="button"
+                >
+                  <span className="sr-only">
+                    {getColorDisplayName(colorName)}
+                  </span>
+                  {isActive && (
+                    <span className="flex items-center justify-center">
+                      <IconCheck className="size-3 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.45)]" />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
           <div className="mt-1 max-h-36 overflow-y-auto rounded-md border border-border/60 p-1">
             <div className="flex items-center gap-1 rounded-sm p-0.5">
               <ContextMenuItem
@@ -385,6 +393,8 @@ export function TodoItemRow({
             </div>
             {groupsForContextMenu.map((group) => {
               const isSelected = todo.groupId === group.id;
+              const isHoldingThisGroup = holdingDeleteGroupId === group.id;
+
               return (
                 <div
                   className="flex items-center gap-1 rounded-sm p-0.5"
@@ -408,21 +418,53 @@ export function TodoItemRow({
                       {isSelected ? <IconCheck className="size-3.5" /> : null}
                     </span>
                   </ContextMenuItem>
-                  <button
-                    className="inline-flex size-7 items-center justify-center rounded-sm hover:bg-destructive/10"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      onDeleteGroupAndClearTodos(group.id);
-                    }}
-                    onPointerDown={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                    }}
-                    type="button"
-                  >
-                    <IconTrash className="size-3.5 text-destructive" />
-                  </button>
+                  <TooltipProvider>
+                    <Tooltip delayDuration={500}>
+                      <TooltipTrigger asChild>
+                        <button
+                          className="relative inline-flex size-7 shrink-0 items-center justify-center overflow-clip rounded-sm hover:bg-destructive/10"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            onDeleteGroupQuick(group.id);
+                          }}
+                          onPointerCancel={onDeleteGroupMouseUp}
+                          onPointerDown={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            onDeleteGroupMouseDown(group.id);
+                          }}
+                          onPointerLeave={onDeleteGroupMouseUp}
+                          onPointerUp={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            onDeleteGroupMouseUp();
+                          }}
+                          type="button"
+                        >
+                          {!quickDelete && (
+                            <div
+                              aria-hidden="true"
+                              className={cn(
+                                "absolute bottom-0 left-0 flex h-full w-full items-center justify-center bg-destructive text-destructive-foreground transition-[clip-path]",
+                                isHoldingThisGroup
+                                  ? "duration-1500 ease-linear [clip-path:inset(0px_0px_0px_0px)]"
+                                  : "duration-200 ease-out [clip-path:inset(100%_0px_0px_0px)]"
+                              )}
+                            >
+                              <IconTrash className="size-3.5" />
+                            </div>
+                          )}
+                          <IconTrash className="size-3.5 text-destructive" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs" side="right">
+                        <p className="lowercase">
+                          {quickDelete ? "delete" : "hold to delete"}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               );
             })}
