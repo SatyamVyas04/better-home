@@ -459,12 +459,11 @@ export async function readStorageMigrationState(): Promise<StorageMigrationState
 
 export async function ensureStorageMigration(): Promise<StorageMigrationState> {
   const existingState = await readStorageMigrationState();
+  const lastAttemptAt = new Date().toISOString();
 
   if (existingState?.completed) {
     return existingState;
   }
-
-  const lastAttemptAt = new Date().toISOString();
 
   try {
     for (const key of USER_STORAGE_KEYS) {

@@ -60,13 +60,15 @@ export function useQuickLinksImportController({
       const flattened: BookmarkImportItem[] = [];
 
       for (const node of nodes) {
+        const nodeTitle = node.title?.trim() ?? "";
+
         if (node.url) {
           const normalizedUrl = normalizeUrl(node.url);
           if (!isValidUrl(normalizedUrl)) {
             continue;
           }
 
-          const title = node.title?.trim() || extractTitle(normalizedUrl);
+          const title = nodeTitle || extractTitle(normalizedUrl);
           const location = path.length > 0 ? path.join(" / ") : "other";
 
           flattened.push({
@@ -79,12 +81,13 @@ export function useQuickLinksImportController({
           continue;
         }
 
-        if (!node.children?.length) {
+        const children = node.children;
+        if (!children || children.length === 0) {
           continue;
         }
 
-        const nextPath = node.title?.trim() ? [...path, node.title] : path;
-        flattened.push(...flattenBookmarkTree(node.children, nextPath));
+        const nextPath = nodeTitle ? [...path, nodeTitle] : path;
+        flattened.push(...flattenBookmarkTree(children, nextPath));
       }
 
       return flattened;
@@ -93,7 +96,9 @@ export function useQuickLinksImportController({
   );
 
   const fetchBookmarks = useCallback(async () => {
-    if (typeof chrome === "undefined" || !chrome.bookmarks?.getTree) {
+    const getTree =
+      typeof chrome !== "undefined" ? chrome.bookmarks?.getTree : undefined;
+    if (!getTree) {
       setImportError("bookmarks are not available in this context");
       setBookmarkOptions([]);
       setSelectedBookmarkIds([]);
@@ -106,13 +111,11 @@ export function useQuickLinksImportController({
     try {
       const bookmarkTree = await new Promise<ChromeBookmarkNode[]>(
         (resolve, reject) => {
-          chrome.bookmarks?.getTree((nodes) => {
-            if (chrome.runtime?.lastError) {
+          getTree((nodes) => {
+            const lastError = chrome.runtime?.lastError;
+            if (lastError) {
               reject(
-                new Error(
-                  chrome.runtime.lastError.message ??
-                    "unable to read bookmark tree"
-                )
+                new Error(lastError.message ?? "unable to read bookmark tree")
               );
               return;
             }

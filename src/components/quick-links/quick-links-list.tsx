@@ -36,6 +36,7 @@ import { EASE_OUT } from "@/constants/quick-links";
 import {
   getPreviewPlatform,
   type LinkPreviewCacheEntry,
+  type LinkPreviewPlatform,
 } from "@/lib/link-preview";
 import { buildPreviewDescriptionText } from "@/lib/quick-links-preview-utils";
 import type { QuickLink, QuickLinksListProps } from "@/types/quick-links";
@@ -74,6 +75,36 @@ interface CompactCardContentProps {
   previewImageUrl?: string;
 }
 
+interface QuickLinkDisplay {
+  description: string;
+  displayTitle: string;
+  imageUrl: string;
+  metadataTitle: string;
+  platform: LinkPreviewPlatform;
+  siteName: string;
+}
+
+function getQuickLinkDisplay(
+  link: QuickLink,
+  previewEntry?: LinkPreviewCacheEntry
+): QuickLinkDisplay {
+  const siteName = previewEntry?.siteName || getDomainLabel(link.url);
+  const metadataTitle = previewEntry?.title || siteName || "bookmark";
+  const displayTitle = link.title || metadataTitle || "saved link";
+  const description = previewEntry?.description || "";
+  const imageUrl = previewEntry?.imageDataUrl || previewEntry?.imageUrl || "";
+  const platform = previewEntry?.platform || getPreviewPlatform(link.url);
+
+  return {
+    description,
+    displayTitle,
+    imageUrl,
+    metadataTitle,
+    platform,
+    siteName,
+  };
+}
+
 function CompactCardContent({
   isDragging = false,
   isOverlay = false,
@@ -85,16 +116,12 @@ function CompactCardContent({
   previewEntry,
   previewImageUrl,
 }: CompactCardContentProps) {
-  const previewSiteName = previewEntry?.siteName || getDomainLabel(link.url);
-  const previewMetadataTitle =
-    previewEntry?.title || previewSiteName || "bookmark";
-  const previewDisplayTitle =
-    link.title || previewMetadataTitle || "saved link";
+  const linkDisplay = getQuickLinkDisplay(link, previewEntry);
   const previewDescriptionText = buildPreviewDescriptionText({
     customTitle: link.title,
-    description: previewEntry?.description || "",
-    metadataTitle: previewMetadataTitle,
-    siteName: previewSiteName,
+    description: linkDisplay.description,
+    metadataTitle: linkDisplay.metadataTitle,
+    siteName: linkDisplay.siteName,
     url: link.url,
   });
   const hasPreviewImage = Boolean(previewImageUrl);
@@ -122,7 +149,7 @@ function CompactCardContent({
         <div className="relative aspect-[1.91/1] overflow-hidden border-border/35 border-b bg-muted/25">
           {hasPreviewImage && !isPreviewImageMarkedFailed ? (
             <img
-              alt={previewDisplayTitle}
+              alt={linkDisplay.displayTitle}
               className="h-full w-full object-cover object-center"
               decoding="async"
               draggable={false}
@@ -135,8 +162,8 @@ function CompactCardContent({
           ) : (
             <PreviewFallbackMedia
               favicon={link.favicon}
-              platform={previewEntry?.platform || getPreviewPlatform(link.url)}
-              title={previewDisplayTitle}
+              platform={linkDisplay.platform}
+              title={linkDisplay.displayTitle}
             />
           )}
 
@@ -149,7 +176,7 @@ function CompactCardContent({
           ) : null}
 
           <p className="absolute right-1.5 bottom-1.5 left-1.5 truncate rounded bg-black/42 px-1.5 py-0.5 text-[9px] text-white/92 normal-case backdrop-blur-[1px]">
-            {previewSiteName}
+            {linkDisplay.siteName}
           </p>
         </div>
 
@@ -157,7 +184,7 @@ function CompactCardContent({
           <div className="flex items-center gap-1.5">
             {link.favicon ? (
               <img
-                alt={previewDisplayTitle}
+                alt={linkDisplay.displayTitle}
                 className="size-3.5 shrink-0"
                 draggable={false}
                 height={14}
@@ -169,7 +196,7 @@ function CompactCardContent({
               <IconExternalLink className="size-3.5 shrink-0 text-muted-foreground" />
             )}
             <p className="min-w-0 flex-1 overflow-hidden text-[11px] normal-case leading-3.5 tracking-tight [-webkit-box-orient:vertical] [-webkit-line-clamp:1] [display:-webkit-box]">
-              {previewDisplayTitle}
+              {linkDisplay.displayTitle}
             </p>
           </div>
           <p className="h-7 min-w-0 overflow-hidden text-[10px] text-muted-foreground/80 normal-case leading-3.5 tracking-normal [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [display:-webkit-box]">
@@ -580,10 +607,12 @@ export function QuickLinksList({
   const activeOverlayPreviewEntry = activeOverlayComparableUrl
     ? previewCache[activeOverlayComparableUrl]
     : undefined;
-  const activeOverlayPreviewImageUrl =
-    activeOverlayPreviewEntry?.imageDataUrl ||
-    activeOverlayPreviewEntry?.imageUrl ||
-    "";
+  const activeOverlayDisplay = activeDragLink
+    ? getQuickLinkDisplay(activeDragLink, activeOverlayPreviewEntry)
+    : null;
+  const activeOverlayPreviewImageUrl = activeOverlayDisplay
+    ? activeOverlayDisplay.imageUrl
+    : "";
   const isActiveOverlayPreviewImageFailed = Boolean(
     activeOverlayPreviewImageUrl &&
       failedPreviewImageUrls[activeOverlayPreviewImageUrl]

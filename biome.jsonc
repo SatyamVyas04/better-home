@@ -8,5 +8,12 @@
       }
     },
     "includes": ["!@components/ui"]
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "useSortedKeys": "off"
+      }
+    }
   }
 }

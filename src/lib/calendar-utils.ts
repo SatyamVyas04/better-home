@@ -72,7 +72,7 @@ export const QUADRIMESTERS = [
   { label: "Jan - Apr", months: [0, 1, 2, 3] },
   { label: "May - Aug", months: [4, 5, 6, 7] },
   { label: "Sep - Dec", months: [8, 9, 10, 11] },
-];
+] as const;
 
 export function generateCalendarData(
   startDay: number,

@@ -332,17 +332,18 @@ function appendRecentQuoteKey(quoteKey: string, historyLimit: number): void {
 function pickQuote(
   quotePool: ResolvedQuoteEntry[],
   recentQuoteKeys: string[],
-  previousQuoteKey?: string
+  previousQuoteKey?: string | null
 ): ResolvedQuoteEntry {
   const normalizedPool = quotePool;
+  const fallbackQuote: ResolvedQuoteEntry = normalizedPool[0] ?? {
+    key: "fallback:empty-pool",
+    source: "authors",
+    text: "add quotes to start the rotation.",
+    attribution: "better-home",
+  };
 
   if (normalizedPool.length === 0) {
-    return {
-      key: "fallback:empty-pool",
-      source: "authors",
-      text: "add quotes to start the rotation.",
-      attribution: "better-home",
-    };
+    return fallbackQuote;
   }
 
   const recentQuoteKeySet = new Set(recentQuoteKeys);
@@ -366,7 +367,7 @@ function pickQuote(
     );
 
     // When every quote has been seen recently, pick the least recently seen quote.
-    let leastRecentlySeenQuote = candidatePool[0] ?? normalizedPool[0];
+    let leastRecentlySeenQuote = candidatePool[0] ?? fallbackQuote;
     let maxRecencyIndex = -1;
 
     for (const candidateQuote of candidatePool) {
@@ -386,7 +387,7 @@ function pickQuote(
   }
 
   const randomIndex = Math.floor(Math.random() * randomPool.length);
-  return randomPool[randomIndex] ?? normalizedPool[0];
+  return randomPool[randomIndex] ?? fallbackQuote;
 }
 
 function getQuoteRotationIntervalMs(quoteText: string): number {
@@ -644,7 +645,7 @@ export function QuotesProvider({ children }: { children: ReactNode }) {
     const selectedQuote = pickQuote(
       quotePool,
       readRecentQuoteKeys(),
-      window.localStorage.getItem(LAST_QUOTE_STORAGE_KEY) ?? undefined
+      window.localStorage.getItem(LAST_QUOTE_STORAGE_KEY)
     );
 
     return selectedQuote;
@@ -655,14 +656,43 @@ export function QuotesProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const rotationTimer = window.setTimeout(() => {
-      setActiveQuote((previousQuote) =>
-        pickQuote(quotePool, readRecentQuoteKeys(), previousQuote.key)
-      );
-    }, getQuoteRotationIntervalMs(activeQuote.text));
+    let rotationTimer: number | null = null;
+
+    const clearExistingTimer = () => {
+      if (rotationTimer !== null) {
+        window.clearTimeout(rotationTimer);
+        rotationTimer = null;
+      }
+    };
+
+    const scheduleNextRotation = () => {
+      clearExistingTimer();
+
+      if (document.hidden) {
+        return;
+      }
+
+      rotationTimer = window.setTimeout(() => {
+        setActiveQuote((previousQuote) =>
+          pickQuote(quotePool, readRecentQuoteKeys(), previousQuote.key)
+        );
+      }, getQuoteRotationIntervalMs(activeQuote.text));
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        clearExistingTimer();
+      } else {
+        scheduleNextRotation();
+      }
+    };
+
+    scheduleNextRotation();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      window.clearTimeout(rotationTimer);
+      clearExistingTimer();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [activeQuote.text, quotePool]);
 

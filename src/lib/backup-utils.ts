@@ -196,8 +196,8 @@ function buildRestorePreviewHint(
 
   if (changedStorageAreas.length === 0) {
     return {
-      summary: "This version already matches your current data.",
       details: ["Undo/restore would not change anything right now."],
+      summary: "This version already matches your current data.",
     };
   }
 
@@ -220,8 +220,8 @@ function buildRestorePreviewHint(
   }
 
   return {
-    summary: `Restoring this version will update ${changedStorageAreas.length} area${changedStorageAreas.length === 1 ? "" : "s"}.`,
     details: detailLines,
+    summary: `Restoring this version will update ${changedStorageAreas.length} area${changedStorageAreas.length === 1 ? "" : "s"}.`,
   };
 }
 
@@ -231,9 +231,9 @@ function updateBackupStatus(
   detail?: string
 ): void {
   const status: BackupStatus = {
+    source,
     state,
     updatedAt: new Date().toISOString(),
-    source,
   };
   if (detail) {
     status.detail = detail;
@@ -296,21 +296,21 @@ async function readBackupReadiness(): Promise<{
 
   if (!locationStatus.configured) {
     return {
-      ready: false,
       detail: "select backup location first",
+      ready: false,
     };
   }
 
   if (locationStatus.needsReauthorization) {
     return {
-      ready: false,
       detail: "reauthorize backup location",
+      ready: false,
     };
   }
 
   return {
-    ready: true,
     detail: "ready",
+    ready: true,
   };
 }
 
@@ -521,12 +521,12 @@ export async function readBackupHistoryState(
   const currentBackup = await createBackup();
 
   return {
+    canUndoLastRestore: shouldEnableUndo(snapshots, currentBackup),
     snapshots: snapshots.slice(0, limit).map((snapshot) => ({
       id: snapshot.id,
-      createdAt: snapshot.createdAt,
       reason: snapshot.reason,
+      createdAt: snapshot.createdAt,
     })),
-    canUndoLastRestore: shouldEnableUndo(snapshots, currentBackup),
   };
 }
 
