@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased](https://github.com/SatyamVyas04/better-home/compare/v2.0.3...HEAD)
+
+### Features
+
+* pause quote rotation when tab is hidden ([b4e092b](https://github.com/SatyamVyas04/better-home/commit/b4e092b84d9d21192db71bbff7c6abb978e24c74))
+* implement drag-and-drop reordering for quick links ([ce0c660](https://github.com/SatyamVyas04/better-home/commit/ce0c660f98dd1b4b367d967ca3739a20433645d5))
+* add Shift+Enter shortcut to bypass title edit stage ([6ce4aaa](https://github.com/SatyamVyas04/better-home/commit/6ce4aaa1b889d311d7fadcd961d315763e3561de))
+* consistent group delete button behaviour ([82ee416](https://github.com/SatyamVyas04/better-home/commit/82ee416bcc107c23d5ce5f001195af6e79c1bfd2))
+* add quick delete option and persistent star indicator to todo list ([00e26ac](https://github.com/SatyamVyas04/better-home/commit/00e26acd3b6b0541280f723238626f6be5645332))
+
 ## [2.0.3](https://github.com/SatyamVyas04/better-home/compare/v2.0.2...v2.0.3) (2026-06-23)
 
 ### Bug Fixes
