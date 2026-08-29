@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.1.0](https://github.com/SatyamVyas04/better-home/compare/v2.0.3...v2.1.0) (2026-08-29)
+
+### Features
+
+* add quick delete option and persistent star indicator to todo list ([08f61ac](https://github.com/SatyamVyas04/better-home/commit/08f61ac4c868956c4c83f7f62ec760a17cca6e64))
+* implement drag-and-drop reordering for quick links ([1fc013f](https://github.com/SatyamVyas04/better-home/commit/1fc013f8869eba53381a5ab836bc8e686d70832c))
+* pause quote rotation when tab is hidden ([b4e092b](https://github.com/SatyamVyas04/better-home/commit/b4e092b84d9d21192db71bbff7c6abb978e24c74))
+* **quick-links:** add Shift+Enter shortcut to bypass title edit stage ([6ce4aaa](https://github.com/SatyamVyas04/better-home/commit/6ce4aaa1b889d311d7fadcd961d315763e3561de))
+* **todo-list:** consistent group delete button behaviour ([82ee416](https://github.com/SatyamVyas04/better-home/commit/82ee416bcc107c23d5ce5f001195af6e79c1bfd2))
+* use dnd-kit for 2D grid drag-and-drop reordering in quick links ([437211c](https://github.com/SatyamVyas04/better-home/commit/437211cacf8bdd86ec704fc76a6f5cdda63dd170))
+
+### Bug Fixes
+
+* update better-home version meta tag format in sync-manifest.js ([4d78053](https://github.com/SatyamVyas04/better-home/commit/4d7805392db843243256f89767d0cf8cc0c7e976))
+
 ## [Unreleased](https://github.com/SatyamVyas04/better-home/compare/v2.0.3...HEAD)
 
 ### Features
