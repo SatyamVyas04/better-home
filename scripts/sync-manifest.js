@@ -4,7 +4,7 @@ const POPUP_PATH = "./popup.html";
 const MANIFEST_PATH = "./public/manifest.json";
 const EXTENSION_STORAGE_PATH = "./src/lib/extension-storage.ts";
 const POPUP_VERSION_META_PATTERN =
-  /<meta name="better-home-version" content="[^"]+">/;
+  /<meta content="[^"]+" name="better-home-version">/;
 const APP_VERSION_PATTERN = /export const APP_VERSION = "[^"]+";/;
 
 const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
@@ -19,7 +19,7 @@ if (!POPUP_VERSION_META_PATTERN.test(popupHtml)) {
 
 const nextPopupHtml = popupHtml.replace(
   POPUP_VERSION_META_PATTERN,
-  `<meta name="better-home-version" content="${pkg.version}">`
+  `<meta content="${pkg.version}" name="better-home-version">`
 );
 
 if (nextPopupHtml !== popupHtml) {
