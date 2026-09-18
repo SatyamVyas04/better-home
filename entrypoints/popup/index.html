@@ -20,9 +20,25 @@
     <meta content="2.1.0" name="better-home-version">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>better-home</title>
+    <style>
+    html,
+    body {
+      width: 320px;
+      min-width: 320px;
+      min-height: 520px;
+      padding: 0;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    #popup-root {
+      width: 320px;
+      min-width: 320px;
+      min-height: 520px;
+    }
+    </style>
   </head>
-  <body style="width: fit-content;">
+  <body>
     <div id="popup-root"></div>
-    <script src="/src/popup.tsx" type="module"></script>
+    <script src="./main.tsx" type="module"></script>
   </body>
 </html>

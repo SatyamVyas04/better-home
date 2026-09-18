@@ -1,0 +1,47 @@
+{
+  "appName": {
+    "message": "better-home"
+  },
+  "appDescription": {
+    "message": "A minimal, delightful new-tab replacement with tasks, quick links, and a mood calendar."
+  },
+  "tasksTitle": {
+    "message": "Tasks"
+  },
+  "quickLinksTitle": {
+    "message": "Quick Links"
+  },
+  "moodCalendarTitle": {
+    "message": "Mood Calendar"
+  },
+  "quotesTitle": {
+    "message": "Quotes"
+  },
+  "settingsTitle": {
+    "message": "Settings"
+  },
+  "themeLight": {
+    "message": "Light"
+  },
+  "themeDark": {
+    "message": "Dark"
+  },
+  "themeSystem": {
+    "message": "System"
+  },
+  "saveAction": {
+    "message": "Save"
+  },
+  "cancelAction": {
+    "message": "Cancel"
+  },
+  "deleteAction": {
+    "message": "Delete"
+  },
+  "addAction": {
+    "message": "Add"
+  },
+  "closeAction": {
+    "message": "Close"
+  }
+}

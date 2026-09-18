@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.output
+.wxt
 *.local
 package-lock.json
 
@@ -28,4 +30,4 @@ package-lock.json
 .env
 
 # Release artifacts
-release/
+release/

@@ -13,7 +13,6 @@ const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 const version = pkg.version;
 const name = pkg.name;
 
-const distDir = "dist";
 const releaseDir = "release";
 
 // Clean up old release artifacts
@@ -25,6 +24,10 @@ mkdirSync(releaseDir, { recursive: true });
 // Build the project
 console.log("[build] Building project...");
 execSync("bun run build", { stdio: "inherit" });
+
+const distDir = existsSync(join("dist", "chrome-mv3"))
+  ? join("dist", "chrome-mv3")
+  : "dist";
 
 if (!existsSync(distDir)) {
   console.error("[error] Build failed: dist folder not found");
