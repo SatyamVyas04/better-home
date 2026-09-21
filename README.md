@@ -4,11 +4,12 @@
 
 https://github.com/user-attachments/assets/39b9ee4d-2ef4-41a9-99c7-2e432873db2d
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)](https://github.com/SatyamVyas04/better-home/releases)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue?style=flat-square)](https://github.com/SatyamVyas04/better-home/releases)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev)
+[![WXT](https://img.shields.io/badge/WXT-0.21-FF5A54?style=flat-square&logo=wxt&logoColor=white)](https://wxt.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Bun](https://img.shields.io/badge/Bun-Package%20Manager-FBF0DF?style=flat-square&logo=bun&logoColor=black)](https://bun.sh)
 
 **A minimal, delightful new-tab replacement for Chromium-based browsers.  
@@ -68,7 +69,7 @@ curl -fsSL https://bun.sh/install | bash
 powershell -c "irm bun.sh/install.ps1 | iex"
 ```
 
-**Or via npm (if you have Node.js):**
+**Or via npm (if you already have Node.js):**
 ```bash
 npm install -g bun
 ```
@@ -79,19 +80,19 @@ npm install -g bun
 ### From Source (Development)
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/SatyamVyas04/better-home.git
 cd better-home
 
-# Install dependencies
+# 2. Install dependencies (runs 'wxt prepare' automatically via postinstall)
 bun install
 
-# Build the extension
+# 3. Build the extension
 bun run build
 ```
 
 > [!NOTE]
-> The production build outputs to the `dist/` folder.
+> Production builds are bundled to the `dist/chrome-mv3/` directory (or `dist/chrome-mv3-dev/` during development).
 
 ### Compatible Browsers
 
@@ -102,7 +103,7 @@ This extension is compatible with Chromium-based browsers, including Chrome, Edg
 1. Navigate to `chrome://extensions`
 2. Enable **Developer mode** (toggle in the top-right corner)
 3. Click **Load unpacked**
-4. Select the `dist` folder
+4. Select the `dist/chrome-mv3` folder (or `dist/chrome-mv3-dev` if developing)
 5. Open a **new tab** - welcome home!
 
 #### Edge
@@ -110,7 +111,7 @@ This extension is compatible with Chromium-based browsers, including Chrome, Edg
 1. Navigate to `edge://extensions`
 2. Enable **Developer mode** (toggle in the bottom-left corner)
 3. Click **Load unpacked**
-4. Select the `dist` folder
+4. Select the `dist/chrome-mv3` folder
 5. Open a **new tab** - welcome home!
 
 #### Brave
@@ -133,8 +134,7 @@ Spin up a local dev server with hot reload:
 bun run dev
 ```
 
-> [!WARNING]
-> Hot reload works in the browser preview (`localhost:5173`), but to test the full extension experience you must rebuild and reload the extension after code changes.
+WXT builds the extension in development mode with active source maps and hot reloading. Load the generated `dist/chrome-mv3-dev` folder as an unpacked extension once, and changes to components, styles, or entrypoints will reload seamlessly.
 
 ---
 
@@ -301,12 +301,14 @@ Extension storage can behave differently in certain scenarios.
 
 | Technology | Purpose |
 |------------|---------|
-| [React 19](https://react.dev) | UI framework |
-| [TypeScript 5.9](https://www.typescriptlang.org) | Type safety |
+| [WXT](https://wxt.dev) | Next-Gen Web Extension Framework & Manifest V3 bundler |
+| [React 19](https://react.dev) | UI Framework |
+| [TypeScript 6](https://www.typescriptlang.org) | Type safety |
 | [Vite 7](https://vite.dev) | Lightning-fast bundler |
 | [Tailwind CSS 4](https://tailwindcss.com) | Utility-first styling |
 | [shadcn/ui](https://ui.shadcn.com) | Accessible, beautiful components |
 | [Motion](https://motion.dev) | Smooth animations |
+| [@dnd-kit](https://dndkit.com) | 2D accessible drag-and-drop toolkit |
 | [Tabler Icons](https://tabler.io/icons) | Crisp iconography |
 | [Bun](https://bun.sh) | Ultra-fast package manager & runtime |
 | [Biome](https://biomejs.dev) | Linting & formatting (via Ultracite preset) |
@@ -324,7 +326,7 @@ Contributions, issues, and feature requests are welcome!
 5. **Open** a Pull Request
 
 > [!NOTE]
-> Please run `bun run lint` and `bun run build` before submitting to ensure your code passes all checks.
+> Please run `bun run lint` and `bun run build` to verify checks before submitting a PR.
 
 ---
 
