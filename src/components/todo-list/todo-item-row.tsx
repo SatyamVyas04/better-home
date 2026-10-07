@@ -146,7 +146,12 @@ export function TodoItemRow({
           }}
           value={todo}
         >
-          <div className="group mr-px flex items-center gap-1 rounded-md border border-border/50 px-1.5 py-1 transition-[background-color,border-color] focus-within:bg-accent/30 hover:bg-accent/30">
+          <div
+            className={cn(
+              "group mr-px flex items-center gap-1 rounded-md border border-border/50 px-1.5 py-1 transition-[background-color,border-color] hover:bg-accent/30 has-[:focus-visible]:bg-accent/30",
+              isEditing && "bg-accent/30"
+            )}
+          >
             <div
               className={
                 canReorder
@@ -188,13 +193,13 @@ export function TodoItemRow({
                 value={isEditing ? editTodoText : todo.text}
               />
             </div>
-            <div className="ml-auto flex items-center gap-1 pl-1">
+            <div className="group/actions ml-auto flex items-center gap-1 pl-1">
               <AnimatePresence mode="wait">
                 {todo.important ? (
                   <motion.button
                     animate={{ filter: "blur(0px)", opacity: 1, scale: 1 }}
                     aria-label="Unmark important"
-                    className="relative -my-0.75 flex size-6 translate-x-6 transform items-center justify-center rounded-sm transition-transform group-focus-within:translate-x-0 group-hover:translate-x-0 group-active:translate-x-0 hover:bg-accent/50"
+                    className="relative -my-0.75 flex size-6 translate-x-6 transform items-center justify-center rounded-sm transition-transform group-has-focus-visible/actions:translate-x-0 group-hover:translate-x-0 group-active:translate-x-0 focus-visible:translate-x-0 hover:bg-accent/50"
                     exit={{ filter: "blur(4px)", opacity: 0, scale: 0.8 }}
                     initial={{ filter: "blur(4px)", opacity: 0, scale: 0.8 }}
                     key="star-filled"
@@ -207,7 +212,7 @@ export function TodoItemRow({
                 ) : (
                   <Button
                     aria-label="Mark important"
-                    className="relative -my-0.75 size-6 translate-x-6 transform opacity-0 transition-all group-focus-within:translate-x-0 group-focus-within:opacity-100 group-hover:translate-x-0 group-hover:opacity-100 group-active:translate-x-0 group-active:opacity-100"
+                    className="relative -my-0.75 size-6 translate-x-6 transform opacity-0 transition-all group-has-focus-visible/actions:translate-x-0 group-has-focus-visible/actions:opacity-100 group-hover:translate-x-0 group-hover:opacity-100 group-active:translate-x-0 group-active:opacity-100 focus-visible:translate-x-0 focus-visible:opacity-100"
                     onClick={() => onToggleImportant(todo.id)}
                     size="icon-sm"
                     variant="ghost"
@@ -221,7 +226,7 @@ export function TodoItemRow({
                 <Tooltip delayDuration={500}>
                   <TooltipTrigger asChild>
                     <Button
-                      className="relative -my-0.75 size-6 translate-x-6 transform overflow-clip opacity-0 transition-all group-focus-within:translate-x-0 group-focus-within:opacity-100 group-hover:translate-x-0 group-hover:opacity-100 group-active:translate-x-0 group-active:opacity-100"
+                      className="relative -my-0.75 size-6 translate-x-6 transform overflow-clip opacity-0 transition-all group-has-focus-visible/actions:translate-x-0 group-has-focus-visible/actions:opacity-100 group-hover:translate-x-0 group-hover:opacity-100 group-active:translate-x-0 group-active:opacity-100 focus-visible:translate-x-0 focus-visible:opacity-100"
                       onClick={() => onDeleteQuick(todo.id)}
                       onMouseDown={() => onDeleteMouseDown(todo.id)}
                       onMouseLeave={onDeleteMouseUp}
