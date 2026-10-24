@@ -34,7 +34,7 @@ export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   react: {
     vite: {
-      compiler: { logDiagnostics: true },
+      compiler: true,
     },
   },
   outDir: "dist",
