@@ -27,16 +27,37 @@ export function useLocalStorage<T>(
     }
   }, []);
 
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    const localStorageValue = readLocalStorageRaw(key);
-    return parseStoredValue(localStorageValue);
+  const [initialSnapshot] = useState(() => {
+    const rawValue = readLocalStorageRaw(key);
+    return {
+      parsedValue: parseStoredValue(rawValue),
+      rawValue,
+    };
   });
+
+  const [storedValue, setStoredValue] = useState<T>(
+    initialSnapshot.parsedValue
+  );
   const storedValueRef = useRef(storedValue);
+
+  const currentRawValueRef = useRef<string | null>(initialSnapshot.rawValue);
 
   const updateStoredValue = useCallback((nextValue: T) => {
     storedValueRef.current = nextValue;
     setStoredValue(nextValue);
   }, []);
+
+  const applyExternalRawValue = useCallback(
+    (rawValue: string | null) => {
+      if (rawValue === currentRawValueRef.current) {
+        return;
+      }
+
+      currentRawValueRef.current = rawValue;
+      updateStoredValue(parseStoredValue(rawValue));
+    },
+    [parseStoredValue, updateStoredValue]
+  );
 
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
@@ -46,23 +67,29 @@ export function useLocalStorage<T>(
           ? (value as (prev: T) => T)(previousValue)
           : value;
 
-      updateStoredValue(valueToStore);
-
+      let serializedValue: string;
       try {
-        const serializedValue = JSON.stringify(valueToStore);
-        writeAppStorageRaw(key, serializedValue).catch(() => null);
-        captureUserIntentMutation(key, previousValue, valueToStore);
-        queueAutosaveBackup();
+        serializedValue = JSON.stringify(valueToStore);
       } catch {
         return;
       }
+
+      if (serializedValue === currentRawValueRef.current) {
+        if (!Object.is(storedValueRef.current, valueToStore)) {
+          updateStoredValue(valueToStore);
+        }
+        return;
+      }
+
+      currentRawValueRef.current = serializedValue;
+      updateStoredValue(valueToStore);
+
+      writeAppStorageRaw(key, serializedValue).catch(() => null);
+      captureUserIntentMutation(key, previousValue, valueToStore);
+      queueAutosaveBackup();
     },
     [key, updateStoredValue]
   );
-
-  useEffect(() => {
-    storedValueRef.current = storedValue;
-  }, [storedValue]);
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -70,14 +97,14 @@ export function useLocalStorage<T>(
         return;
       }
 
-      updateStoredValue(parseStoredValue(e.newValue));
+      applyExternalRawValue(e.newValue);
     };
 
     const syncWithChromeStorage = async () => {
       const chromeStorageValue = await readAppStorageRaw(key);
 
       if (chromeStorageValue) {
-        updateStoredValue(parseStoredValue(chromeStorageValue));
+        applyExternalRawValue(chromeStorageValue);
         return;
       }
 
@@ -104,7 +131,7 @@ export function useLocalStorage<T>(
           typeof valueChange.newValue === "string"
             ? valueChange.newValue
             : null;
-        updateStoredValue(parseStoredValue(nextRawValue));
+        applyExternalRawValue(nextRawValue);
       }
     );
 
@@ -114,7 +141,7 @@ export function useLocalStorage<T>(
           return;
         }
 
-        updateStoredValue(parseStoredValue(rawValue));
+        applyExternalRawValue(rawValue);
       }
     );
 
@@ -125,7 +152,7 @@ export function useLocalStorage<T>(
       unsubscribeFromChromeStorage();
       unsubscribeFromAppStorage();
     };
-  }, [key, parseStoredValue, updateStoredValue]);
+  }, [applyExternalRawValue, key]);
 
   return [storedValue, setValue];
 }
