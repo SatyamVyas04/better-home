@@ -4,7 +4,7 @@ import {
   IconHeart,
   IconRefresh,
 } from "@tabler/icons-react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { FooterQuote, QuotesProvider } from "@/components/quotes/quotes-widget";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
@@ -174,66 +174,85 @@ function App() {
   }, []);
 
   const layoutKey = getLayoutKey(settings);
-
-  const layouts: Record<LayoutKey, React.ReactNode> = {
-    none: (
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-muted-foreground text-sm lowercase">
-          no widgets enabled *_*
-        </p>
-      </div>
-    ),
-    tasks: (
-      <div className="flex min-h-0 flex-1">{renderWidget("tasks", "full")}</div>
-    ),
-    links: (
-      <div className="flex min-h-0 flex-1">
-        {renderWidget("quick-links", "compact-full")}
-      </div>
-    ),
-    calendar: (
-      <div className="flex min-h-0 flex-1">{renderWidget("calendar")}</div>
-    ),
-    "tasks-links": (
-      <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
-        <div className="flex min-h-0 flex-1">
-          {renderWidget("tasks", "full")}
-        </div>
-        <div className="flex min-h-0 flex-1">
-          {renderWidget("quick-links", "compact-split")}
-        </div>
-      </div>
-    ),
-    "tasks-calendar": (
-      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-        <div className="flex min-h-0 shrink-0">{renderWidget("tasks")}</div>
-        <div className="flex min-h-0 min-w-0 flex-1">
-          {renderWidget("calendar")}
-        </div>
-      </div>
-    ),
-    "links-calendar": (
-      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-        <div className="flex min-h-0 shrink-0">
-          {renderWidget("quick-links", "expanded")}
-        </div>
-        <div className="flex min-h-0 min-w-0 flex-1">
-          {renderWidget("calendar")}
-        </div>
-      </div>
-    ),
-    all: (
-      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-        <div className="flex min-h-0 shrink-0 flex-col gap-3">
-          {renderWidget("tasks")}
-          {renderWidget("quick-links")}
-        </div>
-        <div className="flex min-h-0 min-w-0 flex-1">
-          {renderWidget("calendar")}
-        </div>
-      </div>
-    ),
-  };
+  const layout = useMemo(() => {
+    switch (layoutKey) {
+      case "tasks": {
+        return (
+          <div className="flex min-h-0 flex-1">
+            {renderWidget("tasks", "full")}
+          </div>
+        );
+      }
+      case "links": {
+        return (
+          <div className="flex min-h-0 flex-1">
+            {renderWidget("quick-links", "compact-full")}
+          </div>
+        );
+      }
+      case "calendar": {
+        return (
+          <div className="flex min-h-0 flex-1">{renderWidget("calendar")}</div>
+        );
+      }
+      case "tasks-links": {
+        return (
+          <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
+            <div className="flex min-h-0 flex-1">
+              {renderWidget("tasks", "full")}
+            </div>
+            <div className="flex min-h-0 flex-1">
+              {renderWidget("quick-links", "compact-split")}
+            </div>
+          </div>
+        );
+      }
+      case "tasks-calendar": {
+        return (
+          <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+            <div className="flex min-h-0 shrink-0">{renderWidget("tasks")}</div>
+            <div className="flex min-h-0 min-w-0 flex-1">
+              {renderWidget("calendar")}
+            </div>
+          </div>
+        );
+      }
+      case "links-calendar": {
+        return (
+          <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+            <div className="flex min-h-0 shrink-0">
+              {renderWidget("quick-links", "expanded")}
+            </div>
+            <div className="flex min-h-0 min-w-0 flex-1">
+              {renderWidget("calendar")}
+            </div>
+          </div>
+        );
+      }
+      case "all": {
+        return (
+          <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+            <div className="flex min-h-0 shrink-0 flex-col gap-3">
+              {renderWidget("tasks")}
+              {renderWidget("quick-links")}
+            </div>
+            <div className="flex min-h-0 min-w-0 flex-1">
+              {renderWidget("calendar")}
+            </div>
+          </div>
+        );
+      }
+      default: {
+        return (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-muted-foreground text-sm lowercase">
+              no widgets enabled *_*
+            </p>
+          </div>
+        );
+      }
+    }
+  }, [layoutKey]);
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
@@ -262,9 +281,7 @@ function App() {
           </div>
         )}
 
-        <main className="flex min-h-0 flex-1 flex-col p-3">
-          {layouts[layoutKey]}
-        </main>
+        <main className="flex min-h-0 flex-1 flex-col p-3">{layout}</main>
 
         <footer className="border-border/70 border-t bg-card/80 backdrop-blur supports-backdrop-filter:bg-card/65">
           <TooltipProvider delayDuration={180}>

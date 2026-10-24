@@ -28,8 +28,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { UnicodeSpinner } from "@/components/ui/unicode-spinner";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { useUnicodeSpinnerFrame } from "@/hooks/use-unicode-spinner-frame";
 import {
   type BackupLocationStatus,
   type BackupStatus,
@@ -679,7 +679,7 @@ export function BackupWidget() {
     resolvedBackupState,
     isBackupLocationReady
   );
-  const backupStatusGlyph = useUnicodeSpinnerFrame(footerLoaderName);
+
   const backupStatusTone = getBackupStatusTone(
     resolvedBackupState,
     isBackupLocationReady
@@ -714,7 +714,7 @@ export function BackupWidget() {
             aria-hidden="true"
             className={`inline-flex w-8 shrink-0 items-center justify-start py-1 text-center font-mono text-[14px] tabular-nums leading-none ${backupStatusTone}`}
           >
-            {backupStatusGlyph}
+            <UnicodeSpinner name={footerLoaderName} />
           </span>
           <span className="min-w-[7ch] py-0.5 text-left font-mono font-semibold text-[11px]">
             {backupDisplayText}

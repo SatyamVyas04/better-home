@@ -2,17 +2,15 @@ import { IconCheck, IconPlus } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { OverlappingLabelInput } from "@/components/ui/overlapping-label-input";
+import { UnicodeSpinner } from "@/components/ui/unicode-spinner";
 import { EASE_IN_OUT, EASE_OUT } from "@/constants/quick-links";
 import type { UseQuickLinksAddFlowResult } from "@/hooks/use-quick-links-add-flow";
-import { useUnicodeSpinnerFrame } from "@/hooks/use-unicode-spinner-frame";
 
 interface QuickLinksAddFlowProps {
   controller: UseQuickLinksAddFlowResult;
 }
 
 export function QuickLinksAddFlow({ controller }: QuickLinksAddFlowProps) {
-  const loadingSpinnerFrame = useUnicodeSpinnerFrame("diagswipe");
-
   return (
     <div className="relative h-10 overflow-y-visible rounded-md">
       <motion.div
@@ -103,12 +101,11 @@ export function QuickLinksAddFlow({ controller }: QuickLinksAddFlowProps) {
           type="button"
         >
           {controller.isTitleLoadingStage ? (
-            <span
-              aria-hidden="true"
+            <UnicodeSpinner
               className="inline-flex w-4 justify-center font-mono text-[11px] leading-none"
-            >
-              {loadingSpinnerFrame}
-            </span>
+              isActive={controller.isTitleLoadingStage}
+              name="diagswipe"
+            />
           ) : (
             <IconCheck className="size-4" />
           )}
