@@ -8,9 +8,15 @@ import type { UseQuickLinksAddFlowResult } from "@/hooks/use-quick-links-add-flo
 
 interface QuickLinksAddFlowProps {
   controller: UseQuickLinksAddFlowResult;
+  titleInputRef: React.RefObject<HTMLInputElement | null>;
+  urlInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
-export function QuickLinksAddFlow({ controller }: QuickLinksAddFlowProps) {
+export function QuickLinksAddFlow({
+  controller,
+  titleInputRef,
+  urlInputRef,
+}: QuickLinksAddFlowProps) {
   return (
     <div className="relative h-10 overflow-y-visible rounded-md">
       <motion.div
@@ -34,7 +40,7 @@ export function QuickLinksAddFlow({ controller }: QuickLinksAddFlowProps) {
           }
           onKeyDown={controller.handleUrlInputKeyDown}
           placeholder="add a link..."
-          ref={controller.urlInputRef}
+          ref={urlInputRef}
           tabIndex={controller.isUrlEntryStage ? 0 : -1}
           value={controller.newUrl}
         />
@@ -78,7 +84,7 @@ export function QuickLinksAddFlow({ controller }: QuickLinksAddFlowProps) {
           }
           onKeyDown={controller.handleTitleInputKeyDown}
           placeholder="edit title..."
-          ref={controller.titleInputRef}
+          ref={titleInputRef}
           tabIndex={
             controller.isTitleEntryStage && !controller.isTitleLoadingStage
               ? 0

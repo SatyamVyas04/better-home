@@ -15,6 +15,8 @@ interface UseQuickLinksAddFlowOptions {
     url: string,
     preview: LinkPreviewCacheEntry
   ) => void;
+  titleInputRef: React.RefObject<HTMLInputElement | null>;
+  urlInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 export interface UseQuickLinksAddFlowResult {
@@ -33,8 +35,6 @@ export interface UseQuickLinksAddFlowResult {
   newTitle: string;
   newUrl: string;
   primaryButtonLabel: string;
-  titleInputRef: React.MutableRefObject<HTMLInputElement | null>;
-  urlInputRef: React.MutableRefObject<HTMLInputElement | null>;
 }
 
 export function useQuickLinksAddFlow({
@@ -43,20 +43,20 @@ export function useQuickLinksAddFlow({
   getResolvedFavicon,
   setLinks,
   stageResolvedTitlePreview,
+  titleInputRef,
+  urlInputRef,
 }: UseQuickLinksAddFlowOptions): UseQuickLinksAddFlowResult {
   const [newUrl, setNewUrl] = useState("");
   const [newTitle, setNewTitle] = useState("");
   const [addFlowStage, setAddFlowStage] =
     useState<QuickLinkAddFlowStage>("url");
   const titleAutofillRequestIdRef = useRef(0);
-  const urlInputRef = useRef<HTMLInputElement | null>(null);
-  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   const focusUrlInput = useCallback(() => {
     window.requestAnimationFrame(() => {
       urlInputRef.current?.focus({ preventScroll: true });
     });
-  }, []);
+  }, [urlInputRef]);
 
   const focusTitleInput = useCallback(() => {
     window.requestAnimationFrame(() => {
@@ -71,7 +71,7 @@ export function useQuickLinksAddFlow({
         titleInput.setSelectionRange(cursorPosition, cursorPosition);
       });
     });
-  }, []);
+  }, [titleInputRef]);
 
   const resetAddFlow = useCallback(() => {
     setNewUrl("");
@@ -280,7 +280,5 @@ export function useQuickLinksAddFlow({
     newTitle,
     newUrl,
     primaryButtonLabel,
-    titleInputRef,
-    urlInputRef,
   };
 }

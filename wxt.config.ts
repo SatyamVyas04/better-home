@@ -1,3 +1,4 @@
+import type {} from "@wxt-dev/module-react";
 import { defineConfig } from "wxt";
 import viteConfig from "./vite.config.ts";
 
@@ -31,6 +32,11 @@ export default defineConfig({
     permissions: ["storage", "bookmarks"],
   },
   modules: ["@wxt-dev/module-react"],
+  react: {
+    vite: {
+      compiler: { logDiagnostics: true },
+    },
+  },
   outDir: "dist",
   srcDir: "src",
   vite: () => viteConfig,

@@ -169,7 +169,7 @@ const fetchImageBlobForDataUrl = async (
   imageUrl: string
 ): Promise<Blob | null> => {
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(
+  const timeoutId = globalThis.setTimeout(
     () => controller.abort(),
     PREVIEW_FETCH_TIMEOUT_MS
   );
@@ -211,7 +211,7 @@ const fetchImageBlobForDataUrl = async (
   } catch {
     return null;
   } finally {
-    window.clearTimeout(timeoutId);
+    globalThis.clearTimeout(timeoutId);
   }
 };
 
