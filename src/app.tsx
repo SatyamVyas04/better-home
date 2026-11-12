@@ -296,7 +296,7 @@ function App() {
                   alt="better-home logo"
                   className="size-3.5 shrink-0"
                   height={14}
-                  src="/better-home-logo-48.png"
+                  src="/icons/48.png"
                   width={14}
                 />
                 <span className="font-medium text-[10px] text-foreground tracking-tight">

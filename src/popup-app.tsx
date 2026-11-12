@@ -215,7 +215,7 @@ function PopupInner() {
             alt="better-home"
             className="size-10"
             height={40}
-            src="/better-home-logo-128.png"
+            src="/icons/128.png"
             width={40}
           />
           <div>
