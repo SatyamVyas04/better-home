@@ -4,6 +4,7 @@ import {
   IconHeart,
   IconRefresh,
 } from "@tabler/icons-react";
+import { MotionConfig } from "motion/react";
 import { useEffect, useMemo } from "react";
 import { FooterQuote, QuotesProvider } from "@/components/quotes/quotes-widget";
 import { Button } from "@/components/ui/button";
@@ -126,7 +127,11 @@ function App() {
     };
 
     const handleGlobalUndoRedo = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || isEditableElement(event.target)) {
+      if (
+        event.defaultPrevented ||
+        event.isComposing ||
+        isEditableElement(event.target)
+      ) {
         return;
       }
 
@@ -255,107 +260,111 @@ function App() {
   }, [layoutKey]);
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <div className="flex h-screen flex-col overflow-hidden bg-background">
-        {migrationStatus.state === "error" && (
-          <div className="mx-3 mt-3 flex items-center justify-between gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-1.5 text-[11px] text-destructive">
-            <div className="flex min-w-0 items-center gap-1.5">
-              <IconAlertCircle className="size-3.5 shrink-0" />
-              <span className="truncate">
-                {migrationStatus.message}
-                {migrationStatus.details ? ` · ${migrationStatus.details}` : ""}
-              </span>
-            </div>
-            <Button
-              className="h-5 shrink-0 px-1.5 text-[10px] text-destructive hover:bg-destructive/15"
-              onClick={() => {
-                retryMigration().catch(() => null);
-              }}
-              size="xs"
-              type="button"
-              variant="ghost"
-            >
-              <IconRefresh className="size-3" />
-              retry
-            </Button>
-          </div>
-        )}
-
-        <main className="flex min-h-0 flex-1 flex-col p-3">{layout}</main>
-
-        <footer className="border-border/70 border-t bg-card/80 backdrop-blur supports-backdrop-filter:bg-card/65">
-          <TooltipProvider delayDuration={180}>
-            <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-              <a
-                className="group flex shrink-0 items-center gap-1 rounded-none border bg-accent px-2 py-2 text-foreground transition-colors"
-                href="https://github.com/SatyamVyas04/better-home"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <img
-                  alt="better-home logo"
-                  className="size-3.5 shrink-0"
-                  height={14}
-                  src="/icons/48.png"
-                  width={14}
-                />
-                <span className="font-medium text-[10px] text-foreground tracking-tight">
-                  better-home
+    <MotionConfig reducedMotion="user">
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <div className="flex h-screen flex-col overflow-hidden bg-background">
+          {migrationStatus.state === "error" && (
+            <div className="mx-3 mt-3 flex items-center justify-between gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-1.5 text-[11px] text-destructive">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <IconAlertCircle className="size-3.5 shrink-0" />
+                <span className="truncate">
+                  {migrationStatus.message}
+                  {migrationStatus.details
+                    ? ` · ${migrationStatus.details}`
+                    : ""}
                 </span>
-              </a>
-
-              {settings.showQuotes && (
-                <>
-                  <div className="hidden min-w-0 flex-1 items-center gap-1 md:flex">
-                    <QuotesProvider>
-                      <FooterQuote />
-                    </QuotesProvider>
-                  </div>
-                  <div className="ml-auto hidden max-w-64 flex-1 lg:flex">
-                    <div className="flex w-full items-center gap-1 overflow-hidden rounded-md border border-border/60 bg-muted/35">
-                      <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1.5 font-medium text-[12px] text-primary uppercase tracking-wide">
-                        <IconClockExclamation className="size-3.5" />
-                      </span>
-                      <p className="truncate px-1 text-[12px] text-muted-foreground">
-                        reminders coming soon!
-                      </p>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              <div className="ml-auto shrink-0">
-                <BackupWidget />
               </div>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    asChild
-                    className="mr-1 text-pink-500 transition-colors hover:bg-pink-500! hover:text-white"
-                    size="icon-sm"
-                    variant="ghost"
-                  >
-                    <a
-                      aria-label="support"
-                      href="https://github.com/sponsors/SatyamVyas04"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <IconHeart className="size-3.5" />
-                    </a>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p className="text-[10px]">support us</p>
-                </TooltipContent>
-              </Tooltip>
+              <Button
+                className="h-5 shrink-0 px-1.5 text-[10px] text-destructive hover:bg-destructive/15"
+                onClick={() => {
+                  retryMigration().catch(() => null);
+                }}
+                size="xs"
+                type="button"
+                variant="ghost"
+              >
+                <IconRefresh className="size-3" />
+                retry
+              </Button>
             </div>
-          </TooltipProvider>
-        </footer>
-      </div>
-      <Toaster />
-    </ThemeProvider>
+          )}
+
+          <main className="flex min-h-0 flex-1 flex-col p-3">{layout}</main>
+
+          <footer className="border-border/70 border-t bg-card/80 backdrop-blur supports-backdrop-filter:bg-card/65">
+            <TooltipProvider delayDuration={180}>
+              <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <a
+                  className="group flex shrink-0 items-center gap-1 rounded-none border bg-accent px-2 py-2 text-foreground transition-colors"
+                  href="https://github.com/SatyamVyas04/better-home"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <img
+                    alt="better-home logo"
+                    className="size-3.5 shrink-0"
+                    height={14}
+                    src="/icons/48.png"
+                    width={14}
+                  />
+                  <span className="font-medium text-[10px] text-foreground tracking-tight">
+                    better-home
+                  </span>
+                </a>
+
+                {settings.showQuotes && (
+                  <>
+                    <div className="hidden min-w-0 flex-1 items-center gap-1 md:flex">
+                      <QuotesProvider>
+                        <FooterQuote />
+                      </QuotesProvider>
+                    </div>
+                    <div className="ml-auto hidden max-w-64 flex-1 lg:flex">
+                      <div className="flex w-full items-center gap-1 overflow-hidden rounded-md border border-border/60 bg-muted/35">
+                        <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1.5 font-medium text-[12px] text-primary uppercase tracking-wide">
+                          <IconClockExclamation className="size-3.5" />
+                        </span>
+                        <p className="truncate px-1 text-[12px] text-muted-foreground">
+                          reminders coming soon!
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className="ml-auto shrink-0">
+                  <BackupWidget />
+                </div>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      asChild
+                      className="mr-1 text-pink-500 transition-colors hover:bg-pink-500! hover:text-white"
+                      size="icon-sm"
+                      variant="ghost"
+                    >
+                      <a
+                        aria-label="support"
+                        href="https://github.com/sponsors/SatyamVyas04"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        <IconHeart className="size-3.5" />
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="text-[10px]">support us</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
+          </footer>
+        </div>
+        <Toaster />
+      </ThemeProvider>
+    </MotionConfig>
   );
 }
 

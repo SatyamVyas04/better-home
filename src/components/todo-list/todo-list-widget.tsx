@@ -271,21 +271,20 @@ export function TodoList({ fullSize = false }: TodoListProps) {
                     <AnimatePresence mode="popLayout">
                       {displayedTodos.map(renderTodoItem)}
                       {displayedTodos.length === 0 && (
-                        <Reorder.Item
+                        <motion.div
                           animate={{ opacity: 1 }}
                           className="flex flex-1 items-center justify-center py-8"
                           exit={{ opacity: 0 }}
                           initial={{ opacity: 0 }}
                           key="empty-message"
                           transition={{ duration: 0.3 }}
-                          value={{ id: "empty" } as Todo}
                         >
                           <p className="text-muted-foreground text-xs lowercase">
                             {hasActiveFilters
                               ? "no matching tasks"
                               : "no tasks yet"}
                           </p>
-                        </Reorder.Item>
+                        </motion.div>
                       )}
                     </AnimatePresence>
                   </Reorder.Group>

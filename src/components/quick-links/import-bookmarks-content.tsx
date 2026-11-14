@@ -20,7 +20,7 @@ export function ImportBookmarksContent({
   if (isImportLoading) {
     return (
       <div className="flex h-56 items-center justify-center gap-2 rounded-md border border-border/50 bg-muted/20 px-3">
-        <IconLoader2 className="size-3.5 animate-spin text-muted-foreground" />
+        <IconLoader2 className="size-3.5 animate-spin text-muted-foreground motion-reduce:animate-pulse" />
         <p className="text-muted-foreground text-xs lowercase">
           loading bookmarks...
         </p>

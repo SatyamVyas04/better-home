@@ -128,6 +128,7 @@ export function TodoItemRow({
             scale: 1,
           }}
           className="relative"
+          dragListener={canReorder}
           exit={{
             filter: "blur(4px)",
             opacity: 0,

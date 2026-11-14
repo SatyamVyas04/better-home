@@ -203,12 +203,12 @@ bun install
 <details>
 <summary><strong>Motion / Framer-motion import errors</strong></summary>
 
-This project uses `motion` (v11). If you see bundler errors about missing exports:
+This project uses `motion` (v14). If you see bundler errors about missing exports:
 
 ```bash
 # Remove conflicting packages and reinstall motion
 bun remove framer-motion
-bun add motion@11
+bun add motion@14
 ```
 
 Then verify imports use:

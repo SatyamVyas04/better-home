@@ -8,6 +8,7 @@ import {
   IconMessageReport,
   IconRefresh,
 } from "@tabler/icons-react";
+import { MotionConfig } from "motion/react";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -356,9 +357,11 @@ function PopupInner() {
 
 function PopupApp() {
   return (
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <PopupInner />
-    </ThemeProvider>
+    <MotionConfig reducedMotion="user">
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <PopupInner />
+      </ThemeProvider>
+    </MotionConfig>
   );
 }
 
