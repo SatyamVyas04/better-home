@@ -4,7 +4,8 @@ import {
   IconHeart,
   IconRefresh,
 } from "@tabler/icons-react";
-import { useEffect } from "react";
+import { MotionConfig } from "motion/react";
+import { useEffect, useMemo } from "react";
 import { FooterQuote, QuotesProvider } from "@/components/quotes/quotes-widget";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
@@ -126,7 +127,11 @@ function App() {
     };
 
     const handleGlobalUndoRedo = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || isEditableElement(event.target)) {
+      if (
+        event.defaultPrevented ||
+        event.isComposing ||
+        isEditableElement(event.target)
+      ) {
         return;
       }
 
@@ -174,171 +179,192 @@ function App() {
   }, []);
 
   const layoutKey = getLayoutKey(settings);
-
-  const layouts: Record<LayoutKey, React.ReactNode> = {
-    none: (
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-muted-foreground text-sm lowercase">
-          no widgets enabled *_*
-        </p>
-      </div>
-    ),
-    tasks: (
-      <div className="flex min-h-0 flex-1">{renderWidget("tasks", "full")}</div>
-    ),
-    links: (
-      <div className="flex min-h-0 flex-1">
-        {renderWidget("quick-links", "compact-full")}
-      </div>
-    ),
-    calendar: (
-      <div className="flex min-h-0 flex-1">{renderWidget("calendar")}</div>
-    ),
-    "tasks-links": (
-      <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
-        <div className="flex min-h-0 flex-1">
-          {renderWidget("tasks", "full")}
-        </div>
-        <div className="flex min-h-0 flex-1">
-          {renderWidget("quick-links", "compact-split")}
-        </div>
-      </div>
-    ),
-    "tasks-calendar": (
-      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-        <div className="flex min-h-0 shrink-0">{renderWidget("tasks")}</div>
-        <div className="flex min-h-0 min-w-0 flex-1">
-          {renderWidget("calendar")}
-        </div>
-      </div>
-    ),
-    "links-calendar": (
-      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-        <div className="flex min-h-0 shrink-0">
-          {renderWidget("quick-links", "expanded")}
-        </div>
-        <div className="flex min-h-0 min-w-0 flex-1">
-          {renderWidget("calendar")}
-        </div>
-      </div>
-    ),
-    all: (
-      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-        <div className="flex min-h-0 shrink-0 flex-col gap-3">
-          {renderWidget("tasks")}
-          {renderWidget("quick-links")}
-        </div>
-        <div className="flex min-h-0 min-w-0 flex-1">
-          {renderWidget("calendar")}
-        </div>
-      </div>
-    ),
-  };
+  const layout = useMemo(() => {
+    switch (layoutKey) {
+      case "tasks": {
+        return (
+          <div className="flex min-h-0 flex-1">
+            {renderWidget("tasks", "full")}
+          </div>
+        );
+      }
+      case "links": {
+        return (
+          <div className="flex min-h-0 flex-1">
+            {renderWidget("quick-links", "compact-full")}
+          </div>
+        );
+      }
+      case "calendar": {
+        return (
+          <div className="flex min-h-0 flex-1">{renderWidget("calendar")}</div>
+        );
+      }
+      case "tasks-links": {
+        return (
+          <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
+            <div className="flex min-h-0 flex-1">
+              {renderWidget("tasks", "full")}
+            </div>
+            <div className="flex min-h-0 flex-1">
+              {renderWidget("quick-links", "compact-split")}
+            </div>
+          </div>
+        );
+      }
+      case "tasks-calendar": {
+        return (
+          <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+            <div className="flex min-h-0 shrink-0">{renderWidget("tasks")}</div>
+            <div className="flex min-h-0 min-w-0 flex-1">
+              {renderWidget("calendar")}
+            </div>
+          </div>
+        );
+      }
+      case "links-calendar": {
+        return (
+          <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+            <div className="flex min-h-0 shrink-0">
+              {renderWidget("quick-links", "expanded")}
+            </div>
+            <div className="flex min-h-0 min-w-0 flex-1">
+              {renderWidget("calendar")}
+            </div>
+          </div>
+        );
+      }
+      case "all": {
+        return (
+          <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+            <div className="flex min-h-0 shrink-0 flex-col gap-3">
+              {renderWidget("tasks")}
+              {renderWidget("quick-links")}
+            </div>
+            <div className="flex min-h-0 min-w-0 flex-1">
+              {renderWidget("calendar")}
+            </div>
+          </div>
+        );
+      }
+      default: {
+        return (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-muted-foreground text-sm lowercase">
+              no widgets enabled *_*
+            </p>
+          </div>
+        );
+      }
+    }
+  }, [layoutKey]);
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <div className="flex h-screen flex-col overflow-hidden bg-background">
-        {migrationStatus.state === "error" && (
-          <div className="mx-3 mt-3 flex items-center justify-between gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-1.5 text-[11px] text-destructive">
-            <div className="flex min-w-0 items-center gap-1.5">
-              <IconAlertCircle className="size-3.5 shrink-0" />
-              <span className="truncate">
-                {migrationStatus.message}
-                {migrationStatus.details ? ` · ${migrationStatus.details}` : ""}
-              </span>
-            </div>
-            <Button
-              className="h-5 shrink-0 px-1.5 text-[10px] text-destructive hover:bg-destructive/15"
-              onClick={() => {
-                retryMigration().catch(() => null);
-              }}
-              size="xs"
-              type="button"
-              variant="ghost"
-            >
-              <IconRefresh className="size-3" />
-              retry
-            </Button>
-          </div>
-        )}
-
-        <main className="flex min-h-0 flex-1 flex-col p-3">
-          {layouts[layoutKey]}
-        </main>
-
-        <footer className="border-border/70 border-t bg-card/80 backdrop-blur supports-backdrop-filter:bg-card/65">
-          <TooltipProvider delayDuration={180}>
-            <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-              <a
-                className="group flex shrink-0 items-center gap-1 rounded-none border bg-accent px-2 py-2 text-foreground transition-colors"
-                href="https://github.com/SatyamVyas04/better-home"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <img
-                  alt="better-home logo"
-                  className="size-3.5 shrink-0"
-                  height={14}
-                  src="/better-home-logo-48.png"
-                  width={14}
-                />
-                <span className="font-medium text-[10px] text-foreground tracking-tight">
-                  better-home
+    <MotionConfig reducedMotion="user">
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <div className="flex h-screen flex-col overflow-hidden bg-background">
+          {migrationStatus.state === "error" && (
+            <div className="mx-3 mt-3 flex items-center justify-between gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-1.5 text-[11px] text-destructive">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <IconAlertCircle className="size-3.5 shrink-0" />
+                <span className="truncate">
+                  {migrationStatus.message}
+                  {migrationStatus.details
+                    ? ` · ${migrationStatus.details}`
+                    : ""}
                 </span>
-              </a>
-
-              {settings.showQuotes && (
-                <>
-                  <div className="hidden min-w-0 flex-1 items-center gap-1 md:flex">
-                    <QuotesProvider>
-                      <FooterQuote />
-                    </QuotesProvider>
-                  </div>
-                  <div className="ml-auto hidden max-w-64 flex-1 lg:flex">
-                    <div className="flex w-full items-center gap-1 overflow-hidden rounded-md border border-border/60 bg-muted/35">
-                      <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1.5 font-medium text-[12px] text-primary uppercase tracking-wide">
-                        <IconClockExclamation className="size-3.5" />
-                      </span>
-                      <p className="truncate px-1 text-[12px] text-muted-foreground">
-                        reminders coming soon!
-                      </p>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              <div className="ml-auto shrink-0">
-                <BackupWidget />
               </div>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    asChild
-                    className="mr-1 text-pink-500 transition-colors hover:bg-pink-500! hover:text-white"
-                    size="icon-sm"
-                    variant="ghost"
-                  >
-                    <a
-                      aria-label="support"
-                      href="https://github.com/sponsors/SatyamVyas04"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <IconHeart className="size-3.5" />
-                    </a>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p className="text-[10px]">support us</p>
-                </TooltipContent>
-              </Tooltip>
+              <Button
+                className="h-5 shrink-0 px-1.5 text-[10px] text-destructive hover:bg-destructive/15"
+                onClick={() => {
+                  retryMigration().catch(() => null);
+                }}
+                size="xs"
+                type="button"
+                variant="ghost"
+              >
+                <IconRefresh className="size-3" />
+                retry
+              </Button>
             </div>
-          </TooltipProvider>
-        </footer>
-      </div>
-      <Toaster />
-    </ThemeProvider>
+          )}
+
+          <main className="flex min-h-0 flex-1 flex-col p-3">{layout}</main>
+
+          <footer className="border-border/70 border-t bg-card/80 backdrop-blur supports-backdrop-filter:bg-card/65">
+            <TooltipProvider delayDuration={180}>
+              <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <a
+                  className="group flex shrink-0 items-center gap-1 rounded-none border bg-accent px-2 py-2 text-foreground transition-colors"
+                  href="https://github.com/SatyamVyas04/better-home"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <img
+                    alt="better-home logo"
+                    className="size-3.5 shrink-0"
+                    height={14}
+                    src="/icons/48.png"
+                    width={14}
+                  />
+                  <span className="font-medium text-[10px] text-foreground tracking-tight">
+                    better-home
+                  </span>
+                </a>
+
+                {settings.showQuotes && (
+                  <>
+                    <div className="hidden min-w-0 flex-1 items-center gap-1 md:flex">
+                      <QuotesProvider>
+                        <FooterQuote />
+                      </QuotesProvider>
+                    </div>
+                    <div className="ml-auto hidden max-w-64 flex-1 lg:flex">
+                      <div className="flex w-full items-center gap-1 overflow-hidden rounded-md border border-border/60 bg-muted/35">
+                        <span className="shrink-0 rounded-l bg-primary/10 px-1 py-1.5 font-medium text-[12px] text-primary uppercase tracking-wide">
+                          <IconClockExclamation className="size-3.5" />
+                        </span>
+                        <p className="truncate px-1 text-[12px] text-muted-foreground">
+                          reminders coming soon!
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className="ml-auto shrink-0">
+                  <BackupWidget />
+                </div>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      asChild
+                      className="mr-1 text-pink-500 transition-colors hover:bg-pink-500! hover:text-white"
+                      size="icon-sm"
+                      variant="ghost"
+                    >
+                      <a
+                        aria-label="support"
+                        href="https://github.com/sponsors/SatyamVyas04"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        <IconHeart className="size-3.5" />
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="text-[10px]">support us</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
+          </footer>
+        </div>
+        <Toaster />
+      </ThemeProvider>
+    </MotionConfig>
   );
 }
 

@@ -1,5 +1,6 @@
 import type * as React from "react";
 import { useCallback, useState } from "react";
+import { browser } from "wxt/browser";
 import { runTrackedUserAction } from "@/lib/session-history";
 import { extractTitle, isValidUrl, normalizeUrl } from "@/lib/url-utils";
 import type {
@@ -28,15 +29,6 @@ interface UseQuickLinksImportControllerResult {
   setIsImportDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   toggleBookmarkSelection: (bookmarkId: string) => void;
 }
-
-declare const chrome: {
-  bookmarks?: {
-    getTree: (callback: (nodes: ChromeBookmarkNode[]) => void) => void;
-  };
-  runtime?: {
-    lastError?: { message?: string };
-  };
-};
 
 export function useQuickLinksImportController({
   ensureLinkPreview,
@@ -96,9 +88,7 @@ export function useQuickLinksImportController({
   );
 
   const fetchBookmarks = useCallback(async () => {
-    const getTree =
-      typeof chrome !== "undefined" ? chrome.bookmarks?.getTree : undefined;
-    if (!getTree) {
+    if (!browser.bookmarks?.getTree) {
       setImportError("bookmarks are not available in this context");
       setBookmarkOptions([]);
       setSelectedBookmarkIds([]);
@@ -109,27 +99,7 @@ export function useQuickLinksImportController({
     setImportError(null);
 
     try {
-      const bookmarkTree = await new Promise<ChromeBookmarkNode[]>(
-        (resolve, reject) => {
-          getTree((nodes) => {
-            const lastError = chrome.runtime?.lastError;
-            if (lastError) {
-              reject(
-                new Error(lastError.message ?? "unable to read bookmark tree")
-              );
-              return;
-            }
-
-            if (!nodes) {
-              reject(new Error("unable to read bookmark tree"));
-              return;
-            }
-
-            resolve(nodes);
-          });
-        }
-      );
-
+      const bookmarkTree = await browser.bookmarks.getTree();
       const options = flattenBookmarkTree(bookmarkTree);
       setBookmarkOptions(options);
       setSelectedBookmarkIds([]);

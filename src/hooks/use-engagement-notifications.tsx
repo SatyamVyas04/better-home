@@ -282,7 +282,9 @@ export function useEngagementNotifications({
   isReady,
 }: UseEngagementNotificationsOptions): void {
   const hasProcessedRef = useRef(false);
-  const delayedFeedbackTimerRef = useRef<number | null>(null);
+  const delayedFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   useEffect(() => {
     if (!isReady || hasProcessedRef.current) {

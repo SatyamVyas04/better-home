@@ -2,17 +2,21 @@ import { IconCheck, IconPlus } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { OverlappingLabelInput } from "@/components/ui/overlapping-label-input";
+import { UnicodeSpinner } from "@/components/ui/unicode-spinner";
 import { EASE_IN_OUT, EASE_OUT } from "@/constants/quick-links";
 import type { UseQuickLinksAddFlowResult } from "@/hooks/use-quick-links-add-flow";
-import { useUnicodeSpinnerFrame } from "@/hooks/use-unicode-spinner-frame";
 
 interface QuickLinksAddFlowProps {
   controller: UseQuickLinksAddFlowResult;
+  titleInputRef: React.RefObject<HTMLInputElement | null>;
+  urlInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
-export function QuickLinksAddFlow({ controller }: QuickLinksAddFlowProps) {
-  const loadingSpinnerFrame = useUnicodeSpinnerFrame("diagswipe");
-
+export function QuickLinksAddFlow({
+  controller,
+  titleInputRef,
+  urlInputRef,
+}: QuickLinksAddFlowProps) {
   return (
     <div className="relative h-10 overflow-y-visible rounded-md">
       <motion.div
@@ -36,7 +40,7 @@ export function QuickLinksAddFlow({ controller }: QuickLinksAddFlowProps) {
           }
           onKeyDown={controller.handleUrlInputKeyDown}
           placeholder="add a link..."
-          ref={controller.urlInputRef}
+          ref={urlInputRef}
           tabIndex={controller.isUrlEntryStage ? 0 : -1}
           value={controller.newUrl}
         />
@@ -80,7 +84,7 @@ export function QuickLinksAddFlow({ controller }: QuickLinksAddFlowProps) {
           }
           onKeyDown={controller.handleTitleInputKeyDown}
           placeholder="edit title..."
-          ref={controller.titleInputRef}
+          ref={titleInputRef}
           tabIndex={
             controller.isTitleEntryStage && !controller.isTitleLoadingStage
               ? 0
@@ -103,12 +107,11 @@ export function QuickLinksAddFlow({ controller }: QuickLinksAddFlowProps) {
           type="button"
         >
           {controller.isTitleLoadingStage ? (
-            <span
-              aria-hidden="true"
+            <UnicodeSpinner
               className="inline-flex w-4 justify-center font-mono text-[11px] leading-none"
-            >
-              {loadingSpinnerFrame}
-            </span>
+              isActive={controller.isTitleLoadingStage}
+              name="diagswipe"
+            />
           ) : (
             <IconCheck className="size-4" />
           )}

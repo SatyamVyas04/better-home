@@ -30,7 +30,7 @@ export function DatePopover({
   const [workLog, setWorkLog] = useState(entry.workLog || "");
   const [journal, setJournal] = useState(entry.journal || "");
   const [isHolding, setIsHolding] = useState(false);
-  const holdTimeoutRef = useRef<number | null>(null);
+  const holdTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setSelectedMood(entry.mood ?? null);

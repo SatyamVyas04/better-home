@@ -1,7 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
-const POPUP_PATH = "./popup.html";
-const MANIFEST_PATH = "./public/manifest.json";
+const POPUP_PATH = "./entrypoints/popup/index.html";
 const EXTENSION_STORAGE_PATH = "./src/lib/extension-storage.ts";
 const POPUP_VERSION_META_PATTERN =
   /<meta content="[^"]+" name="better-home-version">/;
@@ -9,7 +8,6 @@ const APP_VERSION_PATTERN = /export const APP_VERSION = "[^"]+";/;
 
 const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 const popupHtml = readFileSync(POPUP_PATH, "utf-8");
-const manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf-8"));
 
 const updates = [];
 
@@ -25,12 +23,6 @@ const nextPopupHtml = popupHtml.replace(
 if (nextPopupHtml !== popupHtml) {
   writeFileSync(POPUP_PATH, nextPopupHtml);
   updates.push("popup.html");
-}
-
-if (manifest.version !== pkg.version) {
-  manifest.version = pkg.version;
-  writeFileSync(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`);
-  updates.push("manifest.json");
 }
 
 const extensionStorage = readFileSync(EXTENSION_STORAGE_PATH, "utf-8");

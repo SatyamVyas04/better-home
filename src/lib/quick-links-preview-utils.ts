@@ -10,9 +10,7 @@ import {
 } from "@/constants/quick-links";
 import type { BuildPreviewDescriptionTextOptions } from "@/types/quick-links";
 
-export const clearTimeoutRef = (
-  timeoutRef: React.MutableRefObject<number | null>
-) => {
+export const clearTimeoutRef = (timeoutRef: React.RefObject<number | null>) => {
   if (timeoutRef.current === null) {
     return;
   }

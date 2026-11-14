@@ -8,6 +8,7 @@ import {
   IconMessageReport,
   IconRefresh,
 } from "@tabler/icons-react";
+import { MotionConfig } from "motion/react";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -215,7 +216,7 @@ function PopupInner() {
             alt="better-home"
             className="size-10"
             height={40}
-            src="/better-home-logo-128.png"
+            src="/icons/128.png"
             width={40}
           />
           <div>
@@ -356,9 +357,11 @@ function PopupInner() {
 
 function PopupApp() {
   return (
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <PopupInner />
-    </ThemeProvider>
+    <MotionConfig reducedMotion="user">
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <PopupInner />
+      </ThemeProvider>
+    </MotionConfig>
   );
 }
 

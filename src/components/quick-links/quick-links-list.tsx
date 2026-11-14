@@ -171,7 +171,7 @@ function CompactCardContent({
 
           {isPreviewLoading ? (
             <div className="absolute inset-0 flex items-center justify-center bg-black/22 backdrop-blur-[1px]">
-              <IconLoader2 className="size-4 animate-spin text-white" />
+              <IconLoader2 className="size-4 animate-spin text-white motion-reduce:animate-pulse" />
             </div>
           ) : null}
 

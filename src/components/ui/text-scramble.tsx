@@ -1,6 +1,6 @@
 "use client";
-import { type MotionProps, motion } from "motion/react";
-import { type JSX, useEffect, useRef, useState } from "react";
+import { type MotionProps, motion, useReducedMotion } from "motion/react";
+import { type JSX, useEffect, useMemo, useRef, useState } from "react";
 
 export type TextScrambleProps = {
   children: string;
@@ -27,15 +27,23 @@ export function TextScramble({
   onScrambleComplete,
   ...props
 }: TextScrambleProps) {
-  const MotionComponent = motion.create(
-    Component as keyof JSX.IntrinsicElements
+  const MotionComponent = useMemo(
+    () => motion.create(Component as keyof JSX.IntrinsicElements),
+    [Component]
   );
+  const prefersReducedMotion = useReducedMotion();
   const [displayText, setDisplayText] = useState(children);
   const isAnimatingRef = useRef(false);
   const text = children;
 
   useEffect(() => {
     if (!trigger) {
+      return;
+    }
+
+    if (prefersReducedMotion) {
+      setDisplayText(text);
+      onScrambleComplete?.();
       return;
     }
 
@@ -80,7 +88,15 @@ export function TextScramble({
       window.clearInterval(interval);
       isAnimatingRef.current = false;
     };
-  }, [characterSet, duration, onScrambleComplete, speed, text, trigger]);
+  }, [
+    characterSet,
+    duration,
+    onScrambleComplete,
+    prefersReducedMotion,
+    speed,
+    text,
+    trigger,
+  ]);
 
   return (
     <MotionComponent className={className} {...props}>

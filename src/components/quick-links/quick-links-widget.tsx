@@ -4,6 +4,7 @@ import {
   IconHandMove,
   IconHistory,
 } from "@tabler/icons-react";
+import { useRef } from "react";
 import { ImportBookmarksContent } from "@/components/quick-links/import-bookmarks-content";
 import { QuickLinksAddFlow } from "@/components/quick-links/quick-links-add-flow";
 import { QuickLinksList } from "@/components/quick-links/quick-links-list";
@@ -80,12 +81,16 @@ export function QuickLinks({
     getResolvedFavicon: previewController.getResolvedFavicon,
     setLinks,
   });
+  const urlInputRef = useRef<HTMLInputElement | null>(null);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
   const addFlowController = useQuickLinksAddFlow({
     clearStagedTitlePreview: previewController.clearStagedTitlePreview,
     ensureLinkPreview: previewController.ensureLinkPreview,
     getResolvedFavicon: previewController.getResolvedFavicon,
     setLinks,
     stageResolvedTitlePreview: previewController.stageResolvedTitlePreview,
+    titleInputRef,
+    urlInputRef,
   });
 
   let resolvedDisplayMode: QuickLinksDisplayMode = displayMode || "icon-hover";
@@ -139,7 +144,11 @@ export function QuickLinks({
                   previewCache={previewController.previewCache}
                 />
 
-                <QuickLinksAddFlow controller={addFlowController} />
+                <QuickLinksAddFlow
+                  controller={addFlowController}
+                  titleInputRef={titleInputRef}
+                  urlInputRef={urlInputRef}
+                />
               </CardContent>
             </Card>
           </ContextMenuTrigger>

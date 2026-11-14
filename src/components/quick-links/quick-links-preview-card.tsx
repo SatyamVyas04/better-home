@@ -99,7 +99,7 @@ export function QuickLinksPreviewCard({
                   <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/28 via-black/5 to-transparent" />
                   {isActivePreviewLoading ? (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[1px]">
-                      <IconLoader2 className="size-4 animate-spin text-white" />
+                      <IconLoader2 className="size-4 animate-spin text-white motion-reduce:animate-pulse" />
                     </div>
                   ) : null}
                 </div>
